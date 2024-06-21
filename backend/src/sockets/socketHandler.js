@@ -6,6 +6,10 @@ const {
   getLobbyPlayers,
   getLobbyHost,
   getLobbyRoles,
+  startRound,
+  submitHeadline,
+  submitJurorScores,
+  processHeadlines,
   lobbies,
 } = require('../utils/gameUtils');
 
@@ -37,16 +41,41 @@ const handleSocketConnection = (socket, io) => {
   });
 
   socket.on('startGame', ({ lobbyId }) => {
+    console.log(`startGame event received for lobby ${lobbyId}`);
     const hostId = getLobbyHost(lobbyId);
     if (hostId === socket.id) {
+      const roles = getLobbyRoles(lobbyId);
       const players = getLobbyPlayers(lobbyId);
-      players.forEach(player => {
-        const role = getLobbyRoles(lobbyId)[player.id] || 'player';
-        io.to(player.id).emit('assignRole', { role });
-      });
-      io.in(lobbyId).emit('gameStarted');
+      const unassignedPlayers = players.filter(player => !roles[player.id]);
+    
+    if (unassignedPlayers.length > 0) {
+      socket.emit('error', 'All players must have assigned roles before starting the game');
+      return;
+    }
+      startRound(lobbyId);
+      io.in(lobbyId).emit('roundStarted');
+      console.log(`Round started for lobby ${lobbyId}`);
     } else {
       socket.emit('error', 'Only the host can start the game');
+    }
+  });
+
+  socket.on('submitHeadline', ({ lobbyId, headline }) => {
+    const playerId = socket.id;
+    submitHeadline(lobbyId, playerId, headline);
+    const allPlayersSubmitted = lobbies[lobbyId].headlines.length === getLobbyPlayers(lobbyId).length;
+    if (allPlayersSubmitted) {
+      io.in(lobbyId).emit('headlinesSubmitted', { headlines: lobbies[lobbyId].headlines });
+    }
+  });
+
+  socket.on('submitJurorScores', ({ lobbyId, scores }) => {
+    const jurorId = socket.id;
+    submitJurorScores(lobbyId, jurorId, scores);
+    const allJurorsSubmitted = Object.keys(lobbies[lobbyId].jurorScores).length === getLobbyPlayers(lobbyId).filter(player => getLobbyRoles(lobbyId)[player.id] === 'juror').length;
+    if (allJurorsSubmitted) {
+      processHeadlines(lobbyId);
+      io.in(lobbyId).emit('headlinesProcessed', { headlines: lobbies[lobbyId].headlines });
     }
   });
 

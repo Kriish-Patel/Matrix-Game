@@ -1,21 +1,21 @@
 // frontend/src/components/Lobby.js
 import React, { useState, useEffect } from 'react';
-import { useLocation, useParams } from 'react-router-dom';
+import { useLocation, useParams, useNavigate } from 'react-router-dom';
 import io from 'socket.io-client';
+import '../App.css'; // Correct import path for App.css
 
 const socket = io('http://localhost:5001');
 
 const Lobby = () => {
   const { lobbyId } = useParams();
   const location = useLocation();
+  const navigate = useNavigate();
   const [players, setPlayers] = useState([]);
   const [playerCount, setPlayerCount] = useState(0);
   const [host, setHost] = useState(null);
   const [name, setName] = useState(location.state ? location.state.name : '');
   const [hasJoined, setHasJoined] = useState(false);
   const [initialJoin, setInitialJoin] = useState(false);
-  const [role, setRole] = useState(null);
-  const [gameStarted, setGameStarted] = useState(false);
   const [roles, setRoles] = useState({});
 
   useEffect(() => {
@@ -33,6 +33,8 @@ const Lobby = () => {
     if (!initialJoin && location.state && location.state.name) {
       joinLobby(location.state.name);
       setInitialJoin(true);
+    } else if (!initialJoin && !location.state) {
+      joinLobby(''); // Join with an empty name if no state is provided (for debugging purposes)
     }
 
     socket.on('updatePlayerList', ({ players, count, host }) => {
@@ -47,12 +49,12 @@ const Lobby = () => {
       setRoles(roles);
     });
 
-    socket.on('gameStarted', () => {
-      setGameStarted(true);
+    socket.on('roundStarted', () => {
+      console.log('roundStarted event received');
+      navigate(`/game/${lobbyId}`, { state: { role: roles[socket.id] } });
     });
 
     socket.on('assignRole', ({ role }) => {
-      setRole(role);
       console.log(`Role assigned: ${role}`);
     });
 
@@ -63,11 +65,11 @@ const Lobby = () => {
     return () => {
       socket.off('updatePlayerList');
       socket.off('updateRoles');
-      socket.off('gameStarted');
+      socket.off('roundStarted');
       socket.off('assignRole');
       socket.off('error');
     };
-  }, [location.state, lobbyId, hasJoined, initialJoin, name]);
+  }, [location.state, lobbyId, hasJoined, initialJoin, name, roles, navigate]);
 
   const handleJoinLobby = () => {
     console.log('handleJoinLobby called', { name });
@@ -92,9 +94,15 @@ const Lobby = () => {
     alert('Lobby link copied to clipboard');
   };
 
+  const hostName = players.find(player => player.id === host)?.name || '';
+
   return (
-    <div>
-      <h1>Lobby: {lobbyId}</h1>
+    <div className="container">
+      <div className="lobby-header">
+        <h1>{hostName ? `${hostName}'s Lobby` : 'Lobby'}</h1>
+        <h3 className="player-count">Player Count: {playerCount}</h3>
+      </div>
+      <h3>Waiting for players...</h3>
       {!hasJoined && (
         <div>
           <input 
@@ -106,7 +114,6 @@ const Lobby = () => {
           <button onClick={handleJoinLobby}>Join Lobby</button>
         </div>
       )}
-      <h3>Waiting for players... (Current Count: {playerCount})</h3>
       <ul>
         {players.map((player, index) => (
           <li key={index}>
@@ -125,9 +132,6 @@ const Lobby = () => {
         <button onClick={handleStartGame}>Start Game</button>
       )}
       <button onClick={copyLink}>Copy lobby link</button>
-      {gameStarted && role && (
-        <h2>{`You are a ${role}`}</h2>
-      )}
     </div>
   );
 };

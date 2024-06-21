@@ -19,7 +19,7 @@ const Home = () => {
 
   return (
     <div>
-      <h1>Welcome to the Game</h1>
+      <h1>Welcome to the Matrix Game!</h1>
       <input 
         type="text" 
         value={name} 
