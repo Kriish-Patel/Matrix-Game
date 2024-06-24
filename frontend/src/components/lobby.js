@@ -1,8 +1,7 @@
-// frontend/src/components/Lobby.js
 import React, { useState, useEffect } from 'react';
 import { useLocation, useParams, useNavigate } from 'react-router-dom';
 import io from 'socket.io-client';
-import '../App.css'; // Correct import path for App.css
+import '../App.css';
 
 const socket = io('http://localhost:5001');
 
@@ -19,14 +18,10 @@ const Lobby = () => {
   const [roles, setRoles] = useState({});
 
   useEffect(() => {
-    console.log('useEffect: lobbyId or name changed', { lobbyId, name, hasJoined });
-
     const joinLobby = (userName) => {
-      console.log('joinLobby called', { userName, lobbyId, hasJoined });
       if (userName && !hasJoined) {
         socket.emit('joinLobby', { name: userName, lobbyId });
         setHasJoined(true);
-        console.log('joinLobby emitted', { userName, lobbyId });
       }
     };
 
@@ -34,23 +29,21 @@ const Lobby = () => {
       joinLobby(location.state.name);
       setInitialJoin(true);
     } else if (!initialJoin && !location.state) {
-      joinLobby(''); // Join with an empty name if no state is provided (for debugging purposes)
+      joinLobby(name);
+      setInitialJoin(true);
     }
 
     socket.on('updatePlayerList', ({ players, count, host }) => {
-      console.log('updatePlayerList event received', players);
       setPlayers(players);
       setPlayerCount(count);
       setHost(host);
     });
 
     socket.on('updateRoles', ({ roles }) => {
-      console.log('updateRoles event received', roles);
       setRoles(roles);
     });
 
     socket.on('roundStarted', () => {
-      console.log('roundStarted event received');
       navigate(`/game/${lobbyId}`, { state: { role: roles[socket.id] } });
     });
 
@@ -72,7 +65,6 @@ const Lobby = () => {
   }, [location.state, lobbyId, hasJoined, initialJoin, name, roles, navigate]);
 
   const handleJoinLobby = () => {
-    console.log('handleJoinLobby called', { name });
     if (name && !hasJoined) {
       socket.emit('joinLobby', { name, lobbyId });
       setHasJoined(true);
@@ -80,12 +72,10 @@ const Lobby = () => {
   };
 
   const handleAssignRole = (playerId, role) => {
-    console.log('handleAssignRole called', { playerId, role });
     socket.emit('assignRole', { lobbyId, playerId, role });
   };
 
   const handleStartGame = () => {
-    console.log('handleStartGame called');
     socket.emit('startGame', { lobbyId });
   };
 

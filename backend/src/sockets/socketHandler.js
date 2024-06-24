@@ -1,4 +1,3 @@
-// backend/src/sockets/socketHandlers.js
 const {
   addPlayerToLobby,
   assignRole,
