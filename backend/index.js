@@ -22,6 +22,8 @@ app.use(cors());
 app.get('/create-lobby', handleCreateLobby);
 
 io.on('connection', (socket) => {
+
+  console.log("host connected");
   handleSocketConnection(socket, io);
 });
 
