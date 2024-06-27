@@ -33,7 +33,10 @@ const handleSocketConnection = (socket, io) => {
     const hostId = getLobbyHost(lobbyId);
     if (hostId === socket.id) {
       assignRole(lobbyId, playerId, role);
-      io.in(lobbyId).emit('updateRoles', { roles: getLobbyRoles(lobbyId) });
+      const roles = getLobbyRoles(lobbyId);
+      const player = getLobbyPlayers(lobbyId).find(player => player.id === playerId);
+      io.in(lobbyId).emit('updateRoles', { roles });
+      console.log(`${player.name} was assigned the role of ${role}`);
     } else {
       socket.emit('error', 'Only the host can assign roles');
     }
@@ -46,18 +49,20 @@ const handleSocketConnection = (socket, io) => {
       const roles = getLobbyRoles(lobbyId);
       const players = getLobbyPlayers(lobbyId);
       const unassignedPlayers = players.filter(player => !roles[player.id]);
-    
-    if (unassignedPlayers.length > 0) {
-      socket.emit('error', 'All players must have assigned roles before starting the game');
-      return;
-    }
+  
+      if (unassignedPlayers.length > 0) {
+        socket.emit('error', 'All players must have assigned roles before starting the game');
+        return;
+      }
+  
       startRound(lobbyId);
-      io.in(lobbyId).emit('roundStarted');
+      io.in(lobbyId).emit('roundStarted', { roles }); // Include roles in the emitted event
       console.log(`Round started for lobby ${lobbyId}`);
     } else {
       socket.emit('error', 'Only the host can start the game');
     }
   });
+  
 
   socket.on('submitHeadline', ({ lobbyId, headline }) => {
     const playerId = socket.id;
@@ -65,6 +70,9 @@ const handleSocketConnection = (socket, io) => {
     const allPlayersSubmitted = lobbies[lobbyId].headlines.length === getLobbyPlayers(lobbyId).length;
     if (allPlayersSubmitted) {
       io.in(lobbyId).emit('headlinesSubmitted', { headlines: lobbies[lobbyId].headlines });
+    }
+    else {
+      io.in(lobbyId).emit('waitingForHeadlines', { message: 'Waiting for players to submit headlines...' });
     }
   });
 

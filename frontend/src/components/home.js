@@ -11,6 +11,7 @@ const Home = () => {
     try {
       const response = await axios.get('http://localhost:5001/create-lobby'); // Backend URL
       const { lobbyId } = response.data;
+      console.log("lobby created");
       navigate(`/lobby/${lobbyId}`, { state: { name } });
     } catch (error) {
       console.error('Error creating lobby:', error);

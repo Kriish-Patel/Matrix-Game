@@ -37,14 +37,26 @@ const Lobby = () => {
       setPlayers(players);
       setPlayerCount(count);
       setHost(host);
+      players.forEach(player => {
+        console.log(`Player ${player.name} is in the lobby with role ${roles[player.id] || 'No role assigned'}`);
+      });
     });
 
     socket.on('updateRoles', ({ roles }) => {
       setRoles(roles);
+      const player = players.find(player => player.id === socket.id);
+      if (player) {
+        console.log(`${player.name} was assigned the role of ${roles[socket.id]}`);
+      }
     });
 
-    socket.on('roundStarted', () => {
-      navigate(`/game/${lobbyId}`, { state: { role: roles[socket.id] } });
+    socket.on('roundStarted', ({ roles }) => {
+      if (roles) {
+        const userRole = roles[socket.id];
+        navigate(`/game/${lobbyId}`, { state: { role: userRole } });
+      } else {
+        console.error('Roles are undefined');
+      }
     });
 
     socket.on('assignRole', ({ role }) => {
