@@ -10,7 +10,7 @@ const Player = () => {
   const [headline, setHeadline] = useState('');
 
   const submitHeadline = () => {
-    socket.emit('submitHeadline', {headline});
+    socket.emit('submitHeadline', {socketId: socket.id, headline: headline});
   };
 
   return (

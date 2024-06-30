@@ -59,8 +59,6 @@ const handleSocketConnection = (socket, io) => {
       }))
     });
 
-    
-    
   });
 
   
@@ -108,16 +106,11 @@ const handleSocketConnection = (socket, io) => {
     });
   });
   
-  socket.on('submitHeadline', ({ lobbyId, headline }) => {
-    const playerId = socket.id;
-    submitHeadline(lobbyId, playerId, headline);
-    const allPlayersSubmitted = lobbies[lobbyId].headlines.length === getLobbyPlayers(lobbyId).length;
-    if (allPlayersSubmitted) {
-      io.in(lobbyId).emit('headlinesSubmitted', { headlines: lobbies[lobbyId].headlines });
-    }
-    else {
-      io.in(lobbyId).emit('waitingForHeadlines', { message: 'Waiting for players to submit headlines...' });
-    }
+  socket.on('submitHeadline', ({ socketId, headline }) => {
+
+    console.log(`backend sent: ${headline}`);
+    io.to('game-room').emit('sendJurorHeadline', {headline});
+
   });
 
   socket.on('submitJurorScores', ({ lobbyId, scores }) => {
