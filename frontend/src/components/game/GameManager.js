@@ -4,55 +4,46 @@ import io from 'socket.io-client';
 import Player from './Player';
 import Juror from './Juror';
 import Umpire from './Umpire';
+import io from 'socket.io-client';
+import socket from '../../socket';
+import '../../App.css'; // Ensure correct path
 
-const socket = io('http://localhost:5001');
 
 const GameManager = () => {
   const { lobbyId } = useParams();
-  const location = useLocation(); // Use the useLocation hook
-  const [role, setRole] = useState('');
-  const [headlines, setHeadlines] = useState([]);
-  const [waitingMessage, setWaitingMessage] = useState('Waiting for players to submit headlines...');
+  const location = useLocation();
+  const [players, setPlayers] = useState([]);
+  const [role, setRole] = useState('')
 
   useEffect(() => {
-    socket.on('headlinesSubmitted', ({ headlines }) => {
-      setHeadlines(headlines);
+   
+
+    socket.on('updatePlayerList', ({players}) => {
+      
+      setPlayers(players);
+      console.log(`players from gameMan: ${JSON.stringify(players)}`);
+
+      const currentPlayer = players.find(player => player.id === socket.id);
+      console.log(currentPlayer.role)
+      if (currentPlayer) {
+        setRole(currentPlayer.role);
+      }
+      
     });
 
-    socket.on('waitingForHeadlines', ({ message }) => {
-      setWaitingMessage(message);
-    });
+  }, );
 
-    return () => {
-      socket.off('headlinesSubmitted');
-      socket.off('waitingForHeadlines');
-    };
-  }, []);
 
-  useEffect(() => {
-    const state = location.state;
-    if (state && state.role) {
-      setRole(state.role);
-    } else {
-      console.error('No role found in location state', state);
-    }
-  }, [location]);
 
-  console.log('Current role:', role);
-
-  if (role === 'player') {
-    return <Player lobbyId={lobbyId} />;
-  }
-
-  if (role === 'juror') {
-    return <Juror lobbyId={lobbyId} headlines={headlines} waitingMessage={waitingMessage} />;
-  }
-
-  if (role === 'umpire') {
-    return <Umpire lobbyId={lobbyId} waitingMessage={waitingMessage} />;
-  }
-
-  return <div>Invalid role</div>;
+  return (
+    <div className="container">
+      <h1>Game: {lobbyId}</h1>
+      <h2>Your role: {role}</h2>
+      {role === 'player' && <Player lobbyId={lobbyId} />}
+      {role === 'juror' && <Juror lobbyId={lobbyId} />}
+      {role === 'umpire' && <Umpire lobbyId={lobbyId} />}
+    </div>
+  );
 };
 
 export default GameManager;

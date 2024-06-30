@@ -1,8 +1,10 @@
 // frontend/src/components/game/Player.js
 import React, { useState } from 'react';
-import io from 'socket.io-client';
 
-const socket = io('http://localhost:5001');
+import '../../App.css'; // Ensure correct path
+import socket from '../../socket'
+
+
 
 const Player = ({ lobbyId }) => {
   const [headline, setHeadline] = useState('');
@@ -12,13 +14,13 @@ const Player = ({ lobbyId }) => {
   };
 
   return (
-    <div>
-      <h2>Submit Your Headline</h2>
-      <input
-        type="text"
-        value={headline}
-        onChange={(e) => setHeadline(e.target.value)}
-        placeholder="Enter your headline"
+    <div className="container">
+      <h2>Enter Headline</h2>
+      <input 
+        type="text" 
+        value={headline} 
+        // onChange={(e) => setHeadline(e.target.value)} 
+        placeholder="Enter your headline" 
       />
       <button onClick={submitHeadline}>Submit</button>
     </div>

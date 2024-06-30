@@ -1,8 +1,8 @@
 // frontend/src/components/game/Juror.js
 import React from 'react';
 import io from 'socket.io-client';
-
-const socket = io('http://localhost:5001');
+import '../../App.css'; // Ensure correct path
+import socket from '../../socket'
 
 const Juror = ({ headlines, waitingMessage }) => {
   if (headlines.length === 0) {

@@ -12,55 +12,103 @@ const {
   lobbies,
 } = require('../utils/gameUtils');
 
-const handleSocketConnection = (socket, io) => {
-  console.log('New client connected');
+let hostSocketId = null;
+let hostName = null;
+let players = {}  // {id: [name, role, hostStatus]}
 
-  socket.on('joinLobby', ({ name, lobbyId }) => {
-    try {
-      const updatedLobby = addPlayerToLobby(lobbyId, { name, id: socket.id });
-      socket.join(lobbyId);
-      io.in(lobbyId).emit('updatePlayerList', {
-        players: updatedLobby.players,
-        count: updatedLobby.players.length,
-        host: updatedLobby.host,
-      });
-    } catch (error) {
-      socket.emit('error', error.message);
+const handleSocketConnection = (socket, io) => {
+
+  socket.on('create-lobby', ({name}) => {
+    if (hostSocketId) 
+    {
+      socket.emit('error', { message: 'Lobby already created' });
+      return;
+    }
+    const playerData = [name, '', true];
+    players[socket.id] = playerData;
+    hostSocketId = socket.id;
+    hostName = name;
+    socket.join('game-room'); // Join the single room
+    
+    io.to('game-room').emit('host-info', { hostName: name, hostSocketId: hostSocketId });
+    io.to('game-room').emit('updatePlayerList', {
+      players: Object.keys(players).map(id => ({
+        id,
+        name: players[id][0],
+        role: players[id][1],
+        isHost: players[id][2]
+      }))
+    });
+    
+  });
+
+  socket.on('join-lobby', ({ name }) => {
+    if (!hostSocketId) {
+      socket.emit('error', { message: 'Lobby has not been created yet' });
+      return;
+    }
+    const playerData = [name, '', false];
+    players[socket.id] = playerData;
+
+    socket.join('game-room'); // Join the single room
+    io.to('game-room').emit('host-info', { hostName: hostName, hostSocketId: hostSocketId });
+    io.to('game-room').emit('updatePlayerList', {
+      players: Object.keys(players).map(id => ({
+        id,
+        name: players[id][0],
+        role: players[id][1],
+        isHost: players[id][2]
+      }))
+    });
+
+    
+    
+  });
+
+  socket.on('to-game-manager', () => {
+
+    
+    io.to('game-room').emit('updatePlayerList', {
+      players: Object.keys(players).map(id => ({
+        id,
+        name: players[id][0],
+        role: players[id][1],
+        isHost: players[id][2]
+      }))
+    });
+  });
+
+
+socket.on('disconnect', () => {
+    console.log(`Client disconnected: ${socket.id}`);
+
+    // Handle host disconnection
+    if (socket.id === hostSocketId) {
+      hostSocketId = null;
+      console.log(`Host disconnected: ${socket.id}`);
     }
   });
 
   socket.on('assignRole', ({ lobbyId, playerId, role }) => {
-    const hostId = getLobbyHost(lobbyId);
-    if (hostId === socket.id) {
-      assignRole(lobbyId, playerId, role);
-      const roles = getLobbyRoles(lobbyId);
-      const player = getLobbyPlayers(lobbyId).find(player => player.id === playerId);
-      io.in(lobbyId).emit('updateRoles', { roles });
-      console.log(`${player.name} was assigned the role of ${role}`);
-    } else {
-      socket.emit('error', 'Only the host can assign roles');
-    }
-  });
+
+      players[playerId][1] = role;
+      io.in(lobbyId).emit('updateRole', {newRole: role});
+      
+   
+});
 
   socket.on('startGame', ({ lobbyId }) => {
+
     console.log(`startGame event received for lobby ${lobbyId}`);
-    const hostId = getLobbyHost(lobbyId);
-    if (hostId === socket.id) {
-      const roles = getLobbyRoles(lobbyId);
-      const players = getLobbyPlayers(lobbyId);
-      const unassignedPlayers = players.filter(player => !roles[player.id]);
+    
+    const unassignedPlayers = Object.values(players).filter(player => player[1] === '');
   
-      if (unassignedPlayers.length > 0) {
-        socket.emit('error', 'All players must have assigned roles before starting the game');
-        return;
-      }
-  
-      startRound(lobbyId);
-      io.in(lobbyId).emit('roundStarted', { roles }); // Include roles in the emitted event
-      console.log(`Round started for lobby ${lobbyId}`);
-    } else {
-      socket.emit('error', 'Only the host can start the game');
+    if (unassignedPlayers.length > 0) {
+      socket.emit('error', 'All players must have assigned roles before starting the game');
+      return;
     }
+    io.in('game-room').emit('roundStarted');
+    
   });
   
 
@@ -86,17 +134,7 @@ const handleSocketConnection = (socket, io) => {
     }
   });
 
-  socket.on('disconnect', () => {
-    for (const lobbyId in lobbies) {
-      const updatedLobby = removePlayerFromLobby(lobbyId, socket.id);
-      io.in(lobbyId).emit('updatePlayerList', {
-        players: updatedLobby.players,
-        count: updatedLobby.players.length,
-        host: updatedLobby.host,
-      });
-    }
-    console.log('Client disconnected');
-  });
+ 
 };
 
 module.exports = handleSocketConnection;
