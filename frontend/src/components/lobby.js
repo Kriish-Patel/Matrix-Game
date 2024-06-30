@@ -65,6 +65,7 @@ const Lobby = () => {
     socket.on('roundStarted', () => {
       console.log("server -> lobby")
       navigate(`/game/${lobbyId}`, { state: { role: roles[socket.id] } });
+      socket.emit('to-game-manager');
       
     });
 
@@ -100,7 +101,6 @@ const Lobby = () => {
     navigator.clipboard.writeText(window.location.href);
     alert('Lobby link copied to clipboard');
   };
-
 
 
   return (

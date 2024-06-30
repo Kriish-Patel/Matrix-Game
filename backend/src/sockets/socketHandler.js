@@ -65,6 +65,19 @@ const handleSocketConnection = (socket, io) => {
     
   });
 
+  socket.on('to-game-manager', () => {
+
+    
+    io.to('game-room').emit('updatePlayerList', {
+      players: Object.keys(players).map(id => ({
+        id,
+        name: players[id][0],
+        role: players[id][1],
+        isHost: players[id][2]
+      }))
+    });
+  });
+
 
 socket.on('disconnect', () => {
     console.log(`Client disconnected: ${socket.id}`);

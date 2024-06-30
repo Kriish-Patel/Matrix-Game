@@ -12,19 +12,28 @@ import '../../App.css'; // Ensure correct path
 const GameManager = () => {
   const { lobbyId } = useParams();
   const location = useLocation();
-  const [role, setRole] = useState(location.state ? location.state.role : '');
+  const [players, setPlayers] = useState([]);
+  const [role, setRole] = useState('')
 
   useEffect(() => {
-    socket.on('roundStarted', () => {
+   
 
-      console.log("heard from game manager")
-      setRole(location.state.role);
+    socket.on('updatePlayerList', ({players}) => {
+      
+      setPlayers(players);
+      console.log(`players from gameMan: ${JSON.stringify(players)}`);
+
+      const currentPlayer = players.find(player => player.id === socket.id);
+      console.log(currentPlayer.role)
+      if (currentPlayer) {
+        setRole(currentPlayer.role);
+      }
+      
     });
-  }, [location.state.role]);
 
-  if (!role) {
-    return <div>Loading...</div>;
-  }
+  }, );
+
+
 
   return (
     <div className="container">
