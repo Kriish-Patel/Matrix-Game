@@ -7,15 +7,23 @@ import socket from '../../socket'
 const Juror = ({waitingMessage }) => {
 
   const [headLines, setHeadLines] = useState([]);
-  
+
   useEffect(() => {
-  socket.on('sendJurorHeadline', ({headline}) => {
-    console.log("received from juror")
-    setHeadLines((prevHeadlines) => [...prevHeadlines, headline]);
-    console.log(`new headlines: ${headLines}`);
+
+    socket.on('sendJurorHeadline', ({headline}) => {
+      console.log("received from juror")
+      setHeadLines((prevHeadlines) => [...prevHeadlines, headline]);
+      
+      
+    })
     
-  })
-});
+    // Cleanup the event listener on component unmount
+    return () => {
+      socket.off('sendJurorHeadline');
+    };
+  }, []); // Empty dependency array ensures this effect runs only once
+  
+  console.log(`new headlines: ${headLines}`);
 
   return (
     <div>
