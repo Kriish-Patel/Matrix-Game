@@ -5,9 +5,9 @@ import Player from './Player';
 import Juror from './Juror';
 import Umpire from './Umpire';
 import io from 'socket.io-client';
+import socket from '../../socket';
 import '../../App.css'; // Ensure correct path
 
-const socket = io('http://localhost:5001');
 
 const GameManager = () => {
   const { lobbyId } = useParams();
@@ -16,6 +16,8 @@ const GameManager = () => {
 
   useEffect(() => {
     socket.on('roundStarted', () => {
+
+      console.log("heard from game manager")
       setRole(location.state.role);
     });
   }, [location.state.role]);

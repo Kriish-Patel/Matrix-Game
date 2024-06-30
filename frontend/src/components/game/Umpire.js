@@ -2,8 +2,9 @@
 import React, { useState, useEffect } from 'react';
 import io from 'socket.io-client';
 import '../../App.css'; // Ensure correct path
+import socket from '../../socket'
 
-const socket = io('http://localhost:5001');
+
 
 const Umpire = ({ lobbyId }) => {
   const [headlines, setHeadlines] = useState([]);

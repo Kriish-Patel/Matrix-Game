@@ -1,31 +1,45 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation, useParams, useNavigate } from 'react-router-dom';
-import io from 'socket.io-client';
-import '../App.css';
 
-const socket = io('http://localhost:5001');
+import '../App.css';
+import socket from '../socket'
+
+
 
 const Lobby = () => {
+
+  console.log("Component rendered");
+
+  
   const { lobbyId } = useParams();
   const location = useLocation();
   const navigate = useNavigate();
   const [players, setPlayers] = useState([]);
   const [playerCount, setPlayerCount] = useState(0);
-  const [host, setHost] = useState(null);
+  const [host, setHost] = useState('');
+  const [hostSocketId, setHostSocketId] = useState('');
+
   const [name, setName] = useState(location.state ? location.state.name : '');
   const [hasJoined, setHasJoined] = useState(false);
   const [initialJoin, setInitialJoin] = useState(false);
   const [roles, setRoles] = useState({});
-
+  
   useEffect(() => {
+
+    // if user hasnt joined, send them to joinLobby.js
+    if (!location.state || !location.state.name) {
+      navigate(`/join-lobby/${lobbyId}`);
+      return;
+    }
+
     const joinLobby = (userName) => {
       if (userName && !hasJoined) {
-        socket.emit('joinLobby', { name: userName, lobbyId });
         setHasJoined(true);
       }
     };
 
     if (!initialJoin && location.state && location.state.name) {
+      
       joinLobby(location.state.name);
       setInitialJoin(true);
     } else if (!initialJoin && !location.state) {
@@ -33,27 +47,31 @@ const Lobby = () => {
       setInitialJoin(true);
     }
 
-    socket.on('updatePlayerList', ({ players, count, host }) => {
-      setPlayers(players);
-      setPlayerCount(count);
-      setHost(host);
+    socket.on('host-info', ({hostName, hostSocketId}) => {
+      
+      console.log('received')
+      setHost(hostName);
+      setHostSocketId(hostSocketId);
+      
     });
 
-    socket.on('updateRoles', ({ roles }) => {
-      setRoles(roles);
+    socket.on('updatePlayerList', ({players}) => {
+      setPlayers(players);
+      setPlayerCount(players.length);
+      console.log(players);
     });
+
 
     socket.on('roundStarted', () => {
+      console.log("server -> lobby")
       navigate(`/game/${lobbyId}`, { state: { role: roles[socket.id] } });
-    });
-
-    socket.on('assignRole', ({ role }) => {
-      console.log(`Role assigned: ${role}`);
+      
     });
 
     socket.on('error', (message) => {
       alert(message);
     });
+
 
     return () => {
       socket.off('updatePlayerList');
@@ -64,15 +82,14 @@ const Lobby = () => {
     };
   }, [location.state, lobbyId, hasJoined, initialJoin, name, roles, navigate]);
 
-  const handleJoinLobby = () => {
-    if (name && !hasJoined) {
-      socket.emit('joinLobby', { name, lobbyId });
-      setHasJoined(true);
-    }
-  };
 
   const handleAssignRole = (playerId, role) => {
-    socket.emit('assignRole', { lobbyId, playerId, role });
+    socket.emit('assignRole', {playerId, role });
+    setPlayers(prevPlayers =>
+      prevPlayers.map(player =>
+        player.id === playerId ? { ...player, role} : player
+      )
+    );
   };
 
   const handleStartGame = () => {
@@ -84,31 +101,20 @@ const Lobby = () => {
     alert('Lobby link copied to clipboard');
   };
 
-  const hostName = players.find(player => player.id === host)?.name || '';
+
 
   return (
     <div className="container">
       <div className="lobby-header">
-        <h1>{hostName ? `${hostName}'s Lobby` : 'Lobby'}</h1>
+      <h1>{host ? `${host}'s Lobby` : 'Lobby'}</h1>
         <h3 className="player-count">Player Count: {playerCount}</h3>
       </div>
       <h3>Waiting for players...</h3>
-      {!hasJoined && (
-        <div>
-          <input 
-            type="text" 
-            value={name} 
-            onChange={(e) => setName(e.target.value)} 
-            placeholder="Enter your name" 
-          />
-          <button onClick={handleJoinLobby}>Join Lobby</button>
-        </div>
-      )}
       <ul>
         {players.map((player, index) => (
           <li key={index}>
-            {player.name} ({roles[player.id] || 'No role assigned'})
-            {socket.id === host && (
+            {player.name} ({player.role || 'No role assigned'})
+            {socket.id === hostSocketId && (
               <div>
                 <button onClick={() => handleAssignRole(player.id, 'umpire')}>Assign Umpire</button>
                 <button onClick={() => handleAssignRole(player.id, 'player')}>Assign Player</button>
@@ -118,7 +124,7 @@ const Lobby = () => {
           </li>
         ))}
       </ul>
-      {socket.id === host && (
+      {socket.id === hostSocketId && (
         <button onClick={handleStartGame}>Start Game</button>
       )}
       <button onClick={copyLink}>Copy lobby link</button>

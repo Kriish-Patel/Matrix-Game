@@ -2,8 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import io from 'socket.io-client';
 import '../../App.css'; // Ensure correct path
-
-const socket = io('http://localhost:5001');
+import socket from '../../socket'
 
 const Juror = ({ lobbyId }) => {
   const [headlines, setHeadlines] = useState([]);
