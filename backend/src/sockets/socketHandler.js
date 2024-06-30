@@ -1,11 +1,7 @@
 const {
-  addPlayerToLobby,
-  assignRole,
-  removePlayerFromLobby,
+  
   getLobbyPlayers,
-  getLobbyHost,
   getLobbyRoles,
-  startRound,
   submitHeadline,
   submitJurorScores,
   processHeadlines,
@@ -18,6 +14,8 @@ let players = {}  // {id: [name, role, hostStatus]}
 
 const handleSocketConnection = (socket, io) => {
 
+
+  //LOBBY SOCKETS
   socket.on('create-lobby', ({name}) => {
     if (hostSocketId) 
     {
@@ -65,21 +63,8 @@ const handleSocketConnection = (socket, io) => {
     
   });
 
-  socket.on('to-game-manager', () => {
-
-    
-    io.to('game-room').emit('updatePlayerList', {
-      players: Object.keys(players).map(id => ({
-        id,
-        name: players[id][0],
-        role: players[id][1],
-        isHost: players[id][2]
-      }))
-    });
-  });
-
-
-socket.on('disconnect', () => {
+  
+  socket.on('disconnect', () => {
     console.log(`Client disconnected: ${socket.id}`);
 
     // Handle host disconnection
@@ -94,8 +79,9 @@ socket.on('disconnect', () => {
       players[playerId][1] = role;
       io.in(lobbyId).emit('updateRole', {newRole: role});
       
-   
 });
+
+  //GAME SOCKETS
 
   socket.on('startGame', ({ lobbyId }) => {
 
@@ -110,8 +96,18 @@ socket.on('disconnect', () => {
     io.in('game-room').emit('roundStarted');
     
   });
-  
 
+  socket.on('to-game-manager', () => {
+    io.to('game-room').emit('updatePlayerList', {
+      players: Object.keys(players).map(id => ({
+        id,
+        name: players[id][0],
+        role: players[id][1],
+        isHost: players[id][2]
+      }))
+    });
+  });
+  
   socket.on('submitHeadline', ({ lobbyId, headline }) => {
     const playerId = socket.id;
     submitHeadline(lobbyId, playerId, headline);

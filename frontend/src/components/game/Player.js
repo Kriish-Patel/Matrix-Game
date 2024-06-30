@@ -6,11 +6,11 @@ import socket from '../../socket'
 
 
 
-const Player = ({ lobbyId }) => {
+const Player = () => {
   const [headline, setHeadline] = useState('');
 
   const submitHeadline = () => {
-    socket.emit('submitHeadline', { lobbyId, headline });
+    socket.emit('submitHeadline', {headline});
   };
 
   return (
@@ -19,7 +19,7 @@ const Player = ({ lobbyId }) => {
       <input 
         type="text" 
         value={headline} 
-        // onChange={(e) => setHeadline(e.target.value)} 
+        onChange={(e) => setHeadline(e.target.value)} 
         placeholder="Enter your headline" 
       />
       <button onClick={submitHeadline}>Submit</button>

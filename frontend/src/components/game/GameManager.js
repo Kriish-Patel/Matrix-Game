@@ -1,40 +1,35 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useLocation } from 'react-router-dom';
-import io from 'socket.io-client';
+
 import Player from './Player';
 import Juror from './Juror';
 import Umpire from './Umpire';
-import io from 'socket.io-client';
+
 import socket from '../../socket';
-import '../../App.css'; // Ensure correct path
+import '../../App.css'; 
 
 
 const GameManager = () => {
   const { lobbyId } = useParams();
-  const location = useLocation();
   const [players, setPlayers] = useState([]);
   const [role, setRole] = useState('')
 
   useEffect(() => {
    
-
     socket.on('updatePlayerList', ({players}) => {
       
       setPlayers(players);
-      console.log(`players from gameMan: ${JSON.stringify(players)}`);
+      // console.log(`players from gameMan: ${JSON.stringify(players)}`);
 
       const currentPlayer = players.find(player => player.id === socket.id);
-      console.log(currentPlayer.role)
+      
       if (currentPlayer) {
         setRole(currentPlayer.role);
       }
-      
     });
+  });
 
-  }, );
-
-
-
+  
   return (
     <div className="container">
       <h1>Game: {lobbyId}</h1>
