@@ -1,29 +1,23 @@
-// frontend/src/components/game/Juror.js
 import React, { useState, useEffect } from 'react';
-import io from 'socket.io-client';
-import '../../App.css'; // Ensure correct path
-import socket from '../../socket'
+import socket from '../../socket';
 
-const Juror = ({waitingMessage }) => {
-
+const Juror = ({ waitingMessage }) => {
   const [headLines, setHeadLines] = useState([]);
 
   useEffect(() => {
-
-    socket.on('sendJurorHeadline', ({headline}) => {
-      console.log("received from juror")
+    socket.on('sendJurorHeadline', ({ headline }) => {
+      console.log("received from juror");
       setHeadLines((prevHeadlines) => [...prevHeadlines, headline]);
-      
-      
-    })
-    
-    // Cleanup the event listener on component unmount
+    });
+
     return () => {
       socket.off('sendJurorHeadline');
     };
   }, []); // Empty dependency array ensures this effect runs only once
-  
-  console.log(`new headlines: ${headLines}`);
+
+  const handleSubmit = (index) => {
+    setHeadLines((prevHeadlines) => prevHeadlines.filter((_, i) => i !== index));
+  };
 
   return (
     <div>
@@ -32,9 +26,10 @@ const Juror = ({waitingMessage }) => {
         <div>{waitingMessage}</div>
       ) : (
         headLines.map((headline, index) => (
-          <div key={index}>
+          <div key={index} style={{ display: 'flex', alignItems: 'center' }}>
             <p>{headline}</p>
-            
+            <input type="text" placeholder="Your input" style={{ marginLeft: '10px', width: '80px' }} />
+            <button onClick={() => handleSubmit(index)} style={{ marginLeft: '10px' }}>Submit</button>
           </div>
         ))
       )}
