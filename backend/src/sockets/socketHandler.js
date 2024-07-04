@@ -8,6 +8,8 @@ const {
   lobbies,
 } = require('../utils/gameUtils');
 
+let Player = require('../../models/player.model')
+
 let hostSocketId = null;
 let hostName = null;
 let players = {}  // {id: [name, role, hostStatus]}
@@ -26,6 +28,19 @@ const handleSocketConnection = (socket, io) => {
     players[socket.id] = playerData;
     hostSocketId = socket.id;
     hostName = name;
+    const newPlayer = new Player({
+      playerName: name,
+      playerID: socket.id
+    });
+    newPlayer.save()
+    .then((savedPlayer) => {
+      console.log('Player created:', savedPlayer);
+      return savedPlayer;
+    })
+    .catch((error) => {
+      console.error('Error creating player:', error);
+    });
+    
     socket.join('game-room'); // Join the single room
     
     io.to('game-room').emit('host-info', { hostName: name, hostSocketId: hostSocketId });

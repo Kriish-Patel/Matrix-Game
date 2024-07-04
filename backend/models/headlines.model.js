@@ -1,27 +1,25 @@
 const mongoose = require('mongoose');
+const Schema = mongoose.Schema;
 
-// Define the Headline Schema
-const headlineSchema = new mongoose.Schema({
-  playerId: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Player', // Assuming there is a Player model, otherwise you can use String type if Player is not a separate collection
+// Define the Headline schema
+const headlineSchema = new Schema({
+  player: {
+    type: Schema.Types.ObjectId,
+    ref: 'Player',
     required: true
   },
   headline: {
     type: String,
-    required: true
+    required: true,
+    trim: true
   },
   accepted: {
     type: Boolean,
     required: true
-  },
-  timestamp: {
-    type: Date,
-    default: Date.now, // Automatically set the current date if not provided
-    required: true
   }
+}, {
+  timestamps: true 
 });
 
 const Headline = mongoose.model('Headline', headlineSchema);
-
 module.exports = Headline;
