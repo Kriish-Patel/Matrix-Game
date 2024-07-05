@@ -21,8 +21,6 @@ app.use(cors());
 // Route to create a new lobby
 app.get('/create-lobby', handleCreateLobby);
 
-
-
 io.on('connection', (socket) => {
 
   console.log(`Client connected, id: ${socket.id}`);

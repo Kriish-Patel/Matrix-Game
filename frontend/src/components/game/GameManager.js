@@ -20,7 +20,6 @@ const GameManager = () => {
       
       setPlayers(players);
       // console.log(`players from gameMan: ${JSON.stringify(players)}`);
-
       const currentPlayer = players.find(player => player.id === socket.id);
       
       if (currentPlayer) {

@@ -4,8 +4,6 @@ import { useLocation, useParams, useNavigate } from 'react-router-dom';
 import '../App.css';
 import socket from '../socket'
 
-
-
 const Lobby = () => {
 
   console.log("Component rendered");

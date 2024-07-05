@@ -113,15 +113,15 @@ const handleSocketConnection = (socket, io) => {
 
   });
 
-  socket.on('submitJurorScores', ({ lobbyId, scores }) => {
-    const jurorId = socket.id;
-    submitJurorScores(lobbyId, jurorId, scores);
-    const allJurorsSubmitted = Object.keys(lobbies[lobbyId].jurorScores).length === getLobbyPlayers(lobbyId).filter(player => getLobbyRoles(lobbyId)[player.id] === 'juror').length;
-    if (allJurorsSubmitted) {
-      processHeadlines(lobbyId);
-      io.in(lobbyId).emit('headlinesProcessed', { headlines: lobbies[lobbyId].headlines });
-    }
-  });
+  // socket.on('submitJurorScores', ({ lobbyId, scores }) => {
+  //   const jurorId = socket.id;
+  //   submitJurorScores(lobbyId, jurorId, scores);
+  //   const allJurorsSubmitted = Object.keys(lobbies[lobbyId].jurorScores).length === getLobbyPlayers(lobbyId).filter(player => getLobbyRoles(lobbyId)[player.id] === 'juror').length;
+  //   if (allJurorsSubmitted) {
+  //     processHeadlines(lobbyId);
+  //     io.in(lobbyId).emit('headlinesProcessed', { headlines: lobbies[lobbyId].headlines });
+  //   }
+  // });
 
  
 };
