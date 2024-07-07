@@ -1,8 +1,9 @@
+// models/headlineModel.js
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
-// Define the Headline schema
 const headlineSchema = new Schema({
+  
   player: {
     type: Schema.Types.ObjectId,
     ref: 'Player',
@@ -16,10 +17,14 @@ const headlineSchema = new Schema({
   accepted: {
     type: Boolean,
     required: true
+  },
+  medianScore: {
+    type: Number,
+    default: null
   }
 }, {
-  timestamps: true 
+  timestamps: true
 });
 
-const Headline = mongoose.model('Headline', headlineSchema);
-module.exports = Headline;
+module.exports = mongoose.model('Headline', headlineSchema);
+

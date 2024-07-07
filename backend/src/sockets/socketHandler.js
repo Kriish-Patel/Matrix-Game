@@ -128,6 +128,8 @@ const handleSocketConnection = (socket, io) => {
 
   });
 
+  
+
   // socket.on('submitJurorScores', ({ lobbyId, scores }) => {
   //   const jurorId = socket.id;
   //   submitJurorScores(lobbyId, jurorId, scores);
