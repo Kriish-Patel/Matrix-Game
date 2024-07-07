@@ -1,3 +1,4 @@
+// models/playerModel.js
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
@@ -7,10 +8,15 @@ const playerSchema = new Schema({
     required: true,
     trim: true
   },
-  playerID: {
+  socketId: {
     type: String,
     required: true,
-    trim: true
+    unique: true
+  },
+  role: {
+    type: String,
+    enum: ['player', 'juror', 'umpire'],
+    default: null 
   }
 }, {
   timestamps: true

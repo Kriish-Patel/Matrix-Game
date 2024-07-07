@@ -3,7 +3,6 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
 const headlineSchema = new Schema({
-  
   player: {
     type: Schema.Types.ObjectId,
     ref: 'Player',
@@ -16,7 +15,8 @@ const headlineSchema = new Schema({
   },
   accepted: {
     type: Boolean,
-    required: true
+    required: true,
+    default: false
   },
   medianScore: {
     type: Number,
@@ -27,4 +27,3 @@ const headlineSchema = new Schema({
 });
 
 module.exports = mongoose.model('Headline', headlineSchema);
-

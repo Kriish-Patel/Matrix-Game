@@ -1,9 +1,9 @@
-// models/jurorScores.model.js
+// models/jurorScoreModel.js
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
 const jurorScoreSchema = new Schema({
-  headlineId: {
+  headline: {
     type: Schema.Types.ObjectId,
     ref: 'Headline',
     required: true

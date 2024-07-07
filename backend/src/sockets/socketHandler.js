@@ -1,6 +1,8 @@
 const {
   
   getLobbyPlayers,
+  saveHeadline,
+  submitJurorScore,
   getLobbyRoles,
   submitHeadline,
   submitJurorScores,
@@ -30,7 +32,7 @@ const handleSocketConnection = (socket, io) => {
     hostName = name;
     const newPlayer = new Player({
       playerName: name,
-      playerID: socket.id
+      socketId: socket.id
     });
     newPlayer.save()
     .then((savedPlayer) => {
@@ -62,6 +64,18 @@ const handleSocketConnection = (socket, io) => {
     }
     const playerData = [name, '', false];
     players[socket.id] = playerData;
+    const newPlayer = new Player({
+      playerName: name,
+      socketId: socket.id
+    });
+    newPlayer.save()
+    .then((savedPlayer) => {
+      console.log('Player created:', savedPlayer);
+      return savedPlayer;
+    })
+    .catch((error) => {
+      console.error('Error creating player:', error);
+    });
 
     socket.join('game-room'); // Join the single room
     io.to('game-room').emit('host-info', { hostName: hostName, hostSocketId: hostSocketId });
@@ -121,12 +135,40 @@ const handleSocketConnection = (socket, io) => {
     });
   });
   
-  socket.on('submitHeadline', ({ socketId, headline }) => {
+  socket.on('submitHeadline', async ({ socketId, headline }) => {
+    try {
+      const savedHeadline = await saveHeadline(socketId, headline);
+      console.log(`Headline submitted: ${headline} from socket ID: ${socketId}`);
 
-    console.log(`backend sent: ${headline}`);
-    io.to('game-room').emit('sendJurorHeadline', {headline});
-
+      io.to('game-room').emit('sendJurorHeadline', { headlineId: savedHeadline._id, headline: savedHeadline.headline });
+    } catch (error) {
+      console.error('Error submitting headline:', error);
+      socket.emit('error', { message: 'Failed to submit headline' });
+    }
   });
+
+
+  socket.on('submitScore', async ({ headlineId, score }) => {
+    try {
+      await submitJurorScore(headlineId, socket.id, score);
+      console.log(`Score submitted: ${score} for headline ID: ${headlineId} from socket ID: ${socket.id}`);
+    } catch (error) {
+      console.error('Error submitting score:', error);
+      socket.emit('error', { message: 'Failed to submit score' });
+    }
+  });
+
+  // socket.on('assignRole', async ({ socketId, role }) => {
+  //   try {
+  //     const updatedPlayer = await assignRole(socketId, role);
+  //     console.log(`Role ${role} assigned to player with socket ID: ${socketId}`);
+
+  //     // io.to('game-room').emit('roleAssigned', { socketId, role });
+  //   } catch (error) {
+  //     console.error('Error assigning role:', error);
+  //     socket.emit('error', { message: 'Failed to assign role' });
+  //   }
+  // });
 
   
 

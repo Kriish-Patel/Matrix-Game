@@ -1,7 +1,8 @@
 // backend/src/utils/gameUtils.js
 const { v4: uuidv4 } = require('uuid');
-const JurorScore = require('../models/jurorScoreModel');
-const Headline = require('../models/headlineModel');
+const JurorScore = require('../../models/JurorScores.model');
+const Headline = require('../../models/headlines.model');
+const Player = require('../../models/player.model');
 
 const lobbies = {};
 
@@ -11,27 +12,73 @@ const createLobby = () => {
   return lobbyId;
 };
 
-// utils/gameUtils.js
+
+const saveHeadline = async (socketId, headlineText) => {
+// find player by socketid
+  const player = await Player.findOne({ socketId });
+
+  if (!player) {
+    throw new Error('Player not found');
+  }
+
+
+  const headline = new Headline({
+    player: player._id,
+    headline: headlineText,
+    accepted: false 
+  });
+
+//save headline to db
+  const savedHeadline = await headline.save();
+  return savedHeadline;
+};
 
 const submitJurorScore = async (headlineId, socketId, score) => {
-  // Save the juror's score
-  const jurorScore = new JurorScore({ headlineId, socketId, score });
+
+  const jurorScore = new JurorScore({
+    headline: headlineId,
+    socketId,
+    score
+  });
+
+
   await jurorScore.save();
 
-  // Fetch all scores for this headline
-  const scores = await JurorScore.find({ headlineId });
-
-  // Check if we have 3 scores
+// get headline
+  const scores = await JurorScore.find({ headline: headlineId });
+// median calc
   if (scores.length >= 3) {
     // Calculate the median
     const sortedScores = scores.map(s => s.score).sort((a, b) => a - b);
     const median = sortedScores[Math.floor(sortedScores.length / 2)];
-
+    
     // Update the headline with the median score
-    await Headline.findByIdAndUpdate(headlineId, { medianScore: median });
-    await JurorScore.deleteMany({ headlineId });
+    const headline = await Headline.findById(headlineId);
+    headline.medianScore = median;
+    await headline.save();
+    console.log(`Median score for headline ID ${headlineId} is ${median}`);
   }
 };
+
+
+const assignRole = async (socketId, role) => {
+  // Find the player by socketId
+  const player = await Player.findOne({ socketId });
+
+  if (!player) {
+    throw new Error('Player not found');
+  }
+
+  // Assign the role
+  player.role = role;
+
+  // Save the updated player
+  await player.save();
+
+  return player;
+};
+
+
 
 
 
@@ -68,6 +115,8 @@ const submitJurorScore = async (headlineId, socketId, score) => {
 
 module.exports = {
   createLobby,
-  submitJurorScore
+  submitJurorScore,
+  saveHeadline,
+  assignRole
   
 };

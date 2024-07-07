@@ -1,14 +1,14 @@
+// frontend/src/components/game/Juror.js
 import React, { useState, useEffect } from 'react';
 import socket from '../../socket';
 
 const Juror = ({ waitingMessage }) => {
   const [headLines, setHeadLines] = useState([]);
-  const [scores, setScores] = useState({});
 
   useEffect(() => {
-    socket.on('sendJurorHeadline', ({ headline }) => {
+    socket.on('sendJurorHeadline', ({ headlineId, headline }) => {
       console.log("received from juror");
-      setHeadLines((prevHeadlines) => [...prevHeadlines, headline]);
+      setHeadLines((prevHeadlines) => [...prevHeadlines, { headlineId, headline }]);
     });
 
     return () => {
@@ -16,22 +16,17 @@ const Juror = ({ waitingMessage }) => {
     };
   }, []); // Empty dependency array ensures this effect runs only once
 
-  const handleScoreChange = (index, value) => {
-    const newScores = { ...scores };
-    newScores[index] = value;
-    setScores(newScores);
-  };
+  const handleSubmit = (index, headlineId) => {
+    const scoreInput = document.getElementById(`score-${index}`);
+    const score = parseInt(scoreInput.value, 10);
 
-  const handleSubmit = (index, headline) => {
-    const score = scores[index];
-
-    if (score === undefined || score < 0 || score > 100) {
+    if (isNaN(score) || score < 0 || score > 100) {
       alert('Please enter a valid score between 0 and 100.');
       return;
     }
 
-    // Send the headline, socket ID, and score to the backend
-    socket.emit('submitScore', { headline, socketId: socket.id, score });
+    // Send the headlineId, socket ID, and score to the backend
+    socket.emit('submitScore', { headlineId, score });
 
     setHeadLines((prevHeadlines) => prevHeadlines.filter((_, i) => i !== index));
   };
@@ -44,17 +39,16 @@ const Juror = ({ waitingMessage }) => {
       ) : (
         <div>
           <h3>Plausibility Score (0-100)</h3>
-          {headLines.map((headline, index) => (
+          {headLines.map(({ headlineId, headline }, index) => (
             <div key={index} style={{ display: 'flex', alignItems: 'center', marginBottom: '10px' }}>
               <p style={{ flex: 1 }}>{headline}</p>
               <input 
                 type="number" 
+                id={`score-${index}`} 
                 placeholder="Your score" 
                 style={{ marginLeft: '10px', width: '80px' }} 
-                value={scores[index] || ''} 
-                onChange={(e) => handleScoreChange(index, parseInt(e.target.value, 10))} 
               />
-              <button onClick={() => handleSubmit(index, headline)} style={{ marginLeft: '10px' }}>Submit</button>
+              <button onClick={() => handleSubmit(index, headlineId)} style={{ marginLeft: '10px' }}>Submit</button>
             </div>
           ))}
         </div>
