@@ -1,16 +1,13 @@
 // frontend/src/components/game/Player.js
 import React, { useState } from 'react';
-
+import socket from '../../socket';
 import '../../App.css'; // Ensure correct path
-import socket from '../../socket'
-
-
 
 const Player = () => {
   const [headline, setHeadline] = useState('');
 
   const submitHeadline = () => {
-    socket.emit('submitHeadline', {socketId: socket.id, headline: headline});
+    socket.emit('submitHeadline', { socketId: socket.id, headline });
   };
 
   return (
