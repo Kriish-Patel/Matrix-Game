@@ -2,14 +2,20 @@ import React, { useState, useEffect } from 'react';
 import socket from '../../socket';
 
 const Juror = ({ waitingMessage }) => {
-  const [headLines, setHeadLines] = useState([]);
-  const [scores, setScores] = useState({}); //{headline: score}
+
+  const [headlineScores, setHeadlineScores] = useState({}); // {headline: [score1, score2, score3]}
   let waitingmessage = "Waiting for  players to submit headlines..."
 
   useEffect(() => {
+
+    //received headline from player.js
     socket.on('sendJurorHeadline', ({ headline }) => {
       console.log("received from juror");
-      setHeadLines((prevHeadlines) => [...prevHeadlines, headline]);
+      setHeadlineScores((prevScores) => ({
+        ...prevScores,
+        [headline]: prevScores[headline] ? prevScores[headline] : []
+      }));
+      
     });
 
     return () => {
@@ -21,11 +27,15 @@ const Juror = ({ waitingMessage }) => {
     setHeadLines((prevHeadlines) => prevHeadlines.filter((_, i) => i !== index));
   };
 
+  const isSubmitDisabled = () => {
+    return headLines.some((headline, index) => !scores[headline]);
+  };
+
   return (
     <div>
       <h2>Rank Headlines</h2>
       {headLines.length === 0 ? (
-        <div>{waitingMessage}</div>
+        <div>{waitingmessage}</div>
       ) : (
         headLines.map((headline, index) => (
           <div key={index} style={{ display: 'flex', alignItems: 'center' }}>
