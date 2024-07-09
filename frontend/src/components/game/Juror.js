@@ -1,9 +1,9 @@
-// frontend/src/components/game/Juror.js
 import React, { useState, useEffect } from 'react';
 import socket from '../../socket';
 
-const Juror = ({ waitingMessage }) => {
+const Juror = () => {
   const [headLines, setHeadLines] = useState([]);
+  let waitingmessage = "Waiting for players to submit headlines..."
 
   useEffect(() => {
     socket.on('sendJurorHeadline', ({ headlineId, headline }) => {
@@ -31,9 +31,7 @@ const Juror = ({ waitingMessage }) => {
     setHeadLines((prevHeadlines) => prevHeadlines.filter((_, i) => i !== index));
   };
 
-  const isSubmitDisabled = () => {
-    return headLines.some((headline, index) => !scores[headline]);
-  };
+ 
 
   return (
     <div>
