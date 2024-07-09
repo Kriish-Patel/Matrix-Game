@@ -1,4 +1,3 @@
-// frontend/src/components/game/Juror.js
 import React, { useState, useEffect } from 'react';
 import socket from '../../socket';
 

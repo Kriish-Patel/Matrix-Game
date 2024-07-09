@@ -12,7 +12,6 @@ const createLobby = () => {
   return lobbyId;
 };
 
-
 const saveHeadline = async (socketId, headlineText) => {
 // find player by socketid
   const player = await Player.findOne({ socketId });
@@ -55,10 +54,40 @@ const submitJurorScore = async (headlineId, socketId, score) => {
     // Update the headline with the median score
     const headline = await Headline.findById(headlineId);
     headline.medianScore = median;
-    await headline.save();
+
+    const randomNumber = Math.floor(Math.random() * 101);
+
+    console.log(`Random number generated for headline ID ${headlineId} is ${randomNumber}`);
     console.log(`Median score for headline ID ${headlineId} is ${median}`);
+
+    let accepted = false;
+    if (randomNumber < median) {
+      headline.accepted = true;
+      accepted = true;
+      console.log(`Headline ID ${headlineId} accepted based on random number`);
+    }
+
+    await headline.save();
+
+    return { headline, accepted };
   }
+
+  return { headline: null, accepted: false };
 };
+
+const updateHeadlineAcceptance = async (headlineId, accepted) => {
+  const headline = await Headline.findById(headlineId);
+  
+  if (!headline) {
+    throw new Error('Headline not found');
+  }
+  
+  headline.accepted = accepted;
+  await headline.save();
+
+  return headline;
+};
+
 
 
 const assignRole = async (socketId, role) => {
@@ -77,9 +106,6 @@ const assignRole = async (socketId, role) => {
 
   return player;
 };
-
-
-
 
 
 
@@ -118,6 +144,7 @@ module.exports = {
   createLobby,
   submitJurorScore,
   saveHeadline,
-  assignRole
+  assignRole,
+  updateHeadlineAcceptance
   
 };

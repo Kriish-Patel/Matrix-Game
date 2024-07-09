@@ -3,6 +3,7 @@ const {
   getLobbyPlayers,
   saveHeadline,
   submitJurorScore,
+  updateHeadlineAcceptance,
   getLobbyRoles,
   submitHeadline,
   submitJurorScores,
@@ -150,14 +151,28 @@ const handleSocketConnection = (socket, io) => {
 
   socket.on('submitScore', async ({ headlineId, score }) => {
     try {
-      await submitJurorScore(headlineId, socket.id, score);
+      const { headline, accepted } = await submitJurorScore(headlineId, socket.id, score);
       console.log(`Score submitted: ${score} for headline ID: ${headlineId} from socket ID: ${socket.id}`);
+
+      if (headline && accepted) {
+        io.to('game-room').emit('umpireReview', { headlineId: headline._id, headline: headline.headline });
+      }
     } catch (error) {
       console.error('Error submitting score:', error);
       socket.emit('error', { message: 'Failed to submit score' });
     }
   });
 
+
+  socket.on('umpireDecision', async ({ headlineId, accepted }) => {
+    try {
+      await updateHeadlineAcceptance(headlineId, accepted);
+      console.log(`Umpire decision for headline ID ${headlineId}: accepted=${accepted}`);
+    } catch (error) {
+      console.error('Error updating headline:', error);
+      socket.emit('error', { message: 'Failed to update headline' });
+    }
+  });
   // socket.on('assignRole', async ({ socketId, role }) => {
   //   try {
   //     const updatedPlayer = await assignRole(socketId, role);
