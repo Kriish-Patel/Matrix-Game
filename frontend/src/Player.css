@@ -1,0 +1,88 @@
+/* Player.css */
+.player-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background-color: #333;
+    padding: 20px;
+    border-radius: 10px;
+    color: white;
+  }
+  
+  .headline-input-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+  }
+  
+  .headline-input {
+    width: 80%;
+    padding: 10px;
+    margin-bottom: 10px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+  }
+  
+  .button-container {
+    display: flex;
+    justify-content: space-around;
+    width: 80%;
+  }
+  
+  .button-container button {
+    padding: 10px 20px;
+    margin: 5px;
+    border: none;
+    border-radius: 5px;
+    background-color: #007bff;
+    color: white;
+    cursor: pointer;
+  }
+  
+  .button-container button:hover {
+    background-color: #0056b3;
+  }
+  
+.modal {
+    position: fixed;
+    top: 0;
+    right: 0;
+    width: 30%;
+    height: 100%;
+    overflow-y: auto;
+    background-color: white;
+    box-shadow: -2px 0 5px rgba(0, 0, 0, 0.5);
+    z-index: 1000;
+    padding: 20px;
+    color: black; /* Ensure text color is set to black */
+  }
+  
+  .modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 999;
+  }
+  
+  .modal-content {
+    padding: 20px;
+    color: black; /* Ensure modal content text color is black */
+  }
+  
+  .modal-content h2,
+  .modal-content h3,
+  .modal-content p,
+  .modal-content ul {
+    margin: 10px 0;
+    color: black; /* Ensure headings and other text are black */
+  }
+  
+  .modal-content ul {
+    list-style-type: disc;
+    padding-left: 20px;
+  }
+  
