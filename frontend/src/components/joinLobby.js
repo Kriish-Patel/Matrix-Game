@@ -11,7 +11,7 @@ const JoinLobby = () => {
   const handleJoinLobby = () => {
     if (name && lobbyId) {
       socket.connect();
-      socket.emit('join-lobby', { name, lobbyId });
+      socket.emit('join-lobby', { name});
       
       navigate(`/lobby/${lobbyId}`, { state: { name} });
     }
