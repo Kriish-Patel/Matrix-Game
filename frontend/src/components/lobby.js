@@ -6,7 +6,7 @@ import socket from '../socket'
 
 const Lobby = () => {
 
-  console.log("Component rendered");
+  console.log(`Component rendered from id: ${socket.id}`);
 
   
   const { lobbyId } = useParams();
@@ -33,6 +33,7 @@ const Lobby = () => {
     const joinLobby = (userName) => {
       if (userName && !hasJoined) {
         setHasJoined(true);
+        socket.emit('jo', { name: userName});
       }
     };
 
@@ -47,7 +48,6 @@ const Lobby = () => {
 
     socket.on('host-info', ({hostName, hostSocketId}) => {
       
-      console.log('received')
       setHost(hostName);
       setHostSocketId(hostSocketId);
       
@@ -61,7 +61,7 @@ const Lobby = () => {
 
 
     socket.on('roundStarted', () => {
-      console.log("server -> lobby")
+      
       navigate(`/game/${lobbyId}`, { state: { role: roles[socket.id] } });
       socket.emit('to-game-manager');
       
@@ -71,7 +71,6 @@ const Lobby = () => {
       alert(message);
     });
 
-
     return () => {
       socket.off('updatePlayerList');
       socket.off('updateRoles');
@@ -79,7 +78,7 @@ const Lobby = () => {
       socket.off('assignRole');
       socket.off('error');
     };
-  }, [location.state, lobbyId, hasJoined, initialJoin, name, roles, navigate]);
+  }, [location.state, lobbyId, hasJoined, initialJoin, name, roles, navigate, players]);
 
 
   const handleAssignRole = (playerId, role) => {
@@ -92,8 +91,10 @@ const Lobby = () => {
   };
 
   const handleStartGame = () => {
+    
     socket.emit('startGame', { lobbyId });
-  };
+   
+  };  
 
   const copyLink = () => {
     navigator.clipboard.writeText(window.location.href);
@@ -104,7 +105,7 @@ const Lobby = () => {
   return (
     <div className="container">
       <div className="lobby-header">
-      <h1>{host ? `${host}'s Lobby` : 'Lobby'}</h1>
+        <h1>{host ? `${host}'s Lobby` : 'Lobby'}</h1>
         <h3 className="player-count">Player Count: {playerCount}</h3>
       </div>
       <h3>Waiting for players...</h3>

@@ -1,21 +1,27 @@
 const {
   
-  getLobbyPlayers,
   saveHeadline,
   submitJurorScore,
   updateHeadlineAcceptance,
-  getLobbyRoles,
-  submitHeadline,
-  submitJurorScores,
-  processHeadlines,
-  lobbies,
+  
 } = require('../utils/gameUtils');
 
 let Player = require('../../models/player.model')
 
 let hostSocketId = null;
 let hostName = null;
-let players = {}  // {id: [name, role, hostStatus]}
+let players = {}  // {id: [name, role, hostStatus, planet]}
+let availablePlanets = [
+  'Mercury',
+  'Venus',
+  'Earth',
+  'Mars',
+  'Jupiter',
+  'Saturn',
+  'Uranus',
+  'Neptune',
+  'Pluto'
+];
 
 const handleSocketConnection = (socket, io) => {
 
@@ -27,7 +33,7 @@ const handleSocketConnection = (socket, io) => {
       socket.emit('error', { message: 'Lobby already created' });
       return;
     }
-    const playerData = [name, '', true];
+    const playerData = [name, '', true, 'none'];
     players[socket.id] = playerData;
     hostSocketId = socket.id;
     hostName = name;
@@ -58,12 +64,14 @@ const handleSocketConnection = (socket, io) => {
     
   });
 
+
+
   socket.on('join-lobby', ({ name }) => {
     if (!hostSocketId) {
       socket.emit('error', { message: 'Lobby has not been created yet' });
       return;
     }
-    const playerData = [name, '', false];
+    const playerData = [name, '', false, ''];
     players[socket.id] = playerData;
     const newPlayer = new Player({
       playerName: name,
@@ -85,13 +93,49 @@ const handleSocketConnection = (socket, io) => {
         id,
         name: players[id][0],
         role: players[id][1],
-        isHost: players[id][2]
+        isHost: players[id][2],
+        planet: players[id][3]
       }))
     });
 
   });
 
-  
+  socket.on('selectPlanet', ({planet, playerId}) => {
+
+    
+    if (availablePlanets.includes(planet)) {
+      console.log("this runs ")
+      availablePlanets = availablePlanets.filter((p) => p !== planet);
+      players[playerId][3] = planet
+        
+      io.to('game-room').emit('planetSelected', planet);
+      io.to('game-room').emit('updatePlayerList', {
+        players: Object.keys(players).map(id => ({
+          id,
+          name: players[id][0],
+          role: players[id][1],
+          isHost: players[id][2],
+          planet: players[id][3]
+        }))
+      });
+      
+    }
+    
+  });
+
+  socket.on('assignRole', ({playerId, role }) => {
+
+    players[playerId][1] = role;
+    io.to('game-room').emit('updatePlayerList', {
+      players: Object.keys(players).map(id => ({
+        id,
+        name: players[id][0],
+        role: players[id][1],
+        isHost: players[id][2],
+        planet: players[id][3]
+      }))
+    });
+
   socket.on('disconnect', () => {
     console.log(`Client disconnected: ${socket.id}`);
 
@@ -100,13 +144,7 @@ const handleSocketConnection = (socket, io) => {
       hostSocketId = null;
       console.log(`Host disconnected: ${socket.id}`);
     }
-  });
-
-  socket.on('assignRole', ({ lobbyId, playerId, role }) => {
-
-      players[playerId][1] = role;
-      io.in(lobbyId).emit('updateRole', {newRole: role});
-      
+  });    
 });
 
   //GAME SOCKETS
@@ -123,6 +161,7 @@ const handleSocketConnection = (socket, io) => {
     }
     io.in('game-room').emit('roundStarted');
     
+    
   });
 
   socket.on('to-game-manager', () => {
@@ -134,6 +173,7 @@ const handleSocketConnection = (socket, io) => {
         isHost: players[id][2]
       }))
     });
+    io.to('game-room').emit('navigate:selectPlanet');
   });
   
   socket.on('submitHeadline', async ({ socketId, headline }) => {
