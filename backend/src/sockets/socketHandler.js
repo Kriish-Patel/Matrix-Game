@@ -64,8 +64,6 @@ const handleSocketConnection = (socket, io) => {
     
   });
 
-
-
   socket.on('join-lobby', ({ name }) => {
     if (!hostSocketId) {
       socket.emit('error', { message: 'Lobby has not been created yet' });
@@ -102,9 +100,7 @@ const handleSocketConnection = (socket, io) => {
 
   socket.on('selectPlanet', ({planet, playerId}) => {
 
-    
     if (availablePlanets.includes(planet)) {
-      console.log("this runs ")
       availablePlanets = availablePlanets.filter((p) => p !== planet);
       players[playerId][3] = planet
         
@@ -118,9 +114,7 @@ const handleSocketConnection = (socket, io) => {
           planet: players[id][3]
         }))
       });
-      
     }
-    
   });
 
   socket.on('assignRole', ({playerId, role }) => {
@@ -213,29 +207,7 @@ const handleSocketConnection = (socket, io) => {
       socket.emit('error', { message: 'Failed to update headline' });
     }
   });
-  // socket.on('assignRole', async ({ socketId, role }) => {
-  //   try {
-  //     const updatedPlayer = await assignRole(socketId, role);
-  //     console.log(`Role ${role} assigned to player with socket ID: ${socketId}`);
-
-  //     // io.to('game-room').emit('roleAssigned', { socketId, role });
-  //   } catch (error) {
-  //     console.error('Error assigning role:', error);
-  //     socket.emit('error', { message: 'Failed to assign role' });
-  //   }
-  // });
-
   
-
-  // socket.on('submitJurorScores', ({ lobbyId, scores }) => {
-  //   const jurorId = socket.id;
-  //   submitJurorScores(lobbyId, jurorId, scores);
-  //   const allJurorsSubmitted = Object.keys(lobbies[lobbyId].jurorScores).length === getLobbyPlayers(lobbyId).filter(player => getLobbyRoles(lobbyId)[player.id] === 'juror').length;
-  //   if (allJurorsSubmitted) {
-  //     processHeadlines(lobbyId);
-  //     io.in(lobbyId).emit('headlinesProcessed', { headlines: lobbies[lobbyId].headlines });
-  //   }
-  // });
 
  
 };
