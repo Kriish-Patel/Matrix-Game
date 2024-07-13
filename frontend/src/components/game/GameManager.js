@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useLocation, useNavigate } from 'react-router-dom';
 
-import SelectPlanet from '../selectPlanet';
 import Player from './Player';
 import Juror from './Juror';
 import Umpire from './Umpire';
@@ -24,7 +23,7 @@ const GameManager = () => {
    
     socket.on('updatePlayerList', ({players}) => {
       setPlayers(players);
-      // console.log(`players from gameMan: ${JSON.stringify(players)}`);
+      
       const currentPlayer = players.find(player => player.id === socket.id);
       
       if (currentPlayer) {
@@ -40,7 +39,6 @@ const GameManager = () => {
       }
     });
   });
-
 
   return (
     <div className="container">

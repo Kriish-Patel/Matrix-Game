@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import socket from '../../socket';
 import ReactModal from 'react-modal';
 import '../../Player.css';
+import GameTimer from './GameTimer'; // Import GameTimer component
 
 import '../../App.css'; // Ensure correct path
 import { useLocation, useParams, useNavigate } from 'react-router-dom';
@@ -41,6 +42,7 @@ const Player = ({planet}) => {
 
   return (
     <div className="player-container">
+      <GameTimer />
       <h2>Enter Headline</h2>
       <h3>Player Planet: {planet}</h3>
       <div className="headline-input-container">
