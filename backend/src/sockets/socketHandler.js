@@ -1,14 +1,18 @@
 const {
   
-  getLobbyPlayers,
   saveHeadline,
   submitJurorScore,
   updateHeadlineAcceptance,
+  assignHeadlineToJuror,
+  registerJuror,
+  deregisterJuror,
+  processUmpireReview,
   getLobbyRoles,
   submitHeadline,
   submitJurorScores,
   processHeadlines,
   lobbies,
+  assignRole,
 } = require('../utils/gameUtils');
 
 let Player = require('../../models/player.model')
@@ -93,6 +97,7 @@ const handleSocketConnection = (socket, io) => {
 
   
   socket.on('disconnect', () => {
+    deregisterJuror(socket.id);
     console.log(`Client disconnected: ${socket.id}`);
 
     // Handle host disconnection
@@ -102,8 +107,8 @@ const handleSocketConnection = (socket, io) => {
     }
   });
 
-  socket.on('assignRole', ({ lobbyId, playerId, role }) => {
-
+  socket.on('assignRole', async ({ lobbyId, playerId, role }) => {
+      await assignRole(playerId, role);
       players[playerId][1] = role;
       io.in(lobbyId).emit('updateRole', {newRole: role});
       
@@ -141,18 +146,18 @@ const handleSocketConnection = (socket, io) => {
       const savedHeadline = await saveHeadline(socketId, headline);
       console.log(`Headline submitted: ${headline} from socket ID: ${socketId}`);
 
-      io.to('game-room').emit('sendJurorHeadline', { headlineId: savedHeadline._id, headline: savedHeadline.headline });
+      // Assign the headline to a juror
+      assignHeadlineToJuror(savedHeadline._id, savedHeadline.headline, io);
     } catch (error) {
       console.error('Error submitting headline:', error);
       socket.emit('error', { message: 'Failed to submit headline' });
     }
   });
 
-
   socket.on('submitScore', async ({ headlineId, score }) => {
     try {
       const { headline, accepted } = await submitJurorScore(headlineId, socket.id, score);
-      console.log(`Score submitted: ${score} for headline ID: ${headlineId} from socket ID: ${socket.id}`);
+      console.log(`Score submitted: ${score} for headline ID: ${headlineId} from Juror: ${socket.id}`);
 
       if (headline && accepted) {
         io.to('game-room').emit('umpireReview', { headlineId: headline._id, headline: headline.headline });
@@ -163,6 +168,32 @@ const handleSocketConnection = (socket, io) => {
     }
   });
 
+  socket.on('registerJuror', () => {
+    registerJuror(socket.id);
+    console.log(`Juror registered: ${socket.id}`);
+  });
+
+  socket.on('deregisterJuror', () => {
+    deregisterJuror(socket.id);
+    console.log(`Juror deregistered: ${socket.id}`);
+  });
+
+
+  socket.on('submitUmpireReview', async ({ headlineId, isConsistent, umpireScore }) => {
+    const result = await processUmpireReview(headlineId, isConsistent, umpireScore);
+
+    if (result.success) {
+      console.log(`is it consistent?: ${isConsistent}`)
+      // Emit an event to notify the player of the updated score if the headline is consistent
+      if (isConsistent) {
+        console.log(`Combined score is ${result.combinedScore}`)
+        socket.to(result.playerId.toString()).emit('updatePlayerScore', { score: result.playerScore, headlineId: result.headlineId });
+      }
+      console.log('Umpire review submitted and player score updated');
+    } else {
+      console.error('Error processing umpire review:', result.error);
+    }
+  });
 
   socket.on('umpireDecision', async ({ headlineId, accepted }) => {
     try {

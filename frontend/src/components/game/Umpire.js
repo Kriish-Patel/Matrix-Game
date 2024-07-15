@@ -1,13 +1,14 @@
-// frontend/src/components/game/Umpire.js
 import React, { useState, useEffect } from 'react';
 import socket from '../../socket';
 
-const Umpire = () => {
-  const [headlinesToReview, setHeadlinesToReview] = useState([]);
+const Umpire = ({ waitingMessage }) => {
+  const [headlines, setHeadlines] = useState([]);
+  const [selectedScores, setSelectedScores] = useState({}); // Store scores for each headline
+  const [logicalConsistency, setLogicalConsistency] = useState({}); // Store logical consistency for each headline
 
   useEffect(() => {
     socket.on('umpireReview', ({ headlineId, headline }) => {
-      setHeadlinesToReview((prevHeadlines) => [...prevHeadlines, { headlineId, headline }]);
+      setHeadlines((prevHeadlines) => [...prevHeadlines, { headlineId, headline }]);
     });
 
     return () => {
@@ -15,26 +16,86 @@ const Umpire = () => {
     };
   }, []);
 
-  const handleDecision = (index, accepted) => {
-    const { headlineId } = headlinesToReview[index];
-    
-    // Emit decision to backend (accept or reject)
-    socket.emit('umpireDecision', { headlineId, accepted });
+  const handleConsistencyChange = (headlineId, isConsistent) => {
+    setLogicalConsistency((prevState) => ({
+      ...prevState,
+      [headlineId]: isConsistent
+    }));
 
-    setHeadlinesToReview((prevHeadlines) => prevHeadlines.filter((_, i) => i !== index));
+    // Reset score if logically consistent is set to no
+    if (!isConsistent) {
+      setSelectedScores((prevState) => ({
+        ...prevState,
+        [headlineId]: undefined
+      }));
+    }
+  };
+
+  const handleScoreChange = (headlineId, score) => {
+    setSelectedScores((prevState) => ({
+      ...prevState,
+      [headlineId]: score
+    }));
+  };
+
+  const handleSubmit = (headlineId) => {
+    const isConsistent = logicalConsistency[headlineId];
+    const umpireScore = selectedScores[headlineId];
+
+    if (isConsistent && umpireScore === undefined) {
+      alert('Please select a score.');
+      return;
+    }
+
+    socket.emit('submitUmpireReview', { headlineId, isConsistent, umpireScore });
+
+    setHeadlines((prevHeadlines) => prevHeadlines.filter(h => h.headlineId !== headlineId));
+    setLogicalConsistency((prevState) => {
+      const { [headlineId]: _, ...rest } = prevState;
+      return rest;
+    });
+    setSelectedScores((prevState) => {
+      const { [headlineId]: _, ...rest } = prevState;
+      return rest;
+    });
   };
 
   return (
     <div>
-      <h2>Umpire Review</h2>
-      {headlinesToReview.length === 0 ? (
-        <div>No headlines to review</div>
+      <h2>Review Headlines</h2>
+      {headlines.length === 0 ? (
+        <div>{waitingMessage}</div>
       ) : (
-        headlinesToReview.map(({ headlineId, headline }, index) => (
-          <div key={headlineId} style={{ display: 'flex', alignItems: 'center', marginBottom: '10px' }}>
-            <p style={{ flex: 1 }}>{headline}</p>
-            <button onClick={() => handleDecision(index, true)} style={{ marginLeft: '10px' }}>Accept</button>
-            <button onClick={() => handleDecision(index, false)} style={{ marginLeft: '10px' }}>Reject</button>
+        headlines.map(({ headlineId, headline }) => (
+          <div key={headlineId} style={{ marginBottom: '10px' }}>
+            <p>{headline}</p>
+            <label>
+              Logically Consistent:
+              <input 
+                type="checkbox" 
+                checked={logicalConsistency[headlineId] || false} 
+                onChange={(e) => handleConsistencyChange(headlineId, e.target.checked)} 
+              />
+            </label>
+            {logicalConsistency[headlineId] && (
+              <div>
+                <label>
+                  Score:
+                  <select 
+                    value={selectedScores[headlineId] || ''} 
+                    onChange={(e) => handleScoreChange(headlineId, parseInt(e.target.value, 10))} 
+                  >
+                    <option value="" disabled>Select score</option>
+                    <option value={0}>0</option>
+                    <option value={1}>1</option>
+                    <option value={2}>2</option>
+                  </select>
+                </label>
+              </div>
+            )}
+            <button onClick={() => handleSubmit(headlineId)} style={{ marginLeft: '10px' }}>
+              Submit
+            </button>
           </div>
         ))
       )}
