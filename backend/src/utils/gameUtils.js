@@ -57,7 +57,6 @@ const removeHeadlineFromJurorQueue = (jurorSocketId, headlineId) => {
 
     // Use filter method with ObjectId comparison
     jurorQueues[jurorSocketId] = jurorQueues[jurorSocketId].filter(id => {
-      console.log(`Comparing ${id} (type: ${typeof id}) with ${headlineId}(type: ${typeof headlineId})`);
       return !id.equals(headlineId);
     });
 
