@@ -18,10 +18,20 @@ const headlineSchema = new Schema({
     required: true,
     default: false
   },
-  medianScore: {
+  jurorScore: {
     type: Number,
     default: null
+  },
+  umpireScore: {
+    type: Number,
+    default: null
+  },
+  isConsistent: {
+    type: Boolean,
+    required: true,
+    default: false
   }
+
 }, {
   timestamps: true
 });

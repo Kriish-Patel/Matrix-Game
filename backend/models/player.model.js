@@ -18,8 +18,11 @@ const playerSchema = new Schema({
     enum: ['player', 'juror', 'umpire'],
     default: null 
   },
-  }, 
-  {
+  Score: {
+    type: Number,
+    default: null
+  }
+}, {
   timestamps: true
 });
 
