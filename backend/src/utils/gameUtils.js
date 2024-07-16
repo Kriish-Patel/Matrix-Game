@@ -175,6 +175,7 @@ const processUmpireReview = async (headlineId, isConsistent, umpireScore) => {
       // Calculate juror's score based on -log(p/100)
       const jurorScore = headline.jurorScore;
       const jurorCalculatedScore = -Math.log(jurorScore / 100);
+      jurorCalculatedScore = jurorCalculatedScore.toFixed(1);
       console.log(`juror score: ${headline.jurorScore}, calculated score: ${jurorCalculatedScore}`)
 
       // Calculate the combined score

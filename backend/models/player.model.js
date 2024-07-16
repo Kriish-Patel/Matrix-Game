@@ -21,6 +21,11 @@ const playerSchema = new Schema({
   Score: {
     type: Number,
     default: null
+  },
+  Planet: {
+    type: String,
+    enum: ['Mercury', 'Venus', 'Earth', 'Mars', 'Jupiter', 'Saturn', 'Uranus', 'Neptune', 'Pluto'],
+    default : null
   }
 }, {
   timestamps: true
