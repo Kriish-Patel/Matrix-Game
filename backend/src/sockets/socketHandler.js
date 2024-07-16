@@ -247,8 +247,6 @@ const handleSocketConnection = (socket, io) => {
     }
   });
   
-
- 
 };
 
 module.exports = handleSocketConnection;

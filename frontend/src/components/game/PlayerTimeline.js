@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import socket from '../../socket';
 
 const PlayerTimeline = () => {
     const [playerHeadlines, setPlayerHeadlines] = useState([]); // [headline, status], 
