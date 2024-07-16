@@ -12,6 +12,7 @@ const Player = ({planet}) => {
   const [headline, setHeadline] = useState('');
   const [briefing, setBriefing] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [playerScore, setPlayerScore] = useState(0)
   
   
 
@@ -26,10 +27,17 @@ const Player = ({planet}) => {
         }
       })
       .catch((error) => console.error('Error fetching briefing data:', error));
+    
+    socket.on('updatePlayerScore', ({score}) => {
+      console.log("received player score")
+      setPlayerScore(score);
+    });
+    
   }, [planet]);
 
   const submitHeadline = () => {
     socket.emit('submitHeadline', { socketId: socket.id, headline });
+    setHeadline("");
   };
 
   const openModal = () => {
@@ -45,6 +53,7 @@ const Player = ({planet}) => {
       <GameTimer />
       <h2>Enter Headline</h2>
       <h3>Player Planet: {planet}</h3>
+      <h3>Player Score: {playerScore}</h3>
       <div className="headline-input-container">
         <input 
           type="text" 

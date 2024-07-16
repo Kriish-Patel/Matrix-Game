@@ -15,7 +15,6 @@ const GameManager = () => {
   const [players, setPlayers] = useState([]);
   const [role, setRole] = useState('')
   const [currentPlayerName, setCurrentPlayerName] = useState(null);
-  const [currentPlayerPlanet, setCurrentPlayerPlanet] = useState(null);
   const { planet } = location.state
   const navigate = useNavigate();
 

@@ -19,8 +19,7 @@ const GameTimer = () => {
     const calculateGameYear = (m) => {
         const intermediateValue = Math.exp(0.027 * m) - 1;
         const gameYear = 2025 + 3.6 * intermediateValue;
-        console.log(`Intermediate Value: ${intermediateValue}`);
-        console.log(`Game Year: ${gameYear}`);
+        
         return gameYear;
     };
 
@@ -28,10 +27,7 @@ const GameTimer = () => {
     const gameYear = calculateGameYear(elapsedTimeInMinutes);
 
     useEffect(() => {
-        console.log(`start time: ${startTime}`);
-        console.log(`current time: ${currentTime}`);
-        console.log(`Elapsed minutes: ${elapsedTimeInMinutes}`);
-        console.log(`Calculated game year: ${gameYear}`);
+        
     }, [currentTime]); // Update dependency to currentTime
 
     return (

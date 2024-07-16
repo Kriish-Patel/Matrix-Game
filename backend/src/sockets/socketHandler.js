@@ -230,6 +230,7 @@ const handleSocketConnection = (socket, io) => {
       if (isConsistent) {
         console.log(`Combined score is ${result.combinedScore}`)
         socket.to(result.playerId.toString()).emit('updatePlayerScore', { score: result.playerScore, headlineId: result.headlineId });
+        
       }
       console.log('Umpire review submitted and player score updated');
     } else {
@@ -247,8 +248,6 @@ const handleSocketConnection = (socket, io) => {
     }
   });
   
-
- 
 };
 
 module.exports = handleSocketConnection;
