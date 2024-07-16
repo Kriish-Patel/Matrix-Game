@@ -229,7 +229,7 @@ const handleSocketConnection = (socket, io) => {
       // Emit an event to notify the player of the updated score if the headline is consistent
       if (isConsistent) {
         console.log(`Combined score is ${result.combinedScore}`)
-        socket.to(result.playerId.toString()).emit('updatePlayerScore', { score: result.playerScore, headlineId: result.headlineId });
+        socket.to(result.playerId.toString()).emit('updatePlayerScore', { score: result.playerScore, headline: result.headline });
       }
       console.log('Umpire review submitted and player score updated');
     } else {

@@ -142,12 +142,17 @@ const processUmpireReview = async (headlineId, isConsistent, umpireScore) => {
     if (isConsistent) {
       // Calculate juror's score based on -log(p/100)
       const jurorScore = headline.jurorScore;
-      const jurorCalculatedScore = -Math.log(jurorScore / 100);
-      const roundedJurorCalculatedScore = jurorCalculatedScore.toFixed(1);
-      console.log(`juror score: ${headline.jurorScore}, calculated score: ${roundedJurorCalculatedScore}`)
+      const jurorCalculatedScore = -4 * Math.log(jurorScore / 100);
 
+      // Round the result to 1 decimal place
+      const roundedResult = Math.round(jurorCalculatedScore * 10) / 10;
+      
+      console.log(roundedResult);    
+      // const roundedJurorCalculatedScore = jurorCalculatedScore.toFixed(1);
+      console.log(`juror score: ${headline.jurorScore}, calculated score: ${roundedResult}`)
+      console.log(`umpire Score: ${umpireScore}`)
       // Calculate the combined score
-      combinedScore = roundedJurorCalculatedScore + umpireScore;
+      combinedScore = roundedResult + umpireScore;
 
       // Update the headline
       headline.logicallyConsistent = true;
@@ -155,27 +160,29 @@ const processUmpireReview = async (headlineId, isConsistent, umpireScore) => {
       headline.combinedScore = combinedScore;
 
       // Update the player's running total score
-      const player = await Player.findById(headline.player._id);
+      const player = await Player.findById(headline.player);
       if (player) {
-        if (player.Score == null){
+        console.log(`player found, player score is ${player.Score}`)
+        if (player.Score === null){
+          console.log(`player score is null`)
           player.Score = combinedScore;
         }
         else{
           player.Score += combinedScore;
         }
         await player.save();
+        console.log(`player score: ${player.Score}`);
       }
     } else {
       headline.logicallyConsistent = false;
       headline.umpireScore = null;
-      headline.combinedScore = null;
-      combinedScore = null
+      headline.combinedScore = 0;
+      combinedScore = 0
     }
 
     await headline.save();
     console.log(`player ID: ${headline.player}`);
-    console.log(`s ID: ${headline.player.socketId}`);
-    return { success: true, playerId: headline.player.socketId, combinedScore: combinedScore };
+    return { success: true, playerId: headline.player.socketId, combinedScore: combinedScore, headline: headline.headline };
   } catch (error) {
     console.error('Error processing umpire review:', error);
     return { success: false, error };
