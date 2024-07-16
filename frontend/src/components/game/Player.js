@@ -32,8 +32,11 @@ const Player = ({planet}) => {
     
     socket.on('updatePlayerScore', ({score}) => {
       console.log("received player score")
-      setPlayerScore(score);
+      setPlayerScore(prevscore => prevscore + score );
     });
+    return () => {
+      socket.off('updatePlayerScore');
+    };
     
   }, [planet]);
 
