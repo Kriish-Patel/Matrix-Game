@@ -36,7 +36,6 @@ io.on('connection', (socket) => {
 
   console.log(`Client connected, id: ${socket.id}`);
 
-  
   handleSocketConnection(socket, io);
 });
   

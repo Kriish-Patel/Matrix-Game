@@ -7,11 +7,7 @@ const {
   registerJuror,
   deregisterJuror,
   processUmpireReview,
-  getLobbyRoles,
-  submitHeadline,
-  submitJurorScores,
-  processHeadlines,
-  lobbies,
+  
   assignRole,
 } = require('../utils/gameUtils');
 
@@ -19,7 +15,18 @@ let Player = require('../../models/player.model')
 
 let hostSocketId = null;
 let hostName = null;
-let players = {}  // {id: [name, role, hostStatus]}
+let players = {}  // {id: [name, role, hostStatus, planet]}
+let availablePlanets = [
+  'Mercury',
+  'Venus',
+  'Earth',
+  'Mars',
+  'Jupiter',
+  'Saturn',
+  'Uranus',
+  'Neptune',
+  'Pluto'
+];
 
 const handleSocketConnection = (socket, io) => {
 
@@ -31,7 +38,7 @@ const handleSocketConnection = (socket, io) => {
       socket.emit('error', { message: 'Lobby already created' });
       return;
     }
-    const playerData = [name, '', true];
+    const playerData = [name, '', true, 'none'];
     players[socket.id] = playerData;
     hostSocketId = socket.id;
     hostName = name;
@@ -67,7 +74,7 @@ const handleSocketConnection = (socket, io) => {
       socket.emit('error', { message: 'Lobby has not been created yet' });
       return;
     }
-    const playerData = [name, '', false];
+    const playerData = [name, '', false, ''];
     players[socket.id] = playerData;
     const newPlayer = new Player({
       playerName: name,
@@ -89,13 +96,45 @@ const handleSocketConnection = (socket, io) => {
         id,
         name: players[id][0],
         role: players[id][1],
-        isHost: players[id][2]
+        isHost: players[id][2],
+        planet: players[id][3]
       }))
     });
 
   });
 
-  
+  socket.on('selectPlanet', ({planet, playerId}) => {
+
+    if (availablePlanets.includes(planet)) {
+      availablePlanets = availablePlanets.filter((p) => p !== planet);
+      players[playerId][3] = planet
+        
+      io.to('game-room').emit('planetSelected', planet);
+      io.to('game-room').emit('updatePlayerList', {
+        players: Object.keys(players).map(id => ({
+          id,
+          name: players[id][0],
+          role: players[id][1],
+          isHost: players[id][2],
+          planet: players[id][3]
+        }))
+      });
+    }
+  });
+
+  socket.on('assignRole', async ({playerId, role }) => {
+    await assignRole(playerId, role);
+    players[playerId][1] = role;
+    io.to('game-room').emit('updatePlayerList', {
+      players: Object.keys(players).map(id => ({
+        id,
+        name: players[id][0],
+        role: players[id][1],
+        isHost: players[id][2],
+        planet: players[id][3]
+      }))
+    });
+
   socket.on('disconnect', () => {
     deregisterJuror(socket.id);
     console.log(`Client disconnected: ${socket.id}`);
@@ -112,6 +151,7 @@ const handleSocketConnection = (socket, io) => {
       players[playerId][1] = role;
       io.in(lobbyId).emit('updateRole', {newRole: role});
       
+  });    
 });
 
   //GAME SOCKETS
@@ -128,6 +168,7 @@ const handleSocketConnection = (socket, io) => {
     }
     io.in('game-room').emit('roundStarted');
     
+    
   });
 
   socket.on('to-game-manager', () => {
@@ -139,6 +180,7 @@ const handleSocketConnection = (socket, io) => {
         isHost: players[id][2]
       }))
     });
+    io.to('game-room').emit('navigate:selectPlanet');
   });
   
   socket.on('submitHeadline', async ({ socketId, headline }) => {
@@ -204,29 +246,7 @@ const handleSocketConnection = (socket, io) => {
       socket.emit('error', { message: 'Failed to update headline' });
     }
   });
-  // socket.on('assignRole', async ({ socketId, role }) => {
-  //   try {
-  //     const updatedPlayer = await assignRole(socketId, role);
-  //     console.log(`Role ${role} assigned to player with socket ID: ${socketId}`);
-
-  //     // io.to('game-room').emit('roleAssigned', { socketId, role });
-  //   } catch (error) {
-  //     console.error('Error assigning role:', error);
-  //     socket.emit('error', { message: 'Failed to assign role' });
-  //   }
-  // });
-
   
-
-  // socket.on('submitJurorScores', ({ lobbyId, scores }) => {
-  //   const jurorId = socket.id;
-  //   submitJurorScores(lobbyId, jurorId, scores);
-  //   const allJurorsSubmitted = Object.keys(lobbies[lobbyId].jurorScores).length === getLobbyPlayers(lobbyId).filter(player => getLobbyRoles(lobbyId)[player.id] === 'juror').length;
-  //   if (allJurorsSubmitted) {
-  //     processHeadlines(lobbyId);
-  //     io.in(lobbyId).emit('headlinesProcessed', { headlines: lobbies[lobbyId].headlines });
-  //   }
-  // });
 
  
 };
