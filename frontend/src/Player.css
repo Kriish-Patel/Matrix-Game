@@ -1,4 +1,10 @@
 /* Player.css */
+.main-container {
+  display: flex;
+  justify-content: space-between;
+  padding: 20px;
+}
+
 .player-container {
     display: flex;
     flex-direction: column;
@@ -84,5 +90,14 @@
   .modal-content ul {
     list-style-type: disc;
     padding-left: 20px;
+  }
+  
+  .player-timeline-container {
+    width: 300px; /* Adjust as necessary */
+    margin-right: 20px;
+  }
+
+  .global-timeline-container {
+    width: 300px; /* Adjust as necessary */
   }
   
