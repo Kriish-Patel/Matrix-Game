@@ -133,7 +133,7 @@ const deregisterJuror = (jurorSocketId) => {
 const processUmpireReview = async (headlineId, isConsistent, umpireScore) => {
   try {
     // Find the headline and the juror's score
-    const headline = await Headline.findById(headlineId);
+    const headline = await Headline.findById(headlineId).populate('player');
     if (!headline) {
       throw new Error('Headline not found');
     }
@@ -143,11 +143,11 @@ const processUmpireReview = async (headlineId, isConsistent, umpireScore) => {
       // Calculate juror's score based on -log(p/100)
       const jurorScore = headline.jurorScore;
       const jurorCalculatedScore = -Math.log(jurorScore / 100);
-      jurorCalculatedScore = jurorCalculatedScore.toFixed(1);
-      console.log(`juror score: ${headline.jurorScore}, calculated score: ${jurorCalculatedScore}`)
+      const roundedJurorCalculatedScore = jurorCalculatedScore.toFixed(1);
+      console.log(`juror score: ${headline.jurorScore}, calculated score: ${roundedJurorCalculatedScore}`)
 
       // Calculate the combined score
-      combinedScore = jurorCalculatedScore + umpireScore;
+      combinedScore = roundedJurorCalculatedScore + umpireScore;
 
       // Update the headline
       headline.logicallyConsistent = true;
@@ -155,9 +155,14 @@ const processUmpireReview = async (headlineId, isConsistent, umpireScore) => {
       headline.combinedScore = combinedScore;
 
       // Update the player's running total score
-      const player = await Player.findById(headline.playerId);
+      const player = await Player.findById(headline.player._id);
       if (player) {
-        player.Score += combinedScore;
+        if (player.Score == null){
+          player.Score = combinedScore;
+        }
+        else{
+          player.Score += combinedScore;
+        }
         await player.save();
       }
     } else {
@@ -168,7 +173,9 @@ const processUmpireReview = async (headlineId, isConsistent, umpireScore) => {
     }
 
     await headline.save();
-    return { success: true, playerId: headline.player, combinedScore: combinedScore };
+    console.log(`player ID: ${headline.player}`);
+    console.log(`s ID: ${headline.player.socketId}`);
+    return { success: true, playerId: headline.player.socketId, combinedScore: combinedScore };
   } catch (error) {
     console.error('Error processing umpire review:', error);
     return { success: false, error };
