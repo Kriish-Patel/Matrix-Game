@@ -7,7 +7,7 @@ const GlobalTimeline = () => {
 
     useEffect(() => {
         
-        socket.on('receiveAcceptedHeadline', ({ headline }) => {
+        socket.on('updatePlayerScore', ({ headline }) => {
             setAcceptedHeadlines(prevHeadlines => [headline, ...prevHeadlines]);
         });
 
