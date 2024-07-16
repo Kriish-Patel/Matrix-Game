@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation, useParams, useNavigate } from 'react-router-dom';
 
-import '../App.css';
-import socket from '../socket'
+import '../../styles/App.css';
+import socket from '../../socket'
 
 const Lobby = () => {
 

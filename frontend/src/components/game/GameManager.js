@@ -6,7 +6,7 @@ import Juror from './Juror';
 import Umpire from './Umpire';
 
 import socket from '../../socket';
-import '../../App.css'; 
+import '../../styles/App.css';
 
 
 const GameManager = () => {

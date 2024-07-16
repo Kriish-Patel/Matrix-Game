@@ -2,13 +2,13 @@
 import React from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 
-import Home from './components/home';
-import Lobby from './components/lobby';
+import Home from './components/lobby/home.js';
+import Lobby from './components/lobby/lobby.js';
 import GameManager from './components/game/GameManager';
-import JoinLobby from './components/joinLobby';
-import SelectPlanet from './components/selectPlanet';
+import JoinLobby from './components/lobby/joinLobby.js';
+import SelectPlanet from './components/lobby/selectPlanet.js';
 
-import './App.css';
+import './styles/App.css';
 
 
 function App() {

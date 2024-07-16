@@ -2,13 +2,13 @@
 import React, { useState, useEffect } from 'react';
 import socket from '../../socket';
 import ReactModal from 'react-modal';
-import '../../Player.css';
+import '../../styles/Player.css';
 import GameTimer from './GameTimer'; // Import GameTimer component
 import GlobalTimeline from './GlobalTimeline';
 import PlayerTimeline from './PlayerTimeline';
 
-import '../../App.css'; // Ensure correct path
-import { useLocation, useParams, useNavigate } from 'react-router-dom';
+import '../../styles/App.css';
+
 
 const Player = ({planet}) => {
   const [headline, setHeadline] = useState('');

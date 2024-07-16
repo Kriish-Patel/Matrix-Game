@@ -9,7 +9,6 @@ html, body {
   justify-content: space-between;
   align-items: stretch;
   height: 100vh; /* Full viewport height */
-  
   padding: 20px;
   box-sizing: border-box;
 }
@@ -17,7 +16,7 @@ html, body {
 .player-container {
     display: flex;
     flex-direction: column;
-    width: 400px; /* Adjust as necessary */
+    width: 500px; /* Adjust as necessary */
     align-items: center;
     background-color: #333;
     padding: 20px;
