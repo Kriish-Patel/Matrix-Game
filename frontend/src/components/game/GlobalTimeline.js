@@ -8,6 +8,7 @@ const GlobalTimeline = () => {
     useEffect(() => {
         
         socket.on('acceptedHeadline', ({ headline }) => {
+            console.log("say drake")
             setAcceptedHeadlines(prevHeadlines => [headline, ...prevHeadlines]);
         });
 
