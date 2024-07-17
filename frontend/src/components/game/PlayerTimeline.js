@@ -6,10 +6,7 @@ const PlayerTimeline = () => {
                                                                 //status: pending, accepted, rejected
 
     useEffect(() => {
-        socket.on('updatePlayerStatus', ({ socketId, headlineId, headline, status }) => {
-            console.log(`Player ${socketId} changed status to ${status} for headline ${headlineId}, ${headline}`);
-      
-        });
+
         
         socket.on('receivePlayerHeadline', ({ headline, status}) => {
             setPlayerHeadlines(prevHeadlines => [{ headline, status }, ...prevHeadlines]);

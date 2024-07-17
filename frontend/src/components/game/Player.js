@@ -29,12 +29,17 @@ const Player = ({planet}) => {
       })
       .catch((error) => console.error('Error fetching briefing data:', error));
     
-    socket.on('updatePlayerScore', ({score}) => {
-      console.log("received player score")
-      setPlayerScore(prevscore => prevscore + score );
+    socket.on('updatePlayerStatus', ({ socketId, headlineId, headline, status }) => {
+      console.log(`Player ${socketId} changed status to ${status} for headline ${headlineId}, ${headline}`);
+  
     });
+    // socket.on('updatePlayerScore', ({score}) => {
+    //   console.log("received player score")
+    //   setPlayerScore(prevscore => prevscore + score );
+    // });
     return () => {
       socket.off('updatePlayerScore');
+      socket.off('updatePlayerStatus')
     };
     
   }, [planet]);
@@ -61,7 +66,7 @@ const Player = ({planet}) => {
         <GameTimer />
         <h2>Enter Headline</h2>
         <h3>Player Planet: {planet}</h3>
-        <h3>Player Score: {playerScore}</h3>
+        {/* <h3>Player Score: {playerScore}</h3> */}
         <div className="headline-input-container">
           <input 
             type="text" 
