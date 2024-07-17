@@ -1,7 +1,22 @@
 /* Player.css */
+html, body {
+  height: 100%;
+  margin: 0;
+}
+
+.main-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: stretch;
+  height: 100vh; /* Full viewport height */
+  padding: 20px;
+  box-sizing: border-box;
+}
+
 .player-container {
     display: flex;
     flex-direction: column;
+    width: 500px; /* Adjust as necessary */
     align-items: center;
     background-color: #333;
     padding: 20px;
@@ -84,5 +99,18 @@
   .modal-content ul {
     list-style-type: disc;
     padding-left: 20px;
+  }
+
+  .player-timeline-container {
+    width: 400px; /* Adjust as necessary */width: 300px; /* Adjust as necessary */
+    display: flex;
+    flex-direction: column;
+    margin-right: 20px;
+  }
+
+  .global-timeline-container {
+    width: 400px; /* Adjust as necessary */width: 300px; /* Adjust as necessary */
+    display: flex;
+    flex-direction: column;
   }
   

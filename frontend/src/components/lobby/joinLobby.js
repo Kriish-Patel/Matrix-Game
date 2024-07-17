@@ -1,7 +1,7 @@
 // src/components/JoinLobby.js
 import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import socket from '../socket';
+import socket from '../../socket';
 
 const JoinLobby = () => {
   const [name, setName] = useState('');

@@ -252,7 +252,8 @@ const handleSocketConnection = (socket, io) => {
       // Emit an event to notify the player of the updated score if the headline is consistent
       if (isConsistent) {
         console.log(`Combined score is ${result.combinedScore}`)
-        socket.to(result.playerId.toString()).emit('updatePlayerScore', { score: result.playerScore, headline: result.headline });
+        console.log(`headline: ${result.headline}`);
+        socket.to(result.playerId.toString()).emit('updatePlayerScore', { score: result.combinedScore, headline: result.headline });
       }
       else {
         socket.to(result.playerId.toString()).emit('updatePlayerStatus', { socketId: result.playerId, headlineId, headline: result.headline, status: 'failed' });
@@ -273,8 +274,6 @@ const handleSocketConnection = (socket, io) => {
     }
   });
   
-
- 
 };
 
 module.exports = handleSocketConnection;

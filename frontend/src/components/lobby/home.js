@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
-import socket from '../socket';
+import socket from '../../socket';
 
 const Home = () => {
   const [name, setName] = useState('');
