@@ -7,13 +7,23 @@ const PlayerTimeline = () => {
 
     useEffect(() => {
 
-        
-        socket.on('receivePlayerHeadline', ({ headline, status}) => {
-            setPlayerHeadlines(prevHeadlines => [{ headline, status }, ...prevHeadlines]);
-        });
+        socket.on('updatePlayerStatus', ({ headline, status }) => {
+            setPlayerHeadlines(prevHeadlines => {
+              const headlineIndex = prevHeadlines.findIndex(h => h.headline === headline);
+      
+              if (headlineIndex !== -1) {
+                // If the headline exists, update its status
+                prevHeadlines[headlineIndex].status = status;
+                return [...prevHeadlines]; // Return the same array reference with the updated headline
+              } else {
+                // If the headline does not exist, add it to the array
+                return [{ headline, status }, ...prevHeadlines];
+              }
+            });
+          });
 
         return () => {
-            socket.off('receivePlayerHeadline');
+            socket.off('updatePlayerStatus');
         };
     }, []); 
 

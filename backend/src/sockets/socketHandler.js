@@ -169,7 +169,6 @@ const handleSocketConnection = (socket, io) => {
     }
     io.in('game-room').emit('roundStarted');
     
-    
   });
 
   socket.on('to-game-manager', () => {
@@ -244,6 +243,7 @@ const handleSocketConnection = (socket, io) => {
         socket.to(result.playerId.toString()).emit('updatePlayerScore', { score: result.combinedScore, headline: result.headline });
         socket.to(result.playerId.toString()).emit('updatePlayerStatus', { socketId: result.playerId, headlineId, headline: result.headline, status: 'success' });
         
+        
       }
       else {
         socket.to(result.playerId.toString()).emit('updatePlayerStatus', { socketId: result.playerId, headlineId, headline: result.headline, status: 'failed' });
@@ -253,8 +253,7 @@ const handleSocketConnection = (socket, io) => {
       console.error('Error processing umpire review:', result.error);
     }
   });
-
-  
+3
 };
 
 module.exports = handleSocketConnection;

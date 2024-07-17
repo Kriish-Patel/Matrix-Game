@@ -12,7 +12,7 @@ const GlobalTimeline = () => {
         });
 
         return () => {
-            socket.off('receiveAcceptedHeadline');
+            socket.off('updatePlayerStatus');
         };
     }, []); 
 
