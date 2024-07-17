@@ -188,9 +188,6 @@ const handleSocketConnection = (socket, io) => {
       const savedHeadline = await saveHeadline(socketId, headline);
       console.log(`Headline submitted: ${headline} from socket ID: ${socketId}`);
 
-      //change status
-      socket.emit('changeStatus', { socketId, headlineId: savedHeadline._id, status: 'with Juror, pending' });
-
       // Assign the headline to a juror
       assignHeadlineToJuror(savedHeadline._id, savedHeadline.headline, io);
     } catch (error) {
@@ -207,15 +204,15 @@ const handleSocketConnection = (socket, io) => {
       if (headline && accepted) {
         io.to('game-room').emit('umpireReview', { headlineId: headline._id, headline: headline.headline });
 
-        // change status
-        console.log(`headline.player.socketId: ${headline.player.socketId}`);
-        socket.emit('changeStatus', { socketId: headline.player.socketId, headlineId: headline._id, status: 'with Umpire, pending' });
+        // Emit changeStatus
+        console.log(`Emitting to ${headline.player.socketId}, changeStatus with status: 'with Umpire, pending'`);
+        socket.to(headline.player.socketId.toString()).emit('updatePlayerStatus', { socketId: headline.player.socketId, headlineId: headline._id, status: 'with Umpire, pending' })
       }
       if (headline && !accepted) {
-        // change status
-        socket.emit('changeStatus', { socketId: headline.player.socketId, headlineId: headline._id, status: 'failed' });
+        // Emit changeStatus
+        console.log(`Emitting changeStatus with status: 'failed'`);
+        socket.to(headline.player.socketId).emit('updatePlayerStatus', { socketId: headline.player.socketId, headlineId: headline._id, status: 'failed' })
       }
-
     } catch (error) {
       console.error('Error submitting score:', error);
       socket.emit('error', { message: 'Failed to submit score' });
@@ -232,17 +229,6 @@ const handleSocketConnection = (socket, io) => {
     console.log(`Juror deregistered: ${socket.id}`);
   });
 
-  // Listen for 'changeStatus' events
-  socket.on('changeStatus', async ({ socketId, headlineId, status }) => {
-    console.log(`Received changeStatus event: socketId=${socketId}, headlineId=${headlineId}, status=${status}`);
-    const headline = await Headline.findById(headlineId);
-    if (!headline) {
-      console.error('Headline not found');
-      return;
-    }
-    console.log(`Player ${socketId} changed status to ${status} for headline ${headlineId}`);
-    io.to(socketId).emit('updatePlayerStatus', { socketId, headlineId, headline: headline.headline, status });
-  });
 
   socket.on('submitUmpireReview', async ({ headlineId, isConsistent, umpireScore }) => {
     const result = await processUmpireReview(headlineId, isConsistent, umpireScore);
