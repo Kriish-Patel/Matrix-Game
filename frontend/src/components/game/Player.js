@@ -12,10 +12,15 @@ const Player = ({planet}) => {
   const [headline, setHeadline] = useState('');
   const [briefing, setBriefing] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [status, setStatus] = useState('failed', 'with Juror, pending', 'with Umpire, pending', 'success');
   
   
 
   useEffect(() => {
+    socket.on('updatePlayerStatus', ({ socketId, headlineId, headline, status }) => {
+      console.log(`Player ${socketId} changed status to ${status} for headline ${headlineId}, ${headline}`);
+
+    });
     // Fetch the briefing information for the player's planet
     fetch('/player_briefings.json')
       .then((response) => response.json())

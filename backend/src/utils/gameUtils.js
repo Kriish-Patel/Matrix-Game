@@ -37,7 +37,7 @@ const submitJurorScore = async (headlineId, socketId, score) => {
   console.log(`Random number generated for headline ID ${headlineId} is ${randomNumber}`);
   console.log(`Score for headline ID ${headlineId} is ${score}`);
 
-  const headline = await Headline.findById(headlineId);
+  const headline = await Headline.findById(headlineId).populate('player');
 
   headline.jurorScore = score;
 
@@ -64,18 +64,18 @@ const removeHeadlineFromJurorQueue = (jurorSocketId, headlineId) => {
   }
 };
 
-const updateHeadlineAcceptance = async (headlineId, accepted) => {
-  const headline = await Headline.findById(headlineId);
+// const updateHeadlineAcceptance = async (headlineId, accepted) => {
+//   const headline = await Headline.findById(headlineId);
   
-  if (!headline) {
-    throw new Error('Headline not found');
-  }
+//   if (!headline) {
+//     throw new Error('Headline not found');
+//   }
   
-  headline.accepted = accepted;
-  await headline.save();
+//   headline.accepted = accepted;
+//   await headline.save();
 
-  return headline;
-};
+//   return headline;
+// };
 
 
 
@@ -95,6 +95,8 @@ const assignRole = async (socketId, role) => {
 
   return player;
 };
+
+
 
 
 const assignHeadlineToJuror = (headlineId, headline, io) => {
@@ -194,7 +196,7 @@ module.exports = {
   submitJurorScore,
   saveHeadline,
   assignRole,
-  updateHeadlineAcceptance,
+  // updateHeadlineAcceptance,
   assignHeadlineToJuror,
   registerJuror,
   deregisterJuror,
