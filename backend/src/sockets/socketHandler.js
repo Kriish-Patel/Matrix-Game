@@ -11,7 +11,8 @@ const {
   assignRole,
 } = require('../utils/gameUtils');
 let Headline = require('../../models/headlines.model')
-let Player = require('../../models/player.model')
+let Player = require('../../models/player.model');
+const headlinesModel = require('../../models/headlines.model');
 
 let hostSocketId = null;
 let hostName = null;
@@ -190,6 +191,7 @@ const handleSocketConnection = (socket, io) => {
 
       // Assign the headline to a juror
       assignHeadlineToJuror(savedHeadline._id, savedHeadline.headline, io);
+      socket.to(socketId).emit('updatePlayerStatus', { socketId: socketId, headlineId: savedHeadline._id, headline: savedHeadline.headline, status: 'with Juror, pending' })
     } catch (error) {
       console.error('Error submitting headline:', error);
       socket.emit('error', { message: 'Failed to submit headline' });
@@ -206,12 +208,12 @@ const handleSocketConnection = (socket, io) => {
 
         // Emit changeStatus
         console.log(`Emitting to ${headline.player.socketId}, changeStatus with status: 'with Umpire, pending'`);
-        socket.to(headline.player.socketId.toString()).emit('updatePlayerStatus', { socketId: headline.player.socketId, headlineId: headline._id, status: 'with Umpire, pending' })
+        socket.to(headline.player.socketId.toString()).emit('updatePlayerStatus', { socketId: headline.player.socketId, headlineId: headline._id, headline: headline.headline, status: 'with Umpire, pending' })
       }
       if (headline && !accepted) {
         // Emit changeStatus
         console.log(`Emitting changeStatus with status: 'failed'`);
-        socket.to(headline.player.socketId).emit('updatePlayerStatus', { socketId: headline.player.socketId, headlineId: headline._id, status: 'failed' })
+        socket.to(headline.player.socketId).emit('updatePlayerStatus', { socketId: headline.player.socketId, headlineId: headline._id, headline: headline.headline, status: 'failed' })
       }
     } catch (error) {
       console.error('Error submitting score:', error);
@@ -240,6 +242,8 @@ const handleSocketConnection = (socket, io) => {
         console.log(`Combined score is ${result.combinedScore}`)
         console.log(`headline: ${result.headline}`);
         socket.to(result.playerId.toString()).emit('updatePlayerScore', { score: result.combinedScore, headline: result.headline });
+        socket.to(result.playerId.toString()).emit('updatePlayerStatus', { socketId: result.playerId, headlineId, headline: result.headline, status: 'success' });
+        
       }
       else {
         socket.to(result.playerId.toString()).emit('updatePlayerStatus', { socketId: result.playerId, headlineId, headline: result.headline, status: 'failed' });
@@ -250,15 +254,6 @@ const handleSocketConnection = (socket, io) => {
     }
   });
 
-  socket.on('umpireDecision', async ({ headlineId, accepted }) => {
-    try {
-      await updateHeadlineAcceptance(headlineId, accepted);
-      console.log(`Umpire decision for headline ID ${headlineId}: accepted=${accepted}`);
-    } catch (error) {
-      console.error('Error updating headline:', error);
-      socket.emit('error', { message: 'Failed to update headline' });
-    }
-  });
   
 };
 
