@@ -7,12 +7,12 @@ const GlobalTimeline = () => {
 
     useEffect(() => {
         
-        socket.on('updatePlayerScore', ({ headline }) => {
+        socket.on('acceptedHeadline', ({ headline }) => {
             setAcceptedHeadlines(prevHeadlines => [headline, ...prevHeadlines]);
         });
 
         return () => {
-            socket.off('updatePlayerStatus');
+            socket.off('acceptedHeadline');
         };
     }, []); 
 
