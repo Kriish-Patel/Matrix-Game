@@ -80,17 +80,17 @@ const removeHeadlineFromJurorQueue = (jurorSocketId, headlineId) => {
 
 
 const assignRole = async (socketId, role) => {
-  // Find the player by socketId
   const player = await Player.findOne({ socketId });
 
   if (!player) {
     throw new Error('Player not found');
   }
 
-  // Assign the role
-  player.role = role;
+  if (player.role === 'host') {
+    throw new Error('Cannot assign a role to the host');
+  }
 
-  // Save the updated player
+  player.role = role;
   await player.save();
 
   return player;

@@ -1,18 +1,24 @@
 import React, { useState, useEffect } from 'react';
 import socket from '../../socket';
+import PauseOverlay from './PauseOverlay';
 
 const Umpire = ({ waitingMessage }) => {
   const [headlines, setHeadlines] = useState([]);
   const [selectedScores, setSelectedScores] = useState({}); // Store scores for each headline
   const [logicalConsistency, setLogicalConsistency] = useState({}); // Store logical consistency for each headline
+  const [isPaused, setIsPaused] = useState(false);
 
   useEffect(() => {
     socket.on('umpireReview', ({ headlineId, headline }) => {
       setHeadlines((prevHeadlines) => [...prevHeadlines, { headlineId, headline }]);
     });
+    socket.on('gamePaused', ({ isPaused }) => {
+      setIsPaused(isPaused);
+    });
 
     return () => {
       socket.off('umpireReview');
+      socket.off('gamePaused');
     };
   }, []);
 
@@ -62,6 +68,7 @@ const Umpire = ({ waitingMessage }) => {
 
   return (
     <div>
+      {isPaused && <PauseOverlay />}
       <h2>Review Headlines</h2>
       {headlines.length === 0 ? (
         <div>{waitingMessage}</div>

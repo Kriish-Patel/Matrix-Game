@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import socket from '../../socket';
+import PauseOverlay from './PauseOverlay';
 
 const Juror = ({ waitingMessage }) => {
   const [headLines, setHeadLines] = useState([]);
+  const [isPaused, setIsPaused] = useState(false);
 
   useEffect(() => {
     socket.emit('registerJuror');
@@ -11,10 +13,14 @@ const Juror = ({ waitingMessage }) => {
       console.log("received new headline for review");
       setHeadLines((prevHeadlines) => [...prevHeadlines, { headlineId, headline }]);
     });
+    socket.on('gamePaused', ({ isPaused }) => {
+      setIsPaused(isPaused);
+    });
 
     return () => {
       socket.emit('deregisterJuror');
       socket.off('newHeadline');
+      socket.off('gamePaused');
     };
   }, []);
 
@@ -34,6 +40,7 @@ const Juror = ({ waitingMessage }) => {
 
   return (
     <div>
+      {isPaused && <PauseOverlay />}
       <h2>Rank Headlines</h2>
       {headLines.length === 0 ? (
         <div>{waitingMessage}</div>

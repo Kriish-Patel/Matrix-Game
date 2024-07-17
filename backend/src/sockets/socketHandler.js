@@ -33,30 +33,32 @@ const handleSocketConnection = (socket, io) => {
 
 
   //LOBBY SOCKETS
+
   socket.on('create-lobby', ({name}) => {
     if (hostSocketId) 
     {
       socket.emit('error', { message: 'Lobby already created' });
       return;
     }
-    const playerData = [name, '', true, 'none'];
+    const playerData = [name, 'host', true, 'none'];
     players[socket.id] = playerData;
     hostSocketId = socket.id;
     hostName = name;
     const newPlayer = new Player({
       playerName: name,
-      socketId: socket.id
+      socketId: socket.id,
+      role: 'host'
     });
     newPlayer.save()
     .then((savedPlayer) => {
-      console.log('Player created:', savedPlayer);
+      console.log('Host created:', savedPlayer);
       return savedPlayer;
     })
     .catch((error) => {
-      console.error('Error creating player:', error);
+      console.error('Error creating host:', error);
     });
     
-    socket.join('game-room'); // Join the single room
+    socket.join('game-room');
     
     io.to('game-room').emit('host-info', { hostName: name, hostSocketId: hostSocketId });
     io.to('game-room').emit('updatePlayerList', {
@@ -64,11 +66,12 @@ const handleSocketConnection = (socket, io) => {
         id,
         name: players[id][0],
         role: players[id][1],
-        isHost: players[id][2]
+        isHost: players[id][2],
+        planet: players[id][3]
       }))
     });
-    
   });
+
 
   socket.on('join-lobby', ({ name }) => {
     if (!hostSocketId) {
@@ -104,6 +107,14 @@ const handleSocketConnection = (socket, io) => {
 
   });
 
+  socket.on('togglePause', ({ lobbyId, isPaused }) => {
+    if (socket.id === hostSocketId) {
+      io.to('game-room').emit('gamePaused', { isPaused });
+    } else {
+      socket.emit('error', { message: 'Only the host can pause/resume the game' });
+    }
+  });
+
   socket.on('selectPlanet', ({planet, playerId}) => {
 
     if (availablePlanets.includes(planet)) {
@@ -124,17 +135,26 @@ const handleSocketConnection = (socket, io) => {
   });
 
   socket.on('assignRole', async ({playerId, role }) => {
-    await assignRole(playerId, role);
-    players[playerId][1] = role;
-    io.to('game-room').emit('updatePlayerList', {
-      players: Object.keys(players).map(id => ({
-        id,
-        name: players[id][0],
-        role: players[id][1],
-        isHost: players[id][2],
-        planet: players[id][3]
-      }))
-    });
+    if (socket.id === hostSocketId) {
+      if (playerId === hostSocketId) {
+        socket.emit('error', { message: 'Host cannot assign a role to themselves' });
+        return;
+      }
+      await assignRole(playerId, role);
+      players[playerId][1] = role;
+      io.to('game-room').emit('updatePlayerList', {
+        players: Object.keys(players).map(id => ({
+          id,
+          name: players[id][0],
+          role: players[id][1],
+          isHost: players[id][2],
+          planet: players[id][3]
+        }))
+      });
+    } else {
+      socket.emit('error', { message: 'Only the host can assign roles' });
+    }
+  });
 
   socket.on('disconnect', () => {
     deregisterJuror(socket.id);
@@ -147,13 +167,7 @@ const handleSocketConnection = (socket, io) => {
     }
   });
 
-  socket.on('assignRole', async ({ lobbyId, playerId, role }) => {
-      await assignRole(playerId, role);
-      players[playerId][1] = role;
-      io.in(lobbyId).emit('updateRole', {newRole: role});
-      
-  });    
-});
+
 
   //GAME SOCKETS
 
@@ -190,7 +204,7 @@ const handleSocketConnection = (socket, io) => {
 
       // Assign the headline to a juror
       assignHeadlineToJuror(savedHeadline._id, savedHeadline.headline, io);
-      socket.to(socketId).emit('updatePlayerStatus', { socketId: socketId, headlineId: savedHeadline._id, headline: savedHeadline.headline, status: 'with Juror, pending' })
+      socket.emit('updatePlayerStatus', { socketId: socketId, headlineId: savedHeadline._id, headline: savedHeadline.headline, status: 'with Juror, pending' })
     } catch (error) {
       console.error('Error submitting headline:', error);
       socket.emit('error', { message: 'Failed to submit headline' });

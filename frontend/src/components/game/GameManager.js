@@ -4,6 +4,7 @@ import { useParams, useLocation, useNavigate } from 'react-router-dom';
 import Player from './Player';
 import Juror from './Juror';
 import Umpire from './Umpire';
+import Host from './Host'; 
 
 import socket from '../../socket';
 import '../../styles/App.css';
@@ -46,6 +47,7 @@ const GameManager = () => {
       {role === 'player' && <Player lobbyId={lobbyId} planet={planet} />}
       {role === 'juror' && <Juror lobbyId={lobbyId} />}
       {role === 'umpire' && <Umpire lobbyId={lobbyId} />}
+      {role === 'host' && <Host lobbyId={lobbyId} />}
     </div>
   );
 };

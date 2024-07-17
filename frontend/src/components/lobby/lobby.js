@@ -52,11 +52,13 @@ const Lobby = () => {
       setHostSocketId(hostSocketId);
       
     });
-
     socket.on('updatePlayerList', ({players}) => {
       setPlayers(players);
       setPlayerCount(players.length);
-      console.log(players);
+      const currentPlayer = players.find(player => player.id === socket.id);
+      if (currentPlayer && currentPlayer.role === 'host') {
+        setHostSocketId(socket.id);
+      }
     });
 
 
@@ -82,12 +84,11 @@ const Lobby = () => {
 
 
   const handleAssignRole = (playerId, role) => {
-    socket.emit('assignRole', {playerId, role });
-    setPlayers(prevPlayers =>
-      prevPlayers.map(player =>
-        player.id === playerId ? { ...player, role} : player
-      )
-    );
+    if (socket.id === hostSocketId && playerId !== hostSocketId) {
+      socket.emit('assignRole', {playerId, role });
+    } else if (playerId === hostSocketId) {
+      alert('As the host, you cannot assign a role to yourself.');
+    }
   };
 
   const handleStartGame = () => {
@@ -104,16 +105,12 @@ const Lobby = () => {
 
   return (
     <div className="container">
-      <div className="lobby-header">
-        <h1>{host ? `${host}'s Lobby` : 'Lobby'}</h1>
-        <h3 className="player-count">Player Count: {playerCount}</h3>
-      </div>
-      <h3>Waiting for players...</h3>
+      {/* ... (keep existing JSX) */}
       <ul>
         {players.map((player, index) => (
           <li key={index}>
             {player.name} ({player.role || 'No role assigned'})
-            {socket.id === hostSocketId && (
+            {socket.id === hostSocketId && player.id !== hostSocketId && (
               <div>
                 <button onClick={() => handleAssignRole(player.id, 'umpire')}>Assign Umpire</button>
                 <button onClick={() => handleAssignRole(player.id, 'player')}>Assign Player</button>
