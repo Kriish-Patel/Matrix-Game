@@ -15,16 +15,15 @@
     flex-direction: column;
     justify-content: flex-start;
   }
-  
-  .planet-details {
-    flex: 1;
-     margin-left: 20px;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    position: relative;
+
+  .selected-planet {
+    position: absolute;
+  bottom: 20px; /* Position at the bottom with some padding */
+  left: 0; /* Align to the left */
+  width: 100%;
+  text-align: center;
   }
+  
   
   ul {
     list-style: none;
@@ -49,11 +48,7 @@
     margin-bottom: 10px;
   }
   
-  .selected-planet {
-    bottom: 20px;
-    margin-top: auto;
-    text-align: left;
-  }
+  
   
   .hovered-planet-info {
     display: block;
@@ -64,18 +59,6 @@
     display: block;
   }
   
-  button[data-planet]:hover::after {
-    content: '';
-    display: block;
-    position: absolute;
-    right: -220px; /* Adjust this value based on your layout */
-    top: 0;
-    width: 200px;
-    height: 200px;
-    background-size: cover;
-    background-position: center;
-    z-index: 1000;
-  }
   button[data-planet="Mercury"]:hover::after {
     background-image: url('/public/images/Mercury.jpg');
   }
@@ -119,13 +102,28 @@
     display: block;
     position: absolute;
     right: -220px; /* Adjust this value based on your layout */
-    top: 210px;
+    top: calc(50% + 110px);
     background-color: white;
     color: black;
     padding: 10px;
     border: 1px solid black;
     z-index: 1000;
     width: 200px;
+  }
+
+  button[data-planet]:hover::after {
+    content: '';
+    display: block;
+    position: absolute;
+    right: -220px; /* Adjust this value based on your layout */
+    top: 50%;
+    
+    transform: translateY(-50%);
+    width: 200px;
+    height: 200px;
+    background-size: cover;
+    background-position: center;
+    z-index: 1000;
   }
   
  
