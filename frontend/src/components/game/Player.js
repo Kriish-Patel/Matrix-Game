@@ -21,7 +21,7 @@ const Player = ({planet}) => {
     fetch('/player_briefings.json')
       .then((response) => response.json())
       .then((data) => {
-        console.log('Fetched data:', data);
+        
         if (data[planet]) {
           setBriefing(data[planet]);
         }

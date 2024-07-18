@@ -6,7 +6,8 @@ const SelectPlanet = () => {
   const { lobbyId } = useParams();
   const location = useLocation();
   const navigate = useNavigate();
-  const { name } = location.state;
+  const { name, actualPlayersCount } = location.state;
+  const [playerRoleCount, setPlayerRoleCount] = useState(null)
   const [selectedPlanet, setSelectedPlanet] = useState(null);
 
   const [planets, setPlanets] = useState([
@@ -27,6 +28,7 @@ const SelectPlanet = () => {
       setPlanets((prevPlanets) => prevPlanets.filter((p) => p !== planet));
     });
 
+    
     // Clean up on component unmount  
     return () => {
       socket.off('planetSelected');
@@ -45,6 +47,7 @@ const SelectPlanet = () => {
   return (
     <div>
       <h1>Hi {name}! Please select your planet</h1>
+      <h1>number of actual players: {actualPlayersCount} </h1>
       <ul>
         {planets.map((planet) => (
           <li key={planet}>

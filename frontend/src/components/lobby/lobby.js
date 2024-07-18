@@ -14,13 +14,16 @@ const Lobby = () => {
   const navigate = useNavigate();
   const [players, setPlayers] = useState([]);
   const [playerCount, setPlayerCount] = useState(0);
+
   const [host, setHost] = useState('');
   const [hostSocketId, setHostSocketId] = useState('');
 
   const [name, setName] = useState(location.state ? location.state.name : '');
+  const [actualPlayersCount, setActualPlayersCount] = useState(0)
   const [hasJoined, setHasJoined] = useState(false);
   const [initialJoin, setInitialJoin] = useState(false);
   const [roles, setRoles] = useState({});
+
   
   useEffect(() => {
 
@@ -50,8 +53,8 @@ const Lobby = () => {
       
       setHost(hostName);
       setHostSocketId(hostSocketId);
-      
     });
+
     socket.on('updatePlayerList', ({players}) => {
       setPlayers(players);
       setPlayerCount(players.length);
@@ -61,13 +64,16 @@ const Lobby = () => {
       }
     });
 
-
     socket.on('roundStarted', () => {
+      const finalActualPlayerCount = players.filter(player => player.role === 'player').length;
+      setActualPlayersCount(finalActualPlayerCount);
+      navigate(`/game/${lobbyId}`, { state: { role: roles[socket.id], actualPlayersCount: finalActualPlayerCount } });
       
-      navigate(`/game/${lobbyId}`, { state: { role: roles[socket.id] } });
       socket.emit('to-game-manager');
       
     });
+
+    
 
     socket.on('error', (message) => {
       alert(message);
@@ -84,17 +90,19 @@ const Lobby = () => {
 
 
   const handleAssignRole = (playerId, role) => {
+   
     if (socket.id === hostSocketId && playerId !== hostSocketId) {
       socket.emit('assignRole', {playerId, role });
+      
     } else if (playerId === hostSocketId) {
       alert('As the host, you cannot assign a role to yourself.');
     }
   };
 
   const handleStartGame = () => {
+
     
     socket.emit('startGame', { lobbyId });
-   
   };  
 
   const copyLink = () => {
@@ -102,10 +110,9 @@ const Lobby = () => {
     alert('Lobby link copied to clipboard');
   };
 
-
   return (
     <div className="container">
-      {/* ... (keep existing JSX) */}
+      <h1>{host}'s Lobby</h1>
       <ul>
         {players.map((player, index) => (
           <li key={index}>

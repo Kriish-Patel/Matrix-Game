@@ -14,7 +14,9 @@
       ],
       "scoringPoints": [
         "You may score additional points for successfully passing headlines that align with your divine attributes of swiftness, communication, and adaptability, especially those that push the envelope on how technology transforms human interaction and commerce."
-      ]
+      ],
+      "image": "/images/mercury.jpg"
+
     },
     "Venus": {
       "roleOverview": "As Venus, you channel the energies of harmony, beauty, relationships, and abundance. Your influence spreads across the human experiences of connection, aesthetics, and the integration of technology with well being.",
@@ -31,7 +33,8 @@
       ],
       "scoringPoints": [
         "You may score additional points for successfully advancing headlines that promote beauty, harmony, and prosperity in human societies, especially those that align technology with enhancing the quality of life and human relationships."
-      ]
+      ],
+      "image": "/images/venus.jpg"
     },
     "Earth": {
       "roleOverview": "As Earth, personified by Gaia, you embody the essence of the natural world and its preservation. Your influence is crucial in guiding technologies that respect, protect, and enhance the Earth’s ecosystems. You champion sustainable development and the integration of AI in ecological management.",
@@ -48,7 +51,8 @@
       ],
       "scoringPoints": [
         "You may score additional points for successfully promoting headlines that align with ecological stewardship, sustainable living, and the integration of AI technologies that protect and nurture the Earth."
-      ]
+      ],
+      "image": "/images/earth.jpg"
     },
     "Mars": {
       "roleOverview": "As Mars, you are the embodiment of conflict, aggression, and competition. Your domain covers all aspects of defense, strategic planning, and the use of AI to gain competitive advantages in various fields. You influence advancements in military technology, cybersecurity, and competitive sports where AI plays a crucial role.",
@@ -65,7 +69,8 @@
       ],
       "scoringPoints": [
         "You may score additional points for successfully advancing headlines that enhance security, competitive prowess, or bring strategic innovations to fields influenced by conflict and competition."
-      ]
+      ],
+      "image": "/images/mars.jpg"
     },
     "Jupiter": {
       "roleOverview": "As Jupiter, you embody leadership, authority, and societal order. Your domain extends to the governance of AI in shaping laws, ethical standards, and public policy. You influence how AI integrates into societal structures, ensuring it serves the greater good and fosters a fair and orderly community.",
@@ -82,7 +87,8 @@
       ],
       "scoringPoints": [
         "You may score additional points for successfully advancing headlines that bolster societal structures, promote justice, and enhance governance through the integration of AI."
-      ]
+      ],
+      "image": "/images/jupiter.jpg"
     },
     "Saturn": {
       "roleOverview": "As Saturn, you represent time, endurance, and the imposition of limits. Your domain is one of discipline and restraint, guiding the development and application of AI in areas that require careful consideration of long-term consequences, sustainability, and ethical boundaries.",
@@ -99,7 +105,8 @@
       ],
       "scoringPoints": [
         "You may score additional points for successfully advancing headlines that emphasize sustainability, ethical development, and prudent use of technology in line with Saturn’s themes of discipline and longevity."
-      ]
+      ],
+      "image": "/images/saturn.jpg"
     },
     "Uranus": {
       "roleOverview": "As Uranus, you embody innovation, radical change, and the breaking of conventions. Your influence is essential in spearheading the avant-garde of AI technology, pushing the boundaries of what is possible and challenging the status quo.",
@@ -116,7 +123,8 @@
       ],
       "scoringPoints": [
         "You may score additional points for successfully advancing headlines that signify major breakthroughs and transformations in technology and society, embodying Uranus's spirit of revolution and change."
-      ]
+      ],
+      "image": "/images/uranus.jpg"
     },
     "Neptune": {
       "roleOverview": "As Neptune, you are the embodiment of dreams, illusions, and the deeper, often hidden aspects of human consciousness. Your influence encourages the exploration of AI in areas like virtual reality, mental health, artistic creativity, and the fluid, evolving boundaries of digital and physical realities.",
@@ -133,7 +141,8 @@
       ],
       "scoringPoints": [
         "You may score additional points for successfully advancing headlines that reveal new dimensions of human experience, either by enhancing reality, deepening our understanding of the human psyche, or redefining artistic creation."
-      ]
+      ],
+      "image": "/images/neptune.jpg"
     },
     "Pluto": {
       "roleOverview": "As Pluto, you represent the depths of transformation and power. Your influence is profound in shaping AI’s role in deep analytics, hidden data processes, and systems that govern and protect sensitive information. You are also a patron of AI in areas that involve major shifts and deep, foundational changes, such as genetic engineering and deep learning.",
@@ -150,7 +159,8 @@
       ],
       "scoringPoints": [
         "You may score additional points for successfully advancing headlines that reveal hidden potentials of AI, protect deep data, or transform societal structures in fundamental ways."
-      ]
+      ],
+      "image": "/images/pluto.jpg"
     }
   }
   

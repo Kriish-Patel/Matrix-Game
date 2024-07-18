@@ -16,7 +16,8 @@ const GameManager = () => {
   const [players, setPlayers] = useState([]);
   const [role, setRole] = useState('')
   const [currentPlayerName, setCurrentPlayerName] = useState(null);
-  const { planet } = location.state
+  const { planet, actualPlayersCount } = location.state
+  
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -35,7 +36,7 @@ const GameManager = () => {
     socket.on('navigate:selectPlanet', () => {
       //navigate only players to selectPlanet.js
       if (role === 'player'){
-      navigate(`/select-planet/${lobbyId}`, { state: { name: currentPlayerName} });
+      navigate(`/select-planet/${lobbyId}`, { state: { name: currentPlayerName, actualPlayersCount} });
       }
     });
   });

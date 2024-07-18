@@ -132,7 +132,7 @@ const handleSocketConnection = (socket, io) => {
         }))
       });
     }
-  });
+  });3
 
   socket.on('assignRole', async ({playerId, role }) => {
     if (socket.id === hostSocketId) {
@@ -175,7 +175,10 @@ const handleSocketConnection = (socket, io) => {
 
     console.log(`startGame event received for lobby ${lobbyId}`);
     
+    const actualPlayers = Object.values(players).filter(player => player[1] === 'player');
     const unassignedPlayers = Object.values(players).filter(player => player[1] === '');
+
+    io.in('game-room').emit('actualPlayersCount', {actualPlayers})
   
     if (unassignedPlayers.length > 0) {
       socket.emit('error', 'All players must have assigned roles before starting the game');
