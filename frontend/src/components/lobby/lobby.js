@@ -112,7 +112,11 @@ const Lobby = () => {
 
   return (
     <div className="container">
-      <h1>{host}'s Lobby</h1>
+      <div className="lobby-header">
+        <h1>{host ? `${host}'s Lobby` : 'Lobby'}</h1>
+        <h3 className="player-count">Player Count: {playerCount}</h3>
+      </div>
+      <h3>Waiting for players...</h3>
       <ul>
         {players.map((player, index) => (
           <li key={index}>
