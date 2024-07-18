@@ -1,13 +1,20 @@
 // frontend/src/components/game/EndGameScreen.js
 import React from 'react';
+import { useLocation, useParams } from 'react-router-dom';
 
-const EndGameScreen = ({ playerScores }) => {
-  const sortedScores = [...playerScores].sort((a, b) => b.score - a.score);
+const EndGameScreen = () => {
+  const location = useLocation();
+  const { lobbyId } = useParams();
+  const { results } = location.state || { results: [] };
+  console.log(results)
+
+  // Sort the results by score in descending order
+  const sortedResults = [...results].sort((a, b) => b.score - a.score);
 
   return (
     <div className="end-game-screen">
       <h2>Game Over</h2>
-      <h3>Final Scores</h3>
+      <h3>Final Scores for Lobby: {lobbyId}</h3>
       <table>
         <thead>
           <tr>
@@ -17,7 +24,7 @@ const EndGameScreen = ({ playerScores }) => {
           </tr>
         </thead>
         <tbody>
-          {sortedScores.map((player, index) => (
+          {sortedResults.map((player, index) => (
             <tr key={player.id}>
               <td>{index + 1}</td>
               <td>{player.name}</td>

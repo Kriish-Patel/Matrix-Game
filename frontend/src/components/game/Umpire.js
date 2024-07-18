@@ -89,7 +89,7 @@ const Umpire = ({ waitingMessage }) => {
                 <label>
                   Score:
                   <select 
-                    value={selectedScores[headlineId] !== undefined || ''} 
+                    value={selectedScores[headlineId] === undefined ? '' : selectedScores[headlineId]} 
                     onChange={(e) => handleScoreChange(headlineId, parseInt(e.target.value, 10))} 
                   >
                     <option value="" disabled>Select score</option>
