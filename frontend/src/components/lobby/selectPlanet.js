@@ -1,14 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import socket from '../../socket';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
+import '../../styles/SelectPlanet.css';
+
 
 const SelectPlanet = () => {
   const { lobbyId } = useParams();
   const location = useLocation();
   const navigate = useNavigate();
   const { name, actualPlayersCount } = location.state;
-  const [playerRoleCount, setPlayerRoleCount] = useState(null)
+  
   const [selectedPlanet, setSelectedPlanet] = useState(null);
+  const [hoveredPlanet, setHoveredPlanet] = useState(null);
+  const [planetBriefings, setPlanetBriefings] = useState({});
 
   const [planets, setPlanets] = useState([
     'Mercury',
@@ -23,6 +27,14 @@ const SelectPlanet = () => {
   ]);
 
   useEffect(() => {
+
+    // Fetch planet briefings data
+    fetch('/player_briefings.json')
+      .then(response => response.json())
+      .then(data => setPlanetBriefings(data))
+      .catch(error => console.error('Error fetching the planet briefings:', error));
+
+
     // Listen for planet selection updates from the server
     socket.on('planetSelected', (planet) => {
       setPlanets((prevPlanets) => prevPlanets.filter((p) => p !== planet));
@@ -43,25 +55,34 @@ const SelectPlanet = () => {
     socket.emit('selectPlanet', { planet: selectedPlanet, playerId: socket.id });
     navigate(`/game/${lobbyId}`, { state: { name, planet: selectedPlanet } });
   };
-
   return (
-    <div>
-      <h1>Hi {name}! Please select your planet</h1>
-      <h1>number of actual players: {actualPlayersCount} </h1>
-      <ul>
-        {planets.map((planet) => (
-          <li key={planet}>
-            {planet}
-            <button onClick={() => handleSelect(planet)}>Select</button>
-          </li>
-        ))}
-      </ul>
-      {selectedPlanet && (
-        <div>
-          <p>You have selected: {selectedPlanet}</p>
-          <button onClick={handleProceedToGame}>Proceed to Lobby</button>
-        </div>
-      )}
+    <div className="select-planet-container">
+      <div className="planet-selection">
+        <h1>Hi {name}! Please select your planet</h1>
+        {/* <h1>Number of actual players: {actualPlayersCount}</h1> */}
+        <ul>
+          {planets.map((planet) => (
+            <li key={planet}>
+              {planet}
+              <button
+                onClick={() => handleSelect(planet)}
+                data-planet={planet}
+                data-description={planetBriefings[planet]?.roleOverview || ''}
+              >
+                Select
+              </button>
+            </li>
+          ))}
+        </ul>
+      </div>
+      <div className="planet-details">
+        {selectedPlanet && (
+          <div className="selected-planet">
+            <p>You have selected: {selectedPlanet}</p>
+            <button onClick={handleProceedToGame}>Proceed to Lobby</button>
+          </div>
+        )}
+      </div>
     </div>
   );
 };

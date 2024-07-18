@@ -1,0 +1,133 @@
+
+.select-planet-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    height: 100vh;
+    padding: 20px;
+    box-sizing: border-box;
+  }
+  
+  .planet-selection {
+    flex: 1;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+  }
+  
+  .planet-details {
+    flex: 1;
+  margin-left: 20px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+    
+  }
+  
+  ul {
+    list-style: none;
+    padding: 0;
+    flex: 1;
+  }
+  
+  li {
+    margin: 10px 0;
+  }
+  
+  button {
+    margin-left: 10px;
+    padding: 5px 10px;
+    cursor: pointer;
+  }
+  
+  img {
+    display: block;
+    margin-bottom: 10px;
+  }
+  
+  .selected-planet {
+    position: absolute;
+    bottom: 20px;
+    margin-top: auto;
+    text-align: right;
+  }
+  
+  .hovered-planet-info {
+    display: block;
+    text-align: center;
+  }
+  
+  button[data-planet]:hover + .hovered-planet-info {
+    display: block;
+  }
+  
+  button[data-planet]:hover::after {
+    content: '';
+    display: block;
+    position: absolute;
+    right: -220px; /* Adjust this value based on your layout */
+    top: 0;
+    width: 200px;
+    height: 200px;
+    background-size: cover;
+    background-position: center;
+    z-index: 1000;
+  }
+  button[data-planet="Mercury"]:hover::after {
+    background-image: url('/public/images/Mercury.jpg');
+  }
+  
+  button[data-planet="Venus"]:hover::after {
+    background-image: url('/public/images/venus.jpg');
+  }
+  
+  button[data-planet="Earth"]:hover::after {
+    background-image: url('/public/images/earth.jpg');
+  }
+  
+  button[data-planet="Mars"]:hover::after {
+    background-image: url('/public/images/mars.jpg');
+  }
+  
+  button[data-planet="Jupiter"]:hover::after {
+    background-image: url('/public/images/jupiter.jpg');
+  }
+  
+  button[data-planet="Saturn"]:hover::after {
+    background-image: url('/public/images/saturn.jpg');
+  }
+  
+  button[data-planet="Uranus"]:hover::after {
+    background-image: url('/public/images/uranus.jpg');
+  }
+  
+  button[data-planet="Neptune"]:hover::after {
+    background-image: url('/public/images/neptune.jpg');
+    
+  }
+  
+  button[data-planet="Pluto"]:hover::after {
+    background-image: url('/public/images/pluto.jpg');
+  }
+  
+
+  button[data-planet]:hover::before {
+    content: attr(data-description);
+    display: block;
+    position: absolute;
+    right: -220px; /* Adjust this value based on your layout */
+    top: 210px;
+    background-color: white;
+    color: black;
+    padding: 10px;
+    border: 1px solid black;
+    z-index: 1000;
+    width: 200px;
+  }
+  
+ 
+  
+  
