@@ -10,7 +10,7 @@ import PauseOverlay from './PauseOverlay';
 
 import '../../styles/App.css';
 
-const Player = ({planet}) => {
+const Player = ({ planet }) => {
   const [headline, setHeadline] = useState('');
   const [briefing, setBriefing] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -18,6 +18,7 @@ const Player = ({planet}) => {
   const [isPaused, setIsPaused] = useState(false);
 
   useEffect(() => {
+    // Fetch the briefing information for the player's planet
     fetch('/player_briefings.json')
       .then((response) => response.json())
       .then((data) => {
@@ -27,13 +28,14 @@ const Player = ({planet}) => {
         }
       })
       .catch((error) => console.error('Error fetching briefing data:', error));
-    
+
     socket.on('updatePlayerStatus', ({ socketId, headlineId, headline, status }) => {
       console.log(`Player ${socketId} changed status to ${status} for headline ${headlineId}, ${headline}`);
       if (status === 'accepted' || status === 'rejected') {
         setHasPendingHeadline(false);
       }
     });
+
     socket.on('gamePaused', ({ isPaused }) => {
       setIsPaused(isPaused);
     });
@@ -42,13 +44,12 @@ const Player = ({planet}) => {
       socket.off('updatePlayerStatus');
       socket.off('gamePaused');
     };
-    
   }, [planet]);
 
   const submitHeadline = () => {
     if (headline.trim() && !hasPendingHeadline) {
       socket.emit('submitHeadline', { socketId: socket.id, headline });
-      setHeadline("");
+      setHeadline('');
       setHasPendingHeadline(true);
     }
   };
@@ -68,21 +69,21 @@ const Player = ({planet}) => {
         <PlayerTimeline />
       </div>
       <div className="player-container">
-        <GameTimer />
+        <GameTimer gameEndDuration={60} />
         <h2>Enter Headline</h2>
         <h3>Player Planet: {planet}</h3>
         <div className="headline-input-container">
-          <input 
-            type="text" 
-            value={headline} 
-            onChange={(e) => setHeadline(e.target.value)} 
-            placeholder="Enter your headline" 
+          <input
+            type="text"
+            value={headline}
+            onChange={(e) => setHeadline(e.target.value)}
+            placeholder="Enter your headline"
             className="headline-input"
             disabled={hasPendingHeadline}
           />
           <div className="button-container">
             <button onClick={submitHeadline} disabled={hasPendingHeadline}>
-              {hasPendingHeadline ? "Waiting for response..." : "Submit"}
+              {hasPendingHeadline ? 'Waiting for response...' : 'Submit'}
             </button>
             <button onClick={openModal}>View Briefing</button>
           </div>
@@ -90,7 +91,53 @@ const Player = ({planet}) => {
         {hasPendingHeadline && (
           <p className="pending-message">Your headline is pending. Please wait for a response before submitting a new one.</p>
         )}
-        {/* Modal code remains unchanged */}
+        {briefing && (
+          <ReactModal
+            isOpen={isModalOpen}
+            onRequestClose={closeModal}
+            contentLabel="Player Briefing"
+            className="modal"
+            overlayClassName="modal-overlay"
+            appElement={document.getElementById('root') || undefined}
+          >
+            <div className="modal-content">
+              <button onClick={closeModal}>Close</button>
+              <h2>Briefing for {planet}</h2>
+              <h3>Role Overview</h3>
+              <p>{briefing.roleOverview}</p>
+              {briefing.areasOfWorldlyConcern && (
+                <>
+                  <h3>Areas of Worldly Concern</h3>
+                  <ul>
+                    {briefing.areasOfWorldlyConcern.map((area, index) => (
+                      <li key={index}>{area}</li>
+                    ))}
+                  </ul>
+                </>
+              )}
+              {briefing.gameplayGuidance && (
+                <>
+                  <h3>Gameplay Guidance</h3>
+                  <ul>
+                    {briefing.gameplayGuidance.map((guidance, index) => (
+                      <li key={index}>{guidance}</li>
+                    ))}
+                  </ul>
+                </>
+              )}
+              {briefing.scoringPoints && (
+                <>
+                  <h3>Scoring Points</h3>
+                  <ul>
+                    {briefing.scoringPoints.map((point, index) => (
+                      <li key={index}>{point}</li>
+                    ))}
+                  </ul>
+                </>
+              )}
+            </div>
+          </ReactModal>
+        )}
       </div>
       <div className="global-timeline-container">
         <GlobalTimeline />
