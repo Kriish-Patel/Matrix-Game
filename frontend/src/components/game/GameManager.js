@@ -43,7 +43,7 @@ const GameManager = () => {
 
   return (
     <div className="container">
-      <h1>Game: {lobbyId}</h1>
+    
       <h2>Your role: {role}</h2>
       {role === 'player' && <Player lobbyId={lobbyId} planet={planet} />}
       {role === 'juror' && <Juror lobbyId={lobbyId} />}

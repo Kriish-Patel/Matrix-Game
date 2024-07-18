@@ -6,7 +6,7 @@ body {
   background-color: #1e1e1e;
   color: #ffffff;
   margin: 0;
-  padding: 0;
+  padding: 10;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -19,9 +19,11 @@ body {
   max-width: 1000px;
   margin: 0 auto;
   padding: 20px;
+  padding-top: 40px;
   background-color: #2e2e2e;
-  border-radius: 10px;
+  border-radius: 20px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  
 }
 
 /* Heading styles */
