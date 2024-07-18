@@ -11,7 +11,6 @@ const SelectPlanet = () => {
   const { name, actualPlayersCount } = location.state;
   
   const [selectedPlanet, setSelectedPlanet] = useState(null);
-  const [hoveredPlanet, setHoveredPlanet] = useState(null);
   const [planetBriefings, setPlanetBriefings] = useState({});
 
   const [planets, setPlanets] = useState([
@@ -59,7 +58,6 @@ const SelectPlanet = () => {
     <div className="select-planet-container">
       <div className="planet-selection">
         <h1>Hi {name}! Please select your planet</h1>
-        {/* <h1>Number of actual players: {actualPlayersCount}</h1> */}
         <ul>
           {planets.map((planet) => (
             <li key={planet}>
@@ -75,14 +73,12 @@ const SelectPlanet = () => {
           ))}
         </ul>
       </div>
-      <div className="planet-details">
-        {selectedPlanet && (
-          <div className="selected-planet">
-            <p>You have selected: {selectedPlanet}</p>
-            <button onClick={handleProceedToGame}>Proceed to Lobby</button>
-          </div>
-        )}
-      </div>
+      {selectedPlanet && (
+        <div className="selected-planet">
+          <p>You have selected: {selectedPlanet}</p>
+          <button onClick={handleProceedToGame}>Proceed to Lobby</button>
+        </div>
+      )}
     </div>
   );
 };

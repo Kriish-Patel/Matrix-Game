@@ -18,19 +18,19 @@
   
   .planet-details {
     flex: 1;
-  margin-left: 20px;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  position: relative;
-    
+     margin-left: 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    position: relative;
   }
   
   ul {
     list-style: none;
     padding: 0;
     flex: 1;
+    flex-grow: 1;
   }
   
   li {
@@ -41,6 +41,7 @@
     margin-left: 10px;
     padding: 5px 10px;
     cursor: pointer;
+    
   }
   
   img {
@@ -49,10 +50,9 @@
   }
   
   .selected-planet {
-    position: absolute;
     bottom: 20px;
     margin-top: auto;
-    text-align: right;
+    text-align: left;
   }
   
   .hovered-planet-info {
