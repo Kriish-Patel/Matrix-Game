@@ -31,7 +31,7 @@ const Player = ({ planet }) => {
 
     socket.on('updatePlayerStatus', ({ socketId, headlineId, headline, status }) => {
       console.log(`Player ${socketId} changed status to ${status} for headline ${headlineId}, ${headline}`);
-      if (status === 'accepted' || status === 'rejected') {
+      if (status === 'success' || status === 'failed') {
         setHasPendingHeadline(false);
       }
     });
