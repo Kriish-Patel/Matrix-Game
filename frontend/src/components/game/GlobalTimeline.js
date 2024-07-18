@@ -6,10 +6,9 @@ const GlobalTimeline = () => {
     const [acceptedHeadlines, setAcceptedHeadlines] = useState([]);
 
     useEffect(() => {
-        
-        socket.on('acceptedHeadline', ({ headline }) => {
-            console.log("say drake")
-            setAcceptedHeadlines(prevHeadlines => [headline, ...prevHeadlines]);
+        socket.on('acceptedHeadline', ({ headline, currentYear }) => {
+            console.log("say drake");
+            setAcceptedHeadlines(prevHeadlines => [{ headline, currentYear }, ...prevHeadlines]);
         });
 
         return () => {
@@ -24,12 +23,14 @@ const GlobalTimeline = () => {
                 <thead>
                     <tr>
                         <th>Headline</th>
+                        <th>Year</th>
                     </tr>
                 </thead>
                 <tbody>
-                    {acceptedHeadlines.map((headline, index) => (
+                    {acceptedHeadlines.map((item, index) => (
                         <tr key={index}>
-                            <td>{headline}</td>
+                            <td>{item.headline}</td>
+                            <td>{item.currentYear}</td>
                         </tr>
                     ))}
                 </tbody>

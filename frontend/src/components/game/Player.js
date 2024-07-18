@@ -3,12 +3,12 @@ import React, { useState, useEffect } from 'react';
 import socket from '../../socket';
 import ReactModal from 'react-modal';
 import '../../styles/Player.css';
-import GameTimer from './GameTimer';
+import '../../styles/App.css';
+
 import GlobalTimeline from './GlobalTimeline';
 import PlayerTimeline from './PlayerTimeline';
 import PauseOverlay from './PauseOverlay';
 
-import '../../styles/App.css';
 
 const Player = ({ planet }) => {
   const [headline, setHeadline] = useState('');
@@ -64,14 +64,15 @@ const Player = ({ planet }) => {
 
   return (
     <div className="main-container">
+    
       {isPaused && <PauseOverlay />}
       <div className="player-timeline-container">
         <PlayerTimeline />
       </div>
       <div className="player-container">
-        <GameTimer gameEndDuration={60} />
-        <h2>Enter Headline</h2>
+        
         <h3>Player Planet: {planet}</h3>
+        <h2>Enter Headline</h2>
         <div className="headline-input-container">
           <input
             type="text"

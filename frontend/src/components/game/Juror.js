@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import socket from '../../socket';
 import PauseOverlay from './PauseOverlay';
 
+
 const Juror = ({ waitingMessage }) => {
   const [headLines, setHeadLines] = useState([]);
   const [isPaused, setIsPaused] = useState(false);
