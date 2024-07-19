@@ -13,8 +13,9 @@ const server = http.createServer(app);
 const io = socketIo(server, {
   cors: {
     //http://localhost:3000
-    origin: "https://headlines-game-frontend.onrender.com/", // Allow the frontend URL
-    methods: ["GET", "POST"]
+    origin: "https://headlines-game-frontend.onrender.com", // Allow the frontend URL
+    methods: ["GET", "POST"],
+    credentials:true
   }
 });
 const PORT = process.env.PORT || 5001;
