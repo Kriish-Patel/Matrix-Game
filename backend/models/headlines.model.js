@@ -30,6 +30,10 @@ const headlineSchema = new Schema({
     type: Boolean,
     required: true,
     default: false
+  },
+  year: {
+    type: Number,
+    defualt: null
   }
 
 }, {

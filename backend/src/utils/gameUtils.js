@@ -184,12 +184,19 @@ const processUmpireReview = async (headlineId, isConsistent, umpireScore) => {
 
     await headline.save();
     console.log(`player ID: ${headline.player}`);
-    return { success: true, playerId: headline.player.socketId, combinedScore: combinedScore, headline: headline.headline };
+    return { success: true, playerId: headline.player.socketId, combinedScore: combinedScore, headline: headline.headline, headlineId: headlineId };
   } catch (error) {
     console.error('Error processing umpire review:', error);
     return { success: false, error };
   }
 };
+
+const updateYear = async (headlineId, currentYear) => {
+  const headline = await Headline.findById(headlineId);
+  headline.year = currentYear
+  await headline.save()
+  return
+}
 
 module.exports = {
   createLobby,
@@ -200,6 +207,7 @@ module.exports = {
   assignHeadlineToJuror,
   registerJuror,
   deregisterJuror,
-  processUmpireReview
+  processUmpireReview,
+  updateYear
   
 };

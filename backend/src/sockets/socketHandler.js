@@ -7,6 +7,7 @@ const {
   registerJuror,
   deregisterJuror,
   processUmpireReview,
+  updateYear,
   
   assignRole,
 } = require('../utils/gameUtils');
@@ -267,6 +268,7 @@ const handleSocketConnection = (socket, io) => {
         
         players[result.playerId][4] = result.combinedScore
         io.emit('acceptedHeadline', {headline: result.headline, currentYear})
+        updateYear(headlineId,currentYear)
         
         socket.to(result.playerId.toString()).emit('updatePlayerStatus', { socketId: result.playerId, headlineId, headline: result.headline, status: 'success' });
         
