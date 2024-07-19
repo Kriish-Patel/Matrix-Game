@@ -1,46 +1,56 @@
-// backend/index.js
 const express = require('express');
 const http = require('http');
 const socketIo = require('socket.io');
 const cors = require('cors');
+const path = require('path');
 const { handleCreateLobby } = require('./src/controllers/gameController');
 const handleSocketConnection = require('./src/sockets/socketHandler');
-const mongoose = require('mongoose')
+const mongoose = require('mongoose');
 require('dotenv').config();
 
 const app = express();
 const server = http.createServer(app);
-const io = socketIo(server, {
-  cors: {
-    //http://localhost:3000
-    origin: "https://headlines-game-frontend.onrender.com", // Allow the frontend URL
-    methods: ["GET", "POST"],
-    credentials:true
-  }
-});
 const PORT = process.env.PORT || 5001;
 
-app.use(cors());
+const corsOptions = {
+  origin: "https://headlines-game-frontend.onrender.com",
+  methods: ["GET", "POST"],
+  credentials: true
+};
+
+app.use(cors(corsOptions));
 app.use(express.json());
 
-const uri = process.env.ATLAS_URI;
-mongoose.connect(uri);
+const io = socketIo(server, {
+  cors: corsOptions
+});
 
-const connection = mongoose.connection;
-connection.once('open',() => {
-  console.log("Mongoose connected");
-})
+const uri = process.env.ATLAS_URI;
+mongoose.connect(uri, { useNewUrlParser: true, useUnifiedTopology: true })
+  .then(() => console.log("MongoDB connected successfully"))
+  .catch(err => console.log("MongoDB connection error: ", err));
+
+// Serve static files from the React app
+app.use(express.static(path.join(__dirname, '../frontend/build')));
 
 // Route to create a new lobby
 app.get('/create-lobby', handleCreateLobby);
 
 io.on('connection', (socket) => {
-
   console.log(`Client connected, id: ${socket.id}`);
-
   handleSocketConnection(socket, io);
 });
-  
+
+// Catch-all route
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, '../frontend/build', 'index.html'));
+});
+
+// Error handling middleware
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).send('Something broke!');
+});
 
 server.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
