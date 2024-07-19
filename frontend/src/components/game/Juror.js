@@ -47,7 +47,7 @@ const Juror = ({ waitingMessage }) => {
     <div className="main-container">
     {isPaused && <PauseOverlay />}
     <div className="content">
-      <h2>Rank Headlines</h2>
+      <h2>Score Headlines</h2>
       {headLines.length === 0 ? (
         <div>{waitingMessage}</div>
       ) : (
