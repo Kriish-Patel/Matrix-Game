@@ -274,13 +274,14 @@ const handleSocketConnection = (socket, io) => {
   });
 
   socket.on('endGame', ()=>{
-    console.log(`inside socket: ${Object.keys(players)
-      .filter(id => players[id][1].toLowerCase() === "player")
-      .map(id => ({
-        id,
-        name: players[id][0],
-        score: players[id][4]
-      }))}`)
+    const array = Object.keys(players)
+    .filter(id => players[id][1].toLowerCase() === "player")
+    .map(id => ({
+      id,
+      name: players[id][0],
+      score: players[id][4]
+    }))
+    console.log(`inside socket: ${array}`)
     io.emit('showLeaderboard', {players: Object.keys(players)
       .filter(id => players[id][1].toLowerCase() === "player")
       .map(id => ({
