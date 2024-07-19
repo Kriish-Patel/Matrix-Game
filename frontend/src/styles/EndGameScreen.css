@@ -1,0 +1,30 @@
+.scores-table {
+    margin: 0 auto;
+    width: 50%;
+  }
+  
+  .scores-table table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  
+  .scores-table th,
+  .scores-table td {
+    border: 1px solid #ddd;
+    padding: 8px;
+  }
+  
+  .scores-table th {
+    background-color: #4CAF50;
+    color: white;
+  }
+
+  .left-container {
+    flex: 1;
+    padding: 30px;
+    text-align: left;
+  }
+
+  .text-container {
+    margin-bottom: 30px; /* Adjust spacing as needed */
+  }
