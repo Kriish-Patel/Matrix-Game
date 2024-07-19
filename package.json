@@ -7,7 +7,7 @@
     "install-server": "cd backend && npm install",
     "start-server": "cd backend && node index.js",
     "install-client": "cd frontend && npm install",
-    "build-client": "cd frontend && npm run build && cp _redirects build/_redirects && react-scripts build",
+    "build-client": "cd frontend && npm run build && react-scripts build",
     "start-client": "cd frontend && npm run start"
   },
   "dependencies": {
