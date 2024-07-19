@@ -15,9 +15,9 @@ const Home = () => {
 
       socket.connect(); // Connect the socket when creating a lobby
       socket.emit('create-lobby', {name}); // Emit create-lobby event to the server
+   //   http://localhost:5001
 
-
-      const response = await axios.get('http://localhost:5001/create-lobby'); // Backend URL
+      const response = await axios.get('https://headlines-game.onrender.com/create-lobby'); // Backend URL
      
       const { lobbyId } = response.data;
      
