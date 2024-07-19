@@ -41,7 +41,7 @@ const handleSocketConnection = (socket, io) => {
       socket.emit('error', { message: 'Lobby already created' });
       return;
     }
-    const playerData = [name, 'host', true, 'none'];
+    const playerData = [name, 'host', true, 'none',0];
     players[socket.id] = playerData;
     hostSocketId = socket.id;
     hostName = name;
@@ -79,7 +79,7 @@ const handleSocketConnection = (socket, io) => {
       socket.emit('error', { message: 'Lobby has not been created yet' });
       return;
     }
-    const playerData = [name, '', false, ''];
+    const playerData = [name, '', false, '',0];
     players[socket.id] = playerData;
     const newPlayer = new Player({
       playerName: name,
@@ -265,6 +265,7 @@ const handleSocketConnection = (socket, io) => {
         console.log(`headline: ${result.headline}`);
         socket.to(result.playerId.toString()).emit('updatePlayerScore', { score: result.combinedScore});
         
+        players[result.playerId][4] = result.combinedScore
         io.emit('acceptedHeadline', {headline: result.headline, currentYear})
         
         socket.to(result.playerId.toString()).emit('updatePlayerStatus', { socketId: result.playerId, headlineId, headline: result.headline, status: 'success' });
@@ -278,6 +279,24 @@ const handleSocketConnection = (socket, io) => {
       console.error('Error processing umpire review:', result.error);
     }
   });
+
+  socket.on('endGame', ()=>{
+    const array = Object.keys(players)
+    .filter(id => players[id][1].toLowerCase() === "player")
+    .map(id => ({
+      id,
+      name: players[id][0],
+      score: players[id][4]
+    }))
+    console.log(`inside socket: ${array}`)
+    io.emit('showLeaderboard', {players: Object.keys(players)
+      .filter(id => players[id][1].toLowerCase() === "player")
+      .map(id => ({
+        id,
+        name: players[id][0],
+        score: players[id][4]
+      }))})
+  })
 
 };
 
