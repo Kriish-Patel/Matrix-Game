@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import socket from '../../socket';
 import PauseOverlay from './PauseOverlay';
+import GlobalTimeline from './GlobalTimeline';
+import '../../styles/Player.css';
+import '../../styles/App.css';
 
 const Umpire = ({ waitingMessage }) => {
   const [headlines, setHeadlines] = useState([]);
@@ -67,8 +70,9 @@ const Umpire = ({ waitingMessage }) => {
   };
 
   return (
-    <div>
-      {isPaused && <PauseOverlay />}
+    <div className="main-container">
+    {isPaused && <PauseOverlay />}
+    <div className="content">
       <h2>Review Headlines</h2>
       {headlines.length === 0 ? (
         <div>{waitingMessage}</div>
@@ -89,7 +93,7 @@ const Umpire = ({ waitingMessage }) => {
                 <label>
                   Score:
                   <select 
-                    value={selectedScores[headlineId] !== undefined || ''} 
+                    value={selectedScores[headlineId] !== undefined ? selectedScores[headlineId] : ''} 
                     onChange={(e) => handleScoreChange(headlineId, parseInt(e.target.value, 10))} 
                   >
                     <option value="" disabled>Select score</option>
@@ -107,6 +111,10 @@ const Umpire = ({ waitingMessage }) => {
         ))
       )}
     </div>
+    <div className="global-timeline-container">
+      <GlobalTimeline />
+    </div>
+  </div>
   );
 };
 

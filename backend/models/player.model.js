@@ -15,7 +15,7 @@ const playerSchema = new Schema({
   },
   role: {
     type: String,
-    enum: ['player', 'juror', 'umpire'],
+    enum: ['player', 'juror', 'umpire', 'host'],
     default: null 
   },
   Score: {
