@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import socket from '../../socket';
 
 const GameTimer = () => {
     const [startTime, setStartTime] = useState(Date.now()); // Initialize start time when the component mounts
@@ -27,9 +28,10 @@ const GameTimer = () => {
     const gameYear = calculateGameYear(elapsedTimeInMinutes);
 
     useEffect(() => {
-        
-    }, [currentTime]); // Update dependency to currentTime
-
+        // Send the current year to the back end whenever it updates
+        socket.emit('updateCurrentYear', { currentYear: gameYear.toFixed(0) });
+      }, [currentTime]); // Update dependency to currentTime
+    
     return (
         <div>
             <p>Current Year: {gameYear.toFixed(0)}</p>

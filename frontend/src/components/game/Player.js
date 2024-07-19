@@ -3,12 +3,12 @@ import React, { useState, useEffect } from 'react';
 import socket from '../../socket';
 import ReactModal from 'react-modal';
 import '../../styles/Player.css';
-import GameTimer from './GameTimer';
+import '../../styles/App.css';
+
 import GlobalTimeline from './GlobalTimeline';
 import PlayerTimeline from './PlayerTimeline';
 import PauseOverlay from './PauseOverlay';
 
-import '../../styles/App.css';
 
 const Player = ({ planet }) => {
   const [headline, setHeadline] = useState('');
@@ -16,6 +16,7 @@ const Player = ({ planet }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [hasPendingHeadline, setHasPendingHeadline] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
+  const [playerScore, setPlayerScore] = useState(0);
 
   useEffect(() => {
     // Fetch the briefing information for the player's planet
@@ -35,6 +36,10 @@ const Player = ({ planet }) => {
         setHasPendingHeadline(false);
       }
     });
+
+    socket.on('updatePlayerScore', ({score}) => {
+        setPlayerScore(prevscore => prevscore + score );
+      });
 
     socket.on('gamePaused', ({ isPaused }) => {
       setIsPaused(isPaused);
@@ -64,14 +69,15 @@ const Player = ({ planet }) => {
 
   return (
     <div className="main-container">
+    
       {isPaused && <PauseOverlay />}
       <div className="player-timeline-container">
         <PlayerTimeline />
       </div>
       <div className="player-container">
-        <GameTimer gameEndDuration={60} />
-        <h2>Enter Headline</h2>
+        <h3>Player Score: {playerScore}</h3>
         <h3>Player Planet: {planet}</h3>
+        <h2>Enter Headline</h2>
         <div className="headline-input-container">
           <input
             type="text"

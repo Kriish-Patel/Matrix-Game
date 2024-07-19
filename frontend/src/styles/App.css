@@ -6,7 +6,7 @@ body {
   background-color: #1e1e1e;
   color: #ffffff;
   margin: 0;
-  padding: 10;
+  padding: 75px;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -16,11 +16,12 @@ body {
 /* Container styles */
 .container {
   width: 100%;
-  max-width: 1000px;
+  position: relative;
+  /* max-width: 1000px; */
   margin: 0 auto;
-  padding: 20px;
+  padding: 10px;
   padding-top: 40px;
-  background-color: #2e2e2e;
+  background-color: #509aa5;
   border-radius: 20px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
   
@@ -77,3 +78,12 @@ input[type="number"] {
 .player-count {
   margin: 0;
 }
+
+.timer-container {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  font-weight: bold;
+  color: rgb(0, 0, 0);
+}
+

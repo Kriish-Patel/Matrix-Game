@@ -5,10 +5,10 @@ import Player from './Player';
 import Juror from './Juror';
 import Umpire from './Umpire';
 import Host from './Host'; 
+import GameTimer from './GameTimer';
 
 import socket from '../../socket';
 import '../../styles/App.css';
-
 
 const GameManager = () => {
   const { lobbyId } = useParams();
@@ -43,7 +43,9 @@ const GameManager = () => {
 
   return (
     <div className="container">
-    
+      <div className="timer-container">
+        <GameTimer gameEndDuration={60} />
+      </div>
       <h2>Your role: {role}</h2>
       {role === 'player' && <Player lobbyId={lobbyId} planet={planet} />}
       {role === 'juror' && <Juror lobbyId={lobbyId} />}

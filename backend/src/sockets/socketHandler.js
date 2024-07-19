@@ -14,6 +14,7 @@ let Headline = require('../../models/headlines.model')
 let Player = require('../../models/player.model');
 const headlinesModel = require('../../models/headlines.model');
 
+let currentYear;
 let hostSocketId = null;
 let hostName = null;
 let players = {}  // {id: [name, role, hostStatus, planet]}
@@ -247,6 +248,11 @@ const handleSocketConnection = (socket, io) => {
     console.log(`Juror deregistered: ${socket.id}`);
   });
 
+  socket.on('updateCurrentYear', ({ currentYear: year }) => {
+    currentYear = year;
+    
+  });
+
 
   socket.on('submitUmpireReview', async ({ headlineId, isConsistent, umpireScore }) => {
     const result = await processUmpireReview(headlineId, isConsistent, umpireScore);
@@ -258,9 +264,10 @@ const handleSocketConnection = (socket, io) => {
         console.log(`Combined score is ${result.combinedScore}`)
         console.log(`headline: ${result.headline}`);
         socket.to(result.playerId.toString()).emit('updatePlayerScore', { score: result.combinedScore});
-        io.emit('acceptedHeadline', {headline: result.headline})
-        socket.to(result.playerId.toString()).emit('updatePlayerStatus', { socketId: result.playerId, headlineId, headline: result.headline, status: 'success' });
         
+        io.emit('acceptedHeadline', {headline: result.headline, currentYear})
+        
+        socket.to(result.playerId.toString()).emit('updatePlayerStatus', { socketId: result.playerId, headlineId, headline: result.headline, status: 'success' });
         
       }
       else {
@@ -271,7 +278,7 @@ const handleSocketConnection = (socket, io) => {
       console.error('Error processing umpire review:', result.error);
     }
   });
-3
+
 };
 
 module.exports = handleSocketConnection;
