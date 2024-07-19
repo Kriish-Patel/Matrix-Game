@@ -33,6 +33,7 @@ const GameManager = () => {
       }
     });
     socket.on('showLeaderboard', ({ results }) => {
+      console.log(`results from GameManager: ${results}`)
       // Redirect to LeaderBoard when game ends
       navigate(`/endGameScreen/${lobbyId}`, { state: { results } });
     });

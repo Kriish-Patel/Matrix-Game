@@ -6,7 +6,7 @@ const EndGameScreen = () => {
   const location = useLocation();
   const { lobbyId } = useParams();
   const { results } = location.state || { results: [] };
-  console.log(results)
+  console.log(`results: ${results}`)
 
   // Sort the results by score in descending order
   const sortedResults = [...results].sort((a, b) => b.score - a.score);

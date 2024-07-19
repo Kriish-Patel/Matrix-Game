@@ -23,7 +23,7 @@ function App() {
         <Route path="/join-lobby/:lobbyId" element={<JoinLobby />} />
         <Route path="/select-planet/:lobbyId" element={<SelectPlanet />} />
         <Route path="/game/:lobbyId" element={<GameManager />} />
-        <Route path="/endGame/:lobbyId" element={<EndGameScreen />} />
+        <Route path="/endGameScreen/:lobbyId" element={<EndGameScreen />} />
       </Routes>
     </Router>
   );
