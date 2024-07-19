@@ -1,6 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import socket from '../../socket';
 import PauseOverlay from './PauseOverlay';
+import GlobalTimeline from './GlobalTimeline';
+import '../../styles/Player.css';
+import '../../styles/App.css';
+
 
 
 const Juror = ({ waitingMessage }) => {
@@ -40,8 +44,9 @@ const Juror = ({ waitingMessage }) => {
   };
 
   return (
-    <div>
-      {isPaused && <PauseOverlay />}
+    <div className="main-container">
+    {isPaused && <PauseOverlay />}
+    <div className="content">
       <h2>Rank Headlines</h2>
       {headLines.length === 0 ? (
         <div>{waitingMessage}</div>
@@ -74,6 +79,10 @@ const Juror = ({ waitingMessage }) => {
         </div>
       )}
     </div>
+    <div className="global-timeline-container">
+      <GlobalTimeline />
+    </div>
+  </div>
   );
 };
 
