@@ -292,6 +292,7 @@ const handleSocketConnection = (socket, io) => {
       score: players[id][4]
     }))
     console.log(`inside socket: ${array}`)
+    io.emit('toEndGame', {acceptedHeadlines})
     io.emit('showLeaderboard', {players: Object.keys(players)
       .filter(id => players[id][1].toLowerCase() === "player")
       .map(id => ({
@@ -300,7 +301,7 @@ const handleSocketConnection = (socket, io) => {
         score: players[id][4]
       }))})
     
-    io.emit('toEndGame', {acceptedHeadlines})
+    // io.emit('toEndGame', {acceptedHeadlines})
   })
 
 };
