@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import socket from '../../socket';
+import '../../styles/GlobalTimeline.css';
 
 const PlayerTimeline = () => {
     const [playerHeadlines, setPlayerHeadlines] = useState([]); // [headline, status], 
@@ -30,7 +31,7 @@ const PlayerTimeline = () => {
     return (
         <div>
         <h1>Your Headlines</h1>
-        <table>
+        <table className="global-timeline-table">
             <thead>
                 <tr>
                     <th>Headline</th>
