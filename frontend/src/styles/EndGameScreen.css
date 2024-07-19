@@ -1,0 +1,45 @@
+.end-game-container {
+  display: flex;
+  justify-content: space-between;
+  padding: 20px;
+  height: 100vh;
+}
+
+.scores-container, .timeline-container {
+  width: 45%;
+  padding: 20px;
+  background-color: #f5f5f5;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.scores-list {
+  list-style-type: none;
+  padding: 0;
+}
+
+.score-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 0;
+  border-bottom: 1px solid #ddd;
+}
+
+.rank {
+  font-weight: bold;
+  margin-right: 10px;
+}
+
+.player-name {
+  flex-grow: 1;
+}
+
+.player-score {
+  font-weight: bold;
+}
+
+h2 {
+  text-align: center;
+  margin-bottom: 20px;
+}

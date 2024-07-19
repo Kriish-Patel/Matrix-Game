@@ -32,10 +32,10 @@ const GameManager = () => {
         setCurrentPlayerName(currentPlayer.name)
       }
     });
-    socket.on('showLeaderboard', ({ results }) => {
-      console.log(`results from GameManager: ${results}`)
+    socket.on('showLeaderboard', ({ players }) => {
+      console.log(`results from GameManager: ${players}`)
       // Redirect to LeaderBoard when game ends
-      navigate(`/endGameScreen/${lobbyId}`, { state: { results } });
+      navigate(`/endGameScreen/${lobbyId}`, { state: { players } });
     });
 
     socket.on('navigate:selectPlanet', () => {
