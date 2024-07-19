@@ -16,6 +16,7 @@ const Player = ({ planet }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [hasPendingHeadline, setHasPendingHeadline] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
+  const [playerScore, setPlayerScore] = useState(0);
 
   useEffect(() => {
     // Fetch the briefing information for the player's planet
@@ -35,6 +36,10 @@ const Player = ({ planet }) => {
         setHasPendingHeadline(false);
       }
     });
+
+    socket.on('updatePlayerScore', ({score}) => {
+        setPlayerScore(prevscore => prevscore + score );
+      });
 
     socket.on('gamePaused', ({ isPaused }) => {
       setIsPaused(isPaused);
@@ -70,7 +75,7 @@ const Player = ({ planet }) => {
         <PlayerTimeline />
       </div>
       <div className="player-container">
-        
+        <h3>Player Score: {playerScore}</h3>
         <h3>Player Planet: {planet}</h3>
         <h2>Enter Headline</h2>
         <div className="headline-input-container">
