@@ -12,7 +12,8 @@ const app = express();
 const server = http.createServer(app);
 const io = socketIo(server, {
   cors: {
-    origin: "http://localhost:3000", // Allow the frontend URL
+    //http://localhost:3000
+    origin: "https://headlines-game-frontend.onrender.com/", // Allow the frontend URL
     methods: ["GET", "POST"]
   }
 });
