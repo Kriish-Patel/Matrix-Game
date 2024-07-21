@@ -31,7 +31,7 @@ const EndGameScreen = () => {
 }, []); 
 
   return (
-    <div className="end-game-screen">
+    <div className="main-container">
       <h2>Game Over</h2>
       <h3>Final Scores</h3>
       <table>
