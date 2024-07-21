@@ -2,13 +2,12 @@ import React, { useState, useEffect } from 'react';
 import socket from '../../socket';
 import '../../styles/GlobalTimeline.css';
 
-// Show only the accepted headlines
+
 const GlobalTimeline = () => {
     const [acceptedHeadlines, setAcceptedHeadlines] = useState([]);
 
     useEffect(() => {
         socket.on('acceptedHeadline', ({ headline, currentYear }) => {
-            console.log("say drake");
             setAcceptedHeadlines(prevHeadlines => [{ headline, currentYear }, ...prevHeadlines]);
         });
 
