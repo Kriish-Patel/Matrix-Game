@@ -1,6 +1,7 @@
 // frontend/src/components/game/Host.js
 import React, { useState } from 'react';
 import socket from '../../socket';
+import GlobalTimeline from './GlobalTimeline'
 
 const Host = ({ lobbyId }) => {
   const [isPaused, setIsPaused] = useState(false);
@@ -22,7 +23,11 @@ const Host = ({ lobbyId }) => {
         {isPaused ? 'Resume Game' : 'Pause Game'}
       </button>
       <button onClick={handleEndGame}>End Game</button>
+      <div className="global-timeline-container">
+        <GlobalTimeline />
+      </div>
     </div>
+
   );
 };
 

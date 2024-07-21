@@ -1,10 +1,7 @@
 // frontend/src/components/game/EndGameScreen.js
-import React, {useEffect, useState} from 'react';
-import { useLocation, useParams} from 'react-router-dom';
+import React from 'react';
+import { useLocation, useParams } from 'react-router-dom';
 import GlobalTimeline from './GlobalTimeline'
-import socket from '../../socket';
-import '../../styles/EndGameScreen.css';
-import '../../styles/App.css';
 
 const EndGameScreen = () => {
   const location = useLocation();
@@ -14,21 +11,6 @@ const EndGameScreen = () => {
 
   // Sort the results by score in descending order
   const sortedResults = [...players].sort((a, b) => b.score - a.score);
-  const [acceptedHeadlines, setAcceptedHeadlines] = useState([])
-
-  useEffect(() => {
-    socket.on('toEndGame', ({ acceptedHeadlines}) => {
-        
-      const headlinesArray = Object.entries(acceptedHeadlines)
-      .map(([headline, currentYear]) => ({ headline, currentYear }))
-      .reverse(); // Reverse the order to show the latest first
-    setAcceptedHeadlines(headlinesArray);
-    });
-
-    return () => {
-        socket.off('toEndGame');
-    };
-}, []); 
 
   return (
     <div className="main-container">
@@ -52,27 +34,7 @@ const EndGameScreen = () => {
           ))}
         </tbody>
       </table>
-      <div>
-        <h1>Accepted Headlines</h1>
-        <table className="global-timeline-table">
-          <thead>
-            <tr>
-              <th>Headline</th>
-              <th>Year</th>
-            </tr>
-          </thead>
-          <tbody>
-            {acceptedHeadlines.map((item, index) => (
-              <tr key={index}>
-                <td>{item.headline}</td>
-                <td>{item.currentYear}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
     </div>
-    
     
 
   );
