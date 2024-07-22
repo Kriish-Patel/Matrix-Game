@@ -1,20 +1,27 @@
-/* App.css */
+.main-container {
+  padding: 20px;
+}
 
 /* Add this CSS for the table */
 .global-timeline-table {
-    width: 100%;
-    border-collapse: collapse;
-  }
-  
-  .global-timeline-table th,
-  .global-timeline-table td {
-    padding: 10px 20px; /* Increase the padding to create more space */
-    text-align: left;
-  }
-  
-  .global-timeline-table th {
-    background-color: #6050a5;
-    color: #ffffff;
-  }
-  
- 
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.global-timeline-table th,
+.global-timeline-table td {
+  padding: 10px 20px; /* Increase the padding to create more space */
+  text-align: left;
+}
+
+.global-timeline-table th {
+  background-color: #6050a5;
+  color: #ffffff;
+}
+
+/* Add this CSS for the scrollable container */
+.scrollable-container {
+  max-height: 400px; /* Adjust this value as needed */
+  overflow-y: auto;
+  margin-top: 20px;
+}
