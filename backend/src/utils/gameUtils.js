@@ -184,7 +184,7 @@ const processUmpireReview = async (headlineId, isConsistent, umpireScore) => {
 
     await headline.save();
     console.log(`player ID: ${headline.player}`);
-    return { success: true, playerId: headline.player.socketId, combinedScore: combinedScore, headline: headline.headline };
+    return { success: true, playerId: headline.player.socketId, combinedScore: combinedScore, headline: headline.headline, plausibility: headline.jurorScore };
   } catch (error) {
     console.error('Error processing umpire review:', error);
     return { success: false, error };

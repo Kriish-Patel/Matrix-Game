@@ -273,7 +273,7 @@ const handleSocketConnection = (socket, io) => {
         socket.to(result.playerId.toString()).emit('updatePlayerScore', { score: result.combinedScore});
         
         players[result.playerId][4] = result.combinedScore
-        io.emit('acceptedHeadline', {headline: result.headline, currentYear})
+        io.emit('acceptedHeadline', {headline: result.headline, currentYear, plausibility: result.plausibility})
         
         socket.to(result.playerId.toString()).emit('updatePlayerStatus', { socketId: result.playerId, headlineId, headline: result.headline, status: 'success' });
         
