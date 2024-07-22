@@ -17,6 +17,7 @@ const GameManager = () => {
   const [players, setPlayers] = useState([]);
   const [role, setRole] = useState('')
   const [currentPlayerName, setCurrentPlayerName] = useState(null);
+  const { planet, actualPlayersCount } = location.state
   
   
   useEffect(() => {

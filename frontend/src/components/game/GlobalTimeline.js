@@ -35,6 +35,7 @@ const GlobalTimeline = () => {
                 ))}
             </tbody>
         </table>
+        
     </div>
     );
 };

@@ -1,7 +1,7 @@
 // frontend/src/components/game/EndGameScreen.js
 import React from 'react';
 import { useLocation, useParams } from 'react-router-dom';
-import GlobalTimeline from './GlobalTimeline'
+import FinalTimeline from './FinalTimeline'
 
 const EndGameScreen = () => {
   const location = useLocation();
@@ -34,6 +34,7 @@ const EndGameScreen = () => {
           ))}
         </tbody>
       </table>
+      <FinalTimeline />
     </div>
     
 
