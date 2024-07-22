@@ -14,6 +14,7 @@ const Home = () => {
     try {
 
       socket.connect(); // Connect the socket when creating a lobby
+  
       socket.emit('create-lobby', {name}); // Emit create-lobby event to the server
 
 

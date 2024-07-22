@@ -109,6 +109,8 @@ const handleSocketConnection = (socket, io) => {
 
   });
 
+
+
   socket.on('togglePause', ({ lobbyId, isPaused }) => {
     if (socket.id === hostSocketId) {
       io.to('game-room').emit('gamePaused', { isPaused });
@@ -159,12 +161,10 @@ const handleSocketConnection = (socket, io) => {
   });
 
   socket.on('disconnect', () => {
-    deregisterJuror(socket.id);
     console.log(`Client disconnected: ${socket.id}`);
 
     // Handle host disconnection
     if (socket.id === hostSocketId) {
-      hostSocketId = null;
       console.log(`Host disconnected: ${socket.id}`);
     }
   });

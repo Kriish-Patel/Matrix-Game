@@ -11,6 +11,7 @@ require('dotenv').config();
 const app = express();
 const server = http.createServer(app);
 const io = socketIo(server, {
+  connectionStateRecovery: {maxDisconnectionDuration: 2 * 60 * 1000},
   cors: {
     origin: "http://localhost:3000", // Allow the frontend URL
     methods: ["GET", "POST"]
@@ -29,6 +30,7 @@ connection.once('open',() => {
   console.log("Mongoose connected");
 })
 
+
 // Route to create a new lobby
 app.get('/create-lobby', handleCreateLobby);
 
@@ -36,8 +38,11 @@ io.on('connection', (socket) => {
 
   console.log(`Client connected, id: ${socket.id}`);
 
+
   handleSocketConnection(socket, io);
 });
+
+
   
 
 server.listen(PORT, () => {
