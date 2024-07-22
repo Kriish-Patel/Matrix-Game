@@ -1,7 +1,7 @@
 
 /* Add this CSS for the table */
 .scrollable-container {
-  max-height: 400px; /* Adjust this value as needed */
+  max-height: 500px; /* Adjust this value as needed */
   overflow-y: auto;
   margin-top: 20px;
 }

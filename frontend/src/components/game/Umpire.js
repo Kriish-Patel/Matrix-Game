@@ -72,7 +72,7 @@ const Umpire = ({ waitingMessage }) => {
   };
 
   return (
-    <div className="umpire-main-container">
+    <div className="main-container">
       {isPaused && <PauseOverlay />}
       <div className="content">
         <h2>Review Headlines</h2>
