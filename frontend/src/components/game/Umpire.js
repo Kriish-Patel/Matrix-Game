@@ -4,6 +4,7 @@ import PauseOverlay from './PauseOverlay';
 import GlobalTimeline from './GlobalTimeline';
 import '../../styles/Player.css';
 import '../../styles/App.css';
+import '../../styles/Umpire.css'
 
 const Umpire = ({ waitingMessage }) => {
   const [headlines, setHeadlines] = useState([]);
@@ -72,51 +73,58 @@ const Umpire = ({ waitingMessage }) => {
 
   return (
     <div className="main-container">
-    {isPaused && <PauseOverlay />}
-    <div className="content">
-      <h2>Review Headlines</h2>
-      {headlines.length === 0 ? (
-        <div>{waitingMessage}</div>
-      ) : (
-        headlines.map(({ headlineId, headline, planet }) => (
-          <div key={headlineId} style={{ marginBottom: '10px' }}>
-            <p>{headline} {planet}</p>
-            <label>
-              Logically Consistent:
-              <input 
-                type="checkbox" 
-                checked={logicalConsistency[headlineId] || false} 
-                onChange={(e) => handleConsistencyChange(headlineId, e.target.checked)} 
-              />
-            </label>
-            {logicalConsistency[headlineId] && (
-              <div>
+      {isPaused && <PauseOverlay />}
+      <div className="content">
+        <h2>Review Headlines</h2>
+        {headlines.length === 0 ? (
+          <div>{waitingMessage}</div>
+        ) : (
+          headlines.map(({ headlineId, headline, planet }) => (
+            <div key={headlineId} style={{ marginBottom: '10px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <div style={{ flex: 3 }}>
+                <p>{headline} ({planet})</p>
+              </div>
+              <div style={{ flex: 2 }}>
                 <label>
-                  Score:
-                  <select 
-                    value={selectedScores[headlineId] === undefined ? '' : selectedScores[headlineId]} 
-                    onChange={(e) => handleScoreChange(headlineId, parseInt(e.target.value, 10))} 
-                  >
-                    <option value="" disabled>Select score</option>
-                    <option value={0}>0</option>
-                    <option value={1}>1</option>
-                    <option value={2}>2</option>
-                  </select>
+                  Logically Consistent:
+                  <input
+                    type="checkbox"
+                    checked={logicalConsistency[headlineId] || false}
+                    onChange={(e) => handleConsistencyChange(headlineId, e.target.checked)}
+                  />
                 </label>
               </div>
-            )}
-            <button onClick={() => handleSubmit(headlineId)} style={{ marginLeft: '10px' }}>
-              Submit
-            </button>
-          </div>
-        ))
-      )}
+              <div style={{ flex: 1 }}>
+                {logicalConsistency[headlineId] && (
+                  <div>
+                    <label>
+                      Score:
+                      <select
+                        value={selectedScores[headlineId] === undefined ? '' : selectedScores[headlineId]}
+                        onChange={(e) => handleScoreChange(headlineId, parseInt(e.target.value, 10))}
+                      >
+                        <option value="" disabled>Select score</option>
+                        <option value={0}>0</option>
+                        <option value={1}>1</option>
+                        <option value={2}>2</option>
+                      </select>
+                    </label>
+                  </div>
+                )}
+              </div>
+              <div>
+                <button onClick={() => handleSubmit(headlineId)} style={{ marginLeft: '10px' }}>
+                  Submit
+                </button>
+              </div>
+            </div>
+          ))
+        )}
+      </div>
+      <div className="global-timeline-container">
+        <GlobalTimeline />
+      </div>
     </div>
-    <div className="global-timeline-container">
-      <GlobalTimeline />
-    </div>
-  </div>
   );
-};
-
+};  
 export default Umpire;

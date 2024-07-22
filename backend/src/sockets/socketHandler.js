@@ -118,11 +118,14 @@ const handleSocketConnection = (socket, io) => {
     }
   });
 
-  socket.on('selectPlanet', ({planet, playerId}) => {
+  socket.on('selectPlanet', async ({planet, playerId}) => {
 
     if (availablePlanets.includes(planet)) {
       availablePlanets = availablePlanets.filter((p) => p !== planet);
       players[playerId][3] = planet
+      const player = await Player.findOne({socketId: playerId})
+      player.Planet = planet
+      player.save()
         
       io.to('game-room').emit('planetSelected', planet);
       io.to('game-room').emit('updatePlayerList', {
