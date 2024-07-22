@@ -18,6 +18,7 @@ let currentYear;
 let hostSocketId = null;
 let hostName = null;
 let players = {}  // {id: [name, role, hostStatus, planet]}
+let acceptedHeadlines = {}
 
 let availablePlanets = [
   'Mercury',
@@ -255,8 +256,7 @@ const handleSocketConnection = (socket, io) => {
     
   });
 
-  let acceptedHeadlines = {}
-
+ 
   socket.on('submitUmpireReview', async ({ headlineId, isConsistent, umpireScore }) => {
     const result = await processUmpireReview(headlineId, isConsistent, umpireScore);
 
@@ -264,9 +264,9 @@ const handleSocketConnection = (socket, io) => {
       console.log(`is it consistent?: ${isConsistent}`)
       // Emit an event to notify the player of the updated score if the headline is consistent
       if (isConsistent) {
-        console.log(`Combined score is ${result.combinedScore}`)
-        console.log(`headline: ${result.headline}`);
+        
         acceptedHeadlines[result.headline] = currentYear;
+        
         socket.to(result.playerId.toString()).emit('updatePlayerScore', { score: result.combinedScore});
         
         players[result.playerId][4] = result.combinedScore
@@ -284,7 +284,9 @@ const handleSocketConnection = (socket, io) => {
     }
   });
 
+
   socket.on('endGame', ()=>{
+
     const array = Object.keys(players)
     .filter(id => players[id][1].toLowerCase() === "player")
     .map(id => ({
@@ -293,7 +295,7 @@ const handleSocketConnection = (socket, io) => {
       score: players[id][4]
     }))
     console.log(`inside socket: ${array}`)
-    io.emit('toEndGame', {acceptedHeadlines})
+    
     io.emit('showLeaderboard', {players: Object.keys(players)
       .filter(id => players[id][1].toLowerCase() === "player")
       .map(id => ({
@@ -301,8 +303,13 @@ const handleSocketConnection = (socket, io) => {
         name: players[id][0],
         score: players[id][4]
       }))})
+      
+      
+
+      io.emit('finalTimeline', {acceptedHeadlines})
     
-    // io.emit('toEndGame', {acceptedHeadlines})
+    
+    
   })
 
 };

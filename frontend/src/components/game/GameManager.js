@@ -13,13 +13,13 @@ import '../../styles/App.css';
 const GameManager = () => {
   const { lobbyId } = useParams();
   const location = useLocation();
+  const navigate = useNavigate();
   const [players, setPlayers] = useState([]);
   const [role, setRole] = useState('')
   const [currentPlayerName, setCurrentPlayerName] = useState(null);
   const { planet, actualPlayersCount } = location.state
   
-  const navigate = useNavigate();
-
+  
   useEffect(() => {
    
     socket.on('updatePlayerList', ({players}) => {
@@ -32,6 +32,7 @@ const GameManager = () => {
         setCurrentPlayerName(currentPlayer.name)
       }
     });
+    
     socket.on('showLeaderboard', ({ players }) => {
       console.log(`results from GameManager: ${players}`)
       // Redirect to LeaderBoard when game ends
