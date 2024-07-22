@@ -1,8 +1,11 @@
-.main-container {
-  padding: 20px;
-}
 
 /* Add this CSS for the table */
+.scrollable-container {
+  max-height: 400px; /* Adjust this value as needed */
+  overflow-y: auto;
+  margin-top: 20px;
+}
+
 .global-timeline-table {
   width: 100%;
   border-collapse: collapse;
@@ -19,9 +22,4 @@
   color: #ffffff;
 }
 
-/* Add this CSS for the scrollable container */
-.scrollable-container {
-  max-height: 400px; /* Adjust this value as needed */
-  overflow-y: auto;
-  margin-top: 20px;
-}
+
