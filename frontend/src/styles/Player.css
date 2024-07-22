@@ -3,7 +3,7 @@
 .main-container {
   
   display: flex;
-  background-color: #a65b35;
+  background-color: #3f3f3f;
   justify-content: space-between;
   align-items: flex-start;
   height: 90%; /* Full viewport height */
