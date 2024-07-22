@@ -22,6 +22,7 @@ app.use(cors(corsOptions));
 app.use(express.json());
 
 const io = socketIo(server, {
+  connectionStateRecovery: {maxDisconnectionDuration: 2 * 60 * 1000},
   cors: corsOptions
 });
 
