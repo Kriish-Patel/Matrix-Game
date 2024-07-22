@@ -222,7 +222,8 @@ const handleSocketConnection = (socket, io) => {
       console.log(`Score submitted: ${score} for headline ID: ${headlineId} from Juror: ${socket.id}`);
 
       if (headline && accepted) {
-        io.to('game-room').emit('umpireReview', { headlineId: headline._id, headline: headline.headline });
+        console.log(`user planet: ${headline.player.Planet}`)
+        io.to('game-room').emit('umpireReview', { headlineId: headline._id, headline: headline.headline, planet: headline.player.Planet});
 
         // Emit changeStatus
         console.log(`Emitting to ${headline.player.socketId}, changeStatus with status: 'with Umpire, pending'`);

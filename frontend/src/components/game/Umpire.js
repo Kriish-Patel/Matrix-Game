@@ -12,8 +12,9 @@ const Umpire = ({ waitingMessage }) => {
   const [isPaused, setIsPaused] = useState(false);
 
   useEffect(() => {
-    socket.on('umpireReview', ({ headlineId, headline }) => {
-      setHeadlines((prevHeadlines) => [...prevHeadlines, { headlineId, headline }]);
+    socket.on('umpireReview', ({ headlineId, headline, planet }) => {
+      setHeadlines((prevHeadlines) => [...prevHeadlines, { headlineId, headline, planet }]);
+      console.log(`frontend umpire planet: ${planet}`)
     });
     socket.on('gamePaused', ({ isPaused }) => {
       setIsPaused(isPaused);
@@ -77,9 +78,9 @@ const Umpire = ({ waitingMessage }) => {
       {headlines.length === 0 ? (
         <div>{waitingMessage}</div>
       ) : (
-        headlines.map(({ headlineId, headline }) => (
+        headlines.map(({ headlineId, headline, planet }) => (
           <div key={headlineId} style={{ marginBottom: '10px' }}>
-            <p>{headline}</p>
+            <p>{headline} {planet}</p>
             <label>
               Logically Consistent:
               <input 
