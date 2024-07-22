@@ -1,6 +1,5 @@
 /* App.css */
 
-
 body {
   font-family: Arial, sans-serif;
   background-color: #1e1e1e;
@@ -10,23 +9,20 @@ body {
   display: flex;
   justify-content: center;
   align-items: center;
-  height: 100%;
-  
+  overflow: auto;
 }
 
 /* Container styles */
 .container {
-  width: 100%;
   position: relative;
-  max-height: calc(100vh - 40px);
-  height: 100%;
-  /* max-width: 1000px; */
-  margin: 10px auto;
-  padding: 0px;
+  height: 100vh;
+  margin: 10px;
+  padding: 10px;
   padding-top: 40px;
   background-color: #6051a5;
   border-radius: 20px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  
 }
 
 /* Heading styles */
@@ -70,23 +66,22 @@ input[type="number"] {
   width: 60px;
 }
 
-/* Lobby header styles */
-.lobby-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.player-count {
-  margin: 0;
-}
-
 .timer-container {
   position: absolute;
   top: 10px;
   right: 10px;
   font-weight: bold;
+  white-space: nowrap;
   color: rgb(0, 0, 0);
+}
+
+.role-container {
+  
+  white-space: nowrap;
+  font-weight: bold;
+  color: #fff;
+  
+  
 }
 
 .content {

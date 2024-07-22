@@ -50,9 +50,11 @@ const GameManager = () => {
   return (
     <div className="container">
       <div className="timer-container">
-        <GameTimer gameEndDuration={60} />
+        <GameTimer />
       </div>
-      <h2>Your role: {role}</h2>
+      <div className="role-container">
+        <h2>Your role: {role}</h2>
+      </div>
       {role === 'player' && <Player lobbyId={lobbyId} planet={planet} />}
       {role === 'juror' && <Juror lobbyId={lobbyId} />}
       {role === 'umpire' && <Umpire lobbyId={lobbyId} />}

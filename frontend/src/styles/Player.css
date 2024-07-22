@@ -1,12 +1,15 @@
 /* Player.css */
 
 .main-container {
-  background-color: #afbe4c ;
+  
   display: flex;
+  background-color: #a65b35;
   justify-content: space-between;
-  align-items: stretch;
-  height: 100%; /* Full viewport height */
+  align-items: flex-start;
+  height: 90%; /* Full viewport height */
+  width: 100%;
   padding: 20px;
+  padding-bottom: 0px;
   box-sizing: border-box;
 }
 
@@ -19,7 +22,7 @@
   padding: 20px;
   border-radius: 10px;
   color: white;
-  margin: 0 20px;
+  
   }
 
 .player-timeline-container {
@@ -29,6 +32,7 @@
   flex-direction: column;
   border-radius: 10px;
   margin: 0 20px;
+  padding: 20px;
 }
 
 .global-timeline-container {
@@ -38,6 +42,7 @@
   flex-direction: column;
   border-radius: 10px;
   margin: 0 20px;
+  padding: 20px;
 }
   
   .headline-input-container {

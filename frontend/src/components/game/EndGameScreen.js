@@ -14,7 +14,7 @@ const EndGameScreen = () => {
   const sortedResults = [...players].sort((a, b) => b.score - a.score);
 
   return (
-    <div className="main-container">
+    <div className="mainy-container">
       <div className="title">
         <h1>Game Over!</h1>
       </div>

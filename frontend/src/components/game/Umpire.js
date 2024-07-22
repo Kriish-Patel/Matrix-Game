@@ -72,7 +72,7 @@ const Umpire = ({ waitingMessage }) => {
   };
 
   return (
-    <div className="main-container">
+    <div className="umpire-main-container">
       {isPaused && <PauseOverlay />}
       <div className="content">
         <h2>Review Headlines</h2>
@@ -80,11 +80,11 @@ const Umpire = ({ waitingMessage }) => {
           <div>{waitingMessage}</div>
         ) : (
           headlines.map(({ headlineId, headline, planet }) => (
-            <div key={headlineId} style={{ marginBottom: '10px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <div style={{ flex: 3 }}>
+            <div key={headlineId} className="headline-row">
+              <div className="headline-text">
                 <p>{headline} ({planet})</p>
               </div>
-              <div style={{ flex: 2 }}>
+              <div className="consistency">
                 <label>
                   Logically Consistent:
                   <input
@@ -94,7 +94,7 @@ const Umpire = ({ waitingMessage }) => {
                   />
                 </label>
               </div>
-              <div style={{ flex: 1 }}>
+              <div className="score">
                 {logicalConsistency[headlineId] && (
                   <div>
                     <label>
@@ -113,7 +113,7 @@ const Umpire = ({ waitingMessage }) => {
                 )}
               </div>
               <div>
-                <button onClick={() => handleSubmit(headlineId)} style={{ marginLeft: '10px' }}>
+                <button className="submit-button" onClick={() => handleSubmit(headlineId)}>
                   Submit
                 </button>
               </div>
