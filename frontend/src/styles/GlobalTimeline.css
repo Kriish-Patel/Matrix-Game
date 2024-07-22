@@ -20,6 +20,14 @@
 .global-timeline-table th {
   background-color: #6050a5;
   color: #ffffff;
+  position: sticky;
+  top: 0; /* Stick to the top */
+  z-index: 1; /* Ensure it stays above other content */
+}
+
+.global-timeline-table th {
+  background-color: #6050a5;
+  color: #ffffff;
 }
 
 
