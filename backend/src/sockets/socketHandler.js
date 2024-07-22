@@ -266,8 +266,6 @@ const handleSocketConnection = (socket, io) => {
         
         acceptedHeadlines[result.headline] = currentYear;
         
-        
-        
         socket.to(result.playerId.toString()).emit('updatePlayerScore', { score: result.combinedScore});
         
         players[result.playerId][4] = result.combinedScore

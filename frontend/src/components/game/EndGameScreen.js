@@ -2,6 +2,7 @@
 import React from 'react';
 import { useLocation, useParams } from 'react-router-dom';
 import FinalTimeline from './FinalTimeline'
+import '../../styles/EndGameScreen.css';
 
 const EndGameScreen = () => {
   const location = useLocation();
@@ -14,27 +15,37 @@ const EndGameScreen = () => {
 
   return (
     <div className="main-container">
-      <h2>Game Over</h2>
-      <h3>Final Scores</h3>
-      <table>
-        <thead>
-          <tr>
-            <th>Rank</th>
-            <th>Player</th>
-            <th>Score</th>
-          </tr>
-        </thead>
-        <tbody>
-          {sortedResults.map((player, index) => (
-            <tr key={player.id}>
-              <td>{index + 1}</td>
-              <td>{player.name}</td>
-              <td>{player.score}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-      <FinalTimeline />
+      <div className="title">
+        <h1>Game Over!</h1>
+      </div>
+      <div className="left-container">
+        <div className="text-container">
+          <h2>Scoreboard</h2>
+        </div>
+        <div className="scores-table">
+          <table>
+            <thead>
+              <tr>
+                <th>Rank</th>
+                <th>Player</th>
+                <th>Score</th>
+              </tr>
+            </thead>
+            <tbody>
+              {sortedResults.map((player, index) => (
+                <tr key={player.id}>
+                  <td>{index + 1}</td>
+                  <td>{player.name}</td>
+                  <td>{player.score}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div className="right-container">
+        <FinalTimeline />
+      </div>
     </div>
     
 
