@@ -232,12 +232,12 @@ const handleSocketConnection = (socket, io) => {
 
         // Emit changeStatus
         console.log(`Emitting to ${headline.player.socketId}, changeStatus with status: 'with Umpire, pending'`);
-        socket.to(headline.player.socketId.toString()).emit('updatePlayerStatus', { socketId: headline.player.socketId, headlineId: headline._id, headline: headline.headline, status: 'with Umpire, pending' })
+        socket.to(headline.player.socketId.toString()).emit('updatePlayerStatus', { socketId: headline.player.socketId, headlineId: headline._id, headline: headline.headline, plausibility: score, status: 'with Umpire, pending' })
       }
       if (headline && !accepted) {
         // Emit changeStatus
         console.log(`Emitting changeStatus with status: 'failed'`);
-        socket.to(headline.player.socketId).emit('updatePlayerStatus', { socketId: headline.player.socketId, headlineId: headline._id, headline: headline.headline, status: 'failed' })
+        socket.to(headline.player.socketId).emit('updatePlayerStatus', { socketId: headline.player.socketId, headlineId: headline._id, headline: headline.headline, plausibility: score, status: 'failed' })
       }
     } catch (error) {
       console.error('Error submitting score:', error);

@@ -3,22 +3,25 @@ import socket from '../../socket';
 import '../../styles/GlobalTimeline.css';
 
 const PlayerTimeline = () => {
-    const [playerHeadlines, setPlayerHeadlines] = useState([]); // [headline, status], 
-                                                                //status: pending, accepted, rejected
+    const [playerHeadlines, setPlayerHeadlines] = useState([]); // [headline, plausibility, status], 
+                                                                //status: pending, success, failes
 
     useEffect(() => {
 
-        socket.on('updatePlayerStatus', ({ headline, status }) => {
+        socket.on('updatePlayerStatus', ({ headline, plausibility, status }) => {
             setPlayerHeadlines(prevHeadlines => {
               const headlineIndex = prevHeadlines.findIndex(h => h.headline === headline);
       
               if (headlineIndex !== -1) {
                 // If the headline exists, update its status
                 prevHeadlines[headlineIndex].status = status;
+                prevHeadlines[headlineIndex].plausibility = plausibility;
+                
                 return [...prevHeadlines]; // Return the same array reference with the updated headline
               } else {
                 // If the headline does not exist, add it to the array
-                return [{ headline, status }, ...prevHeadlines];
+                console.log(`plausibility: ${plausibility}`);
+                return [{ headline, plausibility, status }, ...prevHeadlines];
               }
             });
           });
@@ -35,6 +38,7 @@ const PlayerTimeline = () => {
             <thead>
                 <tr>
                     <th>Headline</th>
+                    <th>Plausibility</th>
                     <th>Status</th>
                 </tr>
             </thead>
@@ -42,6 +46,7 @@ const PlayerTimeline = () => {
                 {playerHeadlines.map((item, index) => (
                     <tr key={index}>
                         <td>{item.headline}</td>
+                        <td>{item.plausibility}</td>
                         <td>{item.status}</td>
                     </tr>
                 ))}
