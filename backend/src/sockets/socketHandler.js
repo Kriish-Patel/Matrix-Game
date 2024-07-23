@@ -233,11 +233,13 @@ const handleSocketConnection = (socket, io) => {
         // Emit changeStatus
         console.log(`Emitting to ${headline.player.socketId}, changeStatus with status: 'with Umpire, pending'`);
         socket.to(headline.player.socketId.toString()).emit('updatePlayerStatus', { socketId: headline.player.socketId, headlineId: headline._id, headline: headline.headline, plausibility: score, status: 'with Umpire, pending' })
+        socket.to(headline.player.socketId.toString()).emit('sendHeadlineScore', { plausibility: score, headline: headline.headline})
       }
       if (headline && !accepted) {
         // Emit changeStatus
         console.log(`Emitting changeStatus with status: 'failed'`);
         socket.to(headline.player.socketId).emit('updatePlayerStatus', { socketId: headline.player.socketId, headlineId: headline._id, headline: headline.headline, plausibility: score, status: 'failed' })
+        socket.to(headline.player.socketId.toString()).emit('sendHeadlineScore', { plausibility: score, headline: headline.headline})
       }
     } catch (error) {
       console.error('Error submitting score:', error);
@@ -270,6 +272,7 @@ const handleSocketConnection = (socket, io) => {
       if (isConsistent) {
         
         acceptedHeadlines[result.headline] = currentYear;
+       
         
         socket.to(result.playerId.toString()).emit('updatePlayerScore', { score: result.combinedScore});
         

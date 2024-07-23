@@ -9,8 +9,8 @@ const GlobalTimeline = () => {
         { headline: 'AI improves weather forecasting accuracy from 90% to 93%', currentYear: 2025, plausibility: 70 },
         { headline: 'AI eSports tournaments are the new Formula 1', currentYear: 2025, plausibility: 75 },
         { headline: 'Rishi Sunak appointed chair of UK AI Ethics Board', currentYear: 2025, plausibility: 85 },
-        { headline: 'AI Healthcare Insurance Advisor reduces costs by 20%', currentYear: 2025, plausibility: 25 },
-        { headline: 'Century-old Maths Problem solved by AI with ‘elegant proof', currentYear: 2025, plausibility: 90 },
+        { headline: 'AI Healthcare Insurance Advisor reduces costs by 20%', currentYear: 2025, plausibility: 75 },
+        { headline: 'Century-old Maths Problem solved by AI with ‘elegant proof', currentYear: 2025, plausibility: 30 },
         { headline: 'AI Composer’s Symphony premieres at Carnegie Hall', currentYear: 2025, plausibility: 95 },
         { headline: 'Stock Market ‘flash crash’ averted by AI monitoring', currentYear: 2025, plausibility: 88 }
     ]);
@@ -40,7 +40,7 @@ const GlobalTimeline = () => {
                     <tbody>
                         {acceptedHeadlines.map((item, index) => (
                             <tr key={index}>
-                                <td style={{ color: item.plausibility < 30 ? 'red' : 'white' }}>
+                                <td style={{ color: item.plausibility < 50 ? 'red' : 'white' }}>
                                     {item.headline}
                                 </td>
                                 <td>{item.currentYear}</td>
