@@ -17,7 +17,7 @@ const Host = ({ lobbyId }) => {
   };
 
   return (
-    <div>
+    <div className="main-container">
       <h2>Host Dashboard</h2>
       <button onClick={handleTogglePause}>
         {isPaused ? 'Resume Game' : 'Pause Game'}

@@ -66,7 +66,7 @@ const Juror = ({ waitingMessage }) => {
                   />
                   <button 
                     onClick={() => handleSubmit(index, headlineId)} 
-                    style={{ marginLeft: '10px' }}
+                    style={{ marginLeft: '10px', backgroundColor: '#007bff'  }}
                   >
                     Submit
                   </button>
