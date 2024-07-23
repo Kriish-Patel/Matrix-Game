@@ -34,7 +34,7 @@ const GameManager = () => {
     });
     
     socket.on('showLeaderboard', ({ players }) => {
-      console.log(`results from GameManager: ${players}`)
+      console.log(`results: ${JSON.stringify(players, null, 2)}`);
       // Redirect to LeaderBoard when game ends
       navigate(`/endGameScreen/${lobbyId}`, { state: { players } });
     });

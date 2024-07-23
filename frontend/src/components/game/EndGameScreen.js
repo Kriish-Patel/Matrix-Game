@@ -8,7 +8,8 @@ const EndGameScreen = () => {
   const location = useLocation();
   const { lobbyId } = useParams();
   const { players } = location.state || { players: [] };
-  console.log(`results: ${players}`)
+  console.log(`results: ${JSON.stringify(players, null, 2)}`);
+  
 
   // Sort the results by score in descending order
   const sortedResults = [...players].sort((a, b) => b.score - a.score);
@@ -35,7 +36,7 @@ const EndGameScreen = () => {
               {sortedResults.map((player, index) => (
                 <tr key={player.id}>
                   <td>{index + 1}</td>
-                  <td>{player.name}</td>
+                  <td>{player.planet}</td>
                   <td>{player.score}</td>
                 </tr>
               ))}

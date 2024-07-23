@@ -18,7 +18,7 @@ const GlobalTimeline = () => {
     useEffect(() => {
         socket.on('acceptedHeadline', ({ headline, currentYear, plausibility }) => {
             setAcceptedHeadlines(prevHeadlines => [{ headline, currentYear, plausibility }, ...prevHeadlines]);
-            console.log(`plausibility on frontend: ${plausibility}`)
+            
         });
 
         return () => {

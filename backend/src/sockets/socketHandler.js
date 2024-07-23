@@ -201,7 +201,8 @@ const handleSocketConnection = (socket, io) => {
         id,
         name: players[id][0],
         role: players[id][1],
-        isHost: players[id][2]
+        isHost: players[id][2],
+        planet: players[id][3]
       }))
     });
     io.to('game-room').emit('navigate:selectPlanet');
@@ -308,7 +309,8 @@ const handleSocketConnection = (socket, io) => {
       .map(id => ({
         id,
         name: players[id][0],
-        score: players[id][4]
+        score: players[id][4],
+        planet: players[id][3]
       }))})
       
       
