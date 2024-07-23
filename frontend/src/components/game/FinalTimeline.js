@@ -21,22 +21,24 @@ const FinalTimeline = () => {
     return (
         <div>
             <h1>Accepted Headlines</h1>
-            <table className="global-timeline-table">
-                <thead>
-                    <tr>
-                        <th>Headline</th>
-                        <th>Year</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {finalAcceptedHeadlines.map((item, index) => (
-                        <tr key={index}>
-                            <td>{item.headline}</td>
-                            <td>{item.currentYear}</td>
+            <div className="scrollable-container">
+                <table className="global-timeline-table">
+                    <thead>
+                        <tr>
+                            <th>Headline</th>
+                            <th>Year</th>
                         </tr>
-                    ))}
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody>
+                        {finalAcceptedHeadlines.map((item, index) => (
+                            <tr key={index}>
+                                <td>{item.headline}</td>
+                                <td>{item.currentYear}</td>
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
+            </div>
         </div>
     );
 };
