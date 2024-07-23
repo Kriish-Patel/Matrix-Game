@@ -289,6 +289,11 @@ const handleSocketConnection = (socket, io) => {
     }
   });
 
+  socket.on('Forehand', ()=>{
+    console.log("received Forehand, sending backhand")
+    socket.emit('backHand')
+  })
+
 
   socket.on('endGame', ()=>{
 

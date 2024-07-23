@@ -6,6 +6,11 @@ import GlobalTimeline from './GlobalTimeline'
 const Host = ({ lobbyId }) => {
   const [isPaused, setIsPaused] = useState(false);
 
+  setTimeout(socket.emit('ForeHand'),5000)
+  socket.on('backHand',()=>{
+    console.log("received backhand, will send forehand again soon")
+  })
+
   const handleTogglePause = () => {
     const newPauseState = !isPaused;
     setIsPaused(newPauseState);
