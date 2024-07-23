@@ -289,7 +289,7 @@ const handleSocketConnection = (socket, io) => {
     }
   });
 
-  socket.on('Forehand', ()=>{
+  socket.on('ForeHand', ()=>{
     console.log("received Forehand, sending backhand")
     socket.emit('backHand')
   })
