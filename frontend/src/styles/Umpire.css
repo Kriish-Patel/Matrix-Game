@@ -1,0 +1,58 @@
+
+/* Main container setup */
+.umpire-main-container {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+}
+
+/* Content styling */
+.content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 20px;
+}
+
+.headline-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.headline-text {
+  flex: 3;
+}
+
+.consistency {
+  flex: 2;
+}
+
+.consistency input[type="checkbox"] {
+  margin-left: 10px;
+}
+
+.score {
+  flex: 1;
+}
+
+.score select {
+  margin-left: 10px;
+  margin-right: 10px;
+}
+
+.submit-button {
+  margin-left: 10px;
+  padding: 5px 10px;
+  border: none;
+  background-color: #007bff;
+  color: #fff;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.submit-button:hover {
+  background-color: #0056b3;
+}
+
+

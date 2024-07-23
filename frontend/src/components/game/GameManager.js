@@ -13,13 +13,13 @@ import '../../styles/App.css';
 const GameManager = () => {
   const { lobbyId } = useParams();
   const location = useLocation();
+  const navigate = useNavigate();
   const [players, setPlayers] = useState([]);
   const [role, setRole] = useState('')
   const [currentPlayerName, setCurrentPlayerName] = useState(null);
   const { planet, actualPlayersCount } = location.state
   
-  const navigate = useNavigate();
-
+  
   useEffect(() => {
    
     socket.on('updatePlayerList', ({players}) => {
@@ -32,6 +32,7 @@ const GameManager = () => {
         setCurrentPlayerName(currentPlayer.name)
       }
     });
+    
     socket.on('showLeaderboard', ({ players }) => {
       console.log(`results from GameManager: ${players}`)
       // Redirect to LeaderBoard when game ends
@@ -49,9 +50,11 @@ const GameManager = () => {
   return (
     <div className="container">
       <div className="timer-container">
-        <GameTimer gameEndDuration={60} />
+        <GameTimer />
       </div>
-      <h2>Your role: {role}</h2>
+      <div className="role-container">
+        <h2>Your role: {role}</h2>
+      </div>
       {role === 'player' && <Player lobbyId={lobbyId} planet={planet} />}
       {role === 'juror' && <Juror lobbyId={lobbyId} />}
       {role === 'umpire' && <Umpire lobbyId={lobbyId} />}

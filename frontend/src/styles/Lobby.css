@@ -1,0 +1,86 @@
+
+
+body {
+    font-family: Arial, sans-serif;
+    background-color: #1e1e1e;
+    color: #ffffff;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  /* Container styles */
+  .lobby-container {
+    
+    width: 100%;
+    position: relative;
+    height: 50vh;
+    margin-top: 20px;
+    padding: 10px;
+    background-color: #5a5a58;
+    border-radius: 20px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  }
+  
+  /* Heading styles */
+  h1, h2, h3 {
+    color: #ffffff;
+  }
+  
+  /* Button styles */
+  button {
+    background-color: #3f3f3f;
+    color: #ffffff;
+    border: none;
+    border-radius: 5px;
+    padding: 10px 20px;
+    margin: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+  
+  button:hover {
+    background-color: #575757;
+  }
+  
+  input[type="text"] {
+    background-color: #3f3f3f;
+    color: #ffffff;
+    border: 1px solid #575757;
+    border-radius: 5px;
+    padding: 10px;
+    margin: 5px;
+    width: calc(100% - 20px);
+  }
+  
+  input[type="number"] {
+    background-color: #3f3f3f;
+    color: #ffffff;
+    border: 1px solid #575757;
+    border-radius: 5px;
+    padding: 10px;
+    margin: 5px;
+    width: 60px;
+  }
+  
+  /* Lobby header styles */
+  .lobby-header {
+    text-align: center;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  .player-count {
+    margin: 0;
+    padding: 10px;
+  }
+  
+
+  
+  .content {
+    flex: 1;
+    margin-right: 100px;
+  }

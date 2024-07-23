@@ -2,8 +2,9 @@
 import React, { useState, useEffect } from 'react';
 import socket from '../../socket';
 import ReactModal from 'react-modal';
+
 import '../../styles/Player.css';
-import '../../styles/App.css';
+
 
 import GlobalTimeline from './GlobalTimeline';
 import PlayerTimeline from './PlayerTimeline';
