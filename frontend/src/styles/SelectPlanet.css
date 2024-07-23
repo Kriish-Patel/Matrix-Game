@@ -95,6 +95,10 @@
   button[data-planet="Pluto"]:hover::after {
     background-image: url('/public/images/pluto.jpg');
   }
+
+  button[data-planet="PlanetX"]:hover::after {
+    background-image: url('/public/images/planetX.jpg');
+  }
   
 
   button[data-planet]:hover::before {

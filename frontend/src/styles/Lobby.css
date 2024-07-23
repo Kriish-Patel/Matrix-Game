@@ -16,7 +16,7 @@ body {
     
     width: 100%;
     position: relative;
-    height: 50vh;
+    height: auto;
     margin-top: 20px;
     padding: 10px;
     background-color: #5a5a58;

@@ -24,7 +24,7 @@ const playerSchema = new Schema({
   },
   Planet: {
     type: String,
-    enum: ['Mercury', 'Venus', 'Earth', 'Mars', 'Jupiter', 'Saturn', 'Uranus', 'Neptune', 'Pluto'],
+    enum: ['Mercury', 'Venus', 'Earth', 'Mars', 'Jupiter', 'Saturn', 'Uranus', 'Neptune', 'Pluto', 'PlanetX'],
     default : null
   }
 }, {

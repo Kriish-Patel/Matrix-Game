@@ -29,7 +29,8 @@ let availablePlanets = [
   'Saturn',
   'Uranus',
   'Neptune',
-  'Pluto'
+  'Pluto',
+  'PlanetX'
 ];
 
 const handleSocketConnection = (socket, io) => {
