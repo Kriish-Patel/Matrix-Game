@@ -70,7 +70,7 @@ input[type="number"] {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 10px;
+  margin-bottom: 20px;
   padding: 0 20px; /* Optional: Add padding to space out content */
 }
 
@@ -84,6 +84,7 @@ input[type="number"] {
 
 .role-container {
   
+  position: absolute;
   white-space: nowrap;
   font-weight: bold;
   color: #fff;
@@ -93,7 +94,9 @@ input[type="number"] {
   font-weight: bold;
   color: #fff;
   text-align: center;
+  white-space: nowrap;
   flex: 1;
+  
   
 }
 
