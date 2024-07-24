@@ -2,21 +2,31 @@ import React, { useState, useEffect } from 'react';
 import socket from '../../socket';
 import '../../styles/GlobalTimeline.css';
 
-const FinalTimeline = () => {
+const FinalTimeline = ({acceptedHeadlines}) => {
     const [finalAcceptedHeadlines, setFinalAcceptedHeadlines] = useState([]);
 
+    // useEffect(() => {
+    //     socket.on('finalTimeline', ({acceptedHeadlines}) => {
+    //         const headlinesArray = Object.entries(acceptedHeadlines)
+    //             .map(([headline, currentYear]) => ({ headline, currentYear }))
+    //             .reverse(); // Reverse the array to show newest headlines at the top
+    //         setFinalAcceptedHeadlines(headlinesArray);
+    //     });
+
+    //     return () => {
+    //         socket.off('finalTimeline');
+    //     };
+    // }, []); 
+
     useEffect(() => {
-        socket.on('finalTimeline', ({acceptedHeadlines}) => {
+        // Update state when the acceptedHeadlines prop changes
+        if (acceptedHeadlines) {
             const headlinesArray = Object.entries(acceptedHeadlines)
                 .map(([headline, currentYear]) => ({ headline, currentYear }))
                 .reverse(); // Reverse the array to show newest headlines at the top
             setFinalAcceptedHeadlines(headlinesArray);
-        });
-
-        return () => {
-            socket.off('finalTimeline');
-        };
-    }, []); 
+        }
+    }, [acceptedHeadlines]);
 
     return (
         <div>

@@ -316,10 +316,10 @@ const handleSocketConnection = (socket, io) => {
         name: players[id][0],
         score: players[id][4],
         planet: players[id][3]
-      }))})
+      })), acceptedHeadlines})
       
       
-    io.emit('finalTimeline', {acceptedHeadlines})
+  //  io.to('game-room').emit('finalTimeline', {acceptedHeadlines});
     
     
     

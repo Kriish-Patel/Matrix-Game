@@ -7,7 +7,7 @@ import '../../styles/EndGameScreen.css';
 const EndGameScreen = () => {
   const location = useLocation();
   const { lobbyId } = useParams();
-  const { players } = location.state || { players: [] };
+  const { players, acceptedHeadlines } = location.state || { players: [] };
   console.log(`results: ${JSON.stringify(players, null, 2)}`);
   
 
@@ -45,7 +45,7 @@ const EndGameScreen = () => {
         </div>
       </div>
       <div className="right-container">
-        <FinalTimeline />
+        <FinalTimeline acceptedHeadlines={acceptedHeadlines} />
       </div>
     </div>
     
