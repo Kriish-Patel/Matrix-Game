@@ -9,6 +9,7 @@ import '../../styles/Player.css';
 import GlobalTimeline from './GlobalTimeline';
 import PlayerTimeline from './PlayerTimeline';
 import PauseOverlay from './PauseOverlay';
+import AverageScore from './AverageScore';
 
 
 const Player = ({ planet }) => {
@@ -149,6 +150,9 @@ const Player = ({ planet }) => {
       </div>
       <div className="global-timeline-container">
         <GlobalTimeline />
+      </div>
+      <div className="average-score-container">
+        <AverageScore />
       </div>
     </div>
   );

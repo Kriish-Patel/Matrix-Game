@@ -144,7 +144,7 @@ const processUmpireReview = async (headlineId, isConsistent, umpireScore) => {
     if (isConsistent) {
       // Calculate juror's score based on -log(p/100)
       const jurorScore = headline.jurorScore;
-      const jurorCalculatedScore = -4 * Math.log(jurorScore / 100);
+      const jurorCalculatedScore = -6 * Math.log(jurorScore / 100);
 
       // Round the result to 1 decimal place
       const roundedResult = Math.round(jurorCalculatedScore * 10) / 10;
