@@ -30,7 +30,7 @@ const FinalTimeline = ({acceptedHeadlines}) => {
 
     return (
         <div>
-            <h1>Accepted Headlines (not sure if everyone can see this)</h1>
+            <h1>Accepted Headlines</h1>
             <div className="scrollable-container">
                 <table className="global-timeline-table">
                     <thead>
