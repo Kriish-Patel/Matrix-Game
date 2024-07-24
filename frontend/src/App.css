@@ -1,0 +1,77 @@
+/* App.css */
+
+/* General styles */
+body {
+  font-family: Arial, sans-serif;
+  background-color: #1e1e1e;
+  color: #ffffff;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+
+/* Container styles */
+.container {
+  width: 100%;
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+  background-color: #2e2e2e;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* Heading styles */
+h1, h2, h3 {
+  color: #ffffff;
+}
+
+/* Button styles */
+button {
+  background-color: #3f3f3f;
+  color: #ffffff;
+  border: none;
+  border-radius: 5px;
+  padding: 10px 20px;
+  margin: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+button:hover {
+  background-color: #575757;
+}
+
+input[type="text"] {
+  background-color: #3f3f3f;
+  color: #ffffff;
+  border: 1px solid #575757;
+  border-radius: 5px;
+  padding: 10px;
+  margin: 5px;
+  width: calc(100% - 20px);
+}
+
+input[type="number"] {
+  background-color: #3f3f3f;
+  color: #ffffff;
+  border: 1px solid #575757;
+  border-radius: 5px;
+  padding: 10px;
+  margin: 5px;
+  width: 60px;
+}
+
+/* Lobby header styles */
+.lobby-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.player-count {
+  margin: 0;
+}
