@@ -5,10 +5,10 @@ import ReactModal from 'react-modal';
 
 import '../../styles/Player.css';
 
-
 import GlobalTimeline from './GlobalTimeline';
 import PlayerTimeline from './PlayerTimeline';
 import PauseOverlay from './PauseOverlay';
+import AverageScore from './AverageScore';
 
 
 const Player = ({ planet }) => {
@@ -76,8 +76,8 @@ const Player = ({ planet }) => {
         <PlayerTimeline />
       </div>
       <div className="player-container">
-        <h3>Player Score: {playerScore}</h3>
-        <h3>Player Planet: {planet}</h3>
+        <h3>Your Score: {playerScore}</h3>
+        <h3>Average Game Score: <AverageScore /> </h3>
         <h2>Enter Headline</h2>
         <div className="headline-input-container">
           <input
@@ -150,6 +150,7 @@ const Player = ({ planet }) => {
       <div className="global-timeline-container">
         <GlobalTimeline />
       </div>
+      
     </div>
   );
 };

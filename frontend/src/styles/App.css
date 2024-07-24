@@ -66,6 +66,14 @@ input[type="number"] {
   width: 60px;
 }
 
+.info-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  padding: 0 20px; /* Optional: Add padding to space out content */
+}
+
 .timer-container {
   position: absolute;
   right: 10px;
@@ -76,9 +84,18 @@ input[type="number"] {
 
 .role-container {
   
+  position: absolute;
   white-space: nowrap;
   font-weight: bold;
   color: #fff;
+  
+}
+.player-planet-container {
+  font-weight: bold;
+  color: #fff;
+  text-align: center;
+  white-space: nowrap;
+  flex: 1;
   
   
 }
