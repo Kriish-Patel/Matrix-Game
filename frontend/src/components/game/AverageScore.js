@@ -29,7 +29,10 @@ const AverageScore = () => {
   useEffect(() => {
     if (scores.length > 0) {
       const totalScore = scores.reduce((acc, score) => acc + score, 0);
-      const avgScore = totalScore / playerCount;
+      let avgScore = totalScore / playerCount;
+      if (isNaN(avgScore)) {
+        avgScore = 0;
+      }
       setAverageScore(avgScore);
     }
   }, [scores]);
