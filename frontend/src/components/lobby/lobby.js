@@ -134,7 +134,9 @@ const Lobby = () => {
       {socket.id === hostSocketId && (
         <button onClick={handleStartGame}>Start Game</button>
       )}
-      <button onClick={copyLink}>Copy lobby link</button>
+      {socket.id === hostSocketId && (
+        <button onClick={copyLink}>Copy lobby link</button>
+      )}
     </div>
   );
 };

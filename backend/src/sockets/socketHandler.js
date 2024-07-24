@@ -30,7 +30,8 @@ let availablePlanets = [
   'Saturn',
   'Uranus',
   'Neptune',
-  'Pluto'
+  'Pluto',
+  'PlanetX'
 ];
 
 const handleSocketConnection = (socket, io) => {
@@ -201,7 +202,8 @@ const handleSocketConnection = (socket, io) => {
         id,
         name: players[id][0],
         role: players[id][1],
-        isHost: players[id][2]
+        isHost: players[id][2],
+        planet: players[id][3]
       }))
     });
     io.to('game-room').emit('navigate:selectPlanet');
@@ -233,11 +235,13 @@ const handleSocketConnection = (socket, io) => {
         // Emit changeStatus
         console.log(`Emitting to ${headline.player.socketId}, changeStatus with status: 'with Umpire, pending'`);
         socket.to(headline.player.socketId.toString()).emit('updatePlayerStatus', { socketId: headline.player.socketId, headlineId: headline._id, headline: headline.headline, status: 'with Umpire, pending' })
+        socket.to(headline.player.socketId.toString()).emit('sendHeadlineScore', { plausibility: score, headline: headline.headline})
       }
       if (headline && !accepted) {
         // Emit changeStatus
         console.log(`Emitting changeStatus with status: 'failed'`);
         socket.to(headline.player.socketId).emit('updatePlayerStatus', { socketId: headline.player.socketId, headlineId: headline._id, headline: headline.headline, status: 'failed' })
+        socket.to(headline.player.socketId.toString()).emit('sendHeadlineScore', { plausibility: score, headline: headline.headline})
       }
     } catch (error) {
       console.error('Error submitting score:', error);
@@ -270,8 +274,14 @@ const handleSocketConnection = (socket, io) => {
       if (isConsistent) {
         
         acceptedHeadlines[result.headline] = currentYear;
+       
         
         socket.to(result.playerId.toString()).emit('updatePlayerScore', { score: result.combinedScore});
+        io.emit('updateAverageScore', {score: result.combinedScore})
+
+        io.emit('sendPlayerCount', { playerCount: Object.keys(players)
+          .filter(id => players[id][1].toLowerCase() === "player")
+          .length})
         
         players[result.playerId][4] = result.combinedScore
         io.emit('acceptedHeadline', {headline: result.headline, currentYear, plausibility: result.plausibility})
@@ -311,12 +321,12 @@ const handleSocketConnection = (socket, io) => {
       .map(id => ({
         id,
         name: players[id][0],
-        score: players[id][4]
-      }))})
+        score: players[id][4],
+        planet: players[id][3]
+      })), acceptedHeadlines})
       
       
-
-      io.emit('finalTimeline', {acceptedHeadlines})
+  //  io.to('game-room').emit('finalTimeline', {acceptedHeadlines});
     
     
     

@@ -9,8 +9,8 @@ const GlobalTimeline = () => {
         { headline: 'AI improves weather forecasting accuracy from 90% to 93%', currentYear: 2025, plausibility: 70 },
         { headline: 'AI eSports tournaments are the new Formula 1', currentYear: 2025, plausibility: 75 },
         { headline: 'Rishi Sunak appointed chair of UK AI Ethics Board', currentYear: 2025, plausibility: 85 },
-        { headline: 'AI Healthcare Insurance Advisor reduces costs by 20%', currentYear: 2025, plausibility: 55 },
-        { headline: 'Century-old Maths Problem solved by AI with ‘elegant proof', currentYear: 2025, plausibility: 35 },
+        { headline: 'AI Healthcare Insurance Advisor reduces costs by 20%', currentYear: 2025, plausibility: 75 },
+        { headline: 'Century-old Maths Problem solved by AI with ‘elegant proof', currentYear: 2025, plausibility: 30 },
         { headline: 'AI Composer’s Symphony premieres at Carnegie Hall', currentYear: 2025, plausibility: 95 },
         { headline: 'Stock Market ‘flash crash’ averted by AI monitoring', currentYear: 2025, plausibility: 88 }
     ]);
@@ -18,7 +18,7 @@ const GlobalTimeline = () => {
     useEffect(() => {
         socket.on('acceptedHeadline', ({ headline, currentYear, plausibility }) => {
             setAcceptedHeadlines(prevHeadlines => [{ headline, currentYear, plausibility }, ...prevHeadlines]);
-            console.log(`plausibility on frontend: ${plausibility}`)
+            
         });
 
         return () => {
