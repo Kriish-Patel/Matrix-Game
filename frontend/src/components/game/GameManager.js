@@ -49,12 +49,21 @@ const GameManager = () => {
 
   return (
     <div className="container">
-      <div className="timer-container">
-        <GameTimer />
+
+      <div className="info-container">
+          <div className="timer-container">
+            <GameTimer />
+          </div>
+          <div className="role-container">
+            <h2>Your role: {role}</h2>
+          </div>
+          {role === 'player' && (
+            <div className="player-planet-container">
+              <h2>Your planet: {planet}</h2>
+            </div>
+          )}
       </div>
-      <div className="role-container">
-        <h2>Your role: {role}</h2>
-      </div>
+
       {role === 'player' && <Player lobbyId={lobbyId} planet={planet} />}
       {role === 'juror' && <Juror lobbyId={lobbyId} />}
       {role === 'umpire' && <Umpire lobbyId={lobbyId} />}
