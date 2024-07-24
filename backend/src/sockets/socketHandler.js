@@ -283,7 +283,7 @@ const handleSocketConnection = (socket, io) => {
           .filter(id => players[id][1].toLowerCase() === "player")
           .length})
         
-        players[result.playerId][4] = result.combinedScore
+        players[result.playerId][4] += result.combinedScore
         io.emit('acceptedHeadline', {headline: result.headline, currentYear, plausibility: result.plausibility})
         updateYear(headlineId,currentYear)
         
@@ -299,10 +299,6 @@ const handleSocketConnection = (socket, io) => {
     }
   });
 
-  socket.on('ForeHand', ()=>{
-    console.log("received Forehand, sending backhand")
-    socket.emit('backHand')
-  })
 
 
   socket.on('endGame', ()=>{
