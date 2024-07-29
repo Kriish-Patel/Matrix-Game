@@ -4,19 +4,7 @@ import '../../styles/GlobalTimeline.css';
 
 const FinalTimeline = ({acceptedHeadlines}) => {
     const [finalAcceptedHeadlines, setFinalAcceptedHeadlines] = useState([]);
-
-    // useEffect(() => {
-    //     socket.on('finalTimeline', ({acceptedHeadlines}) => {
-    //         const headlinesArray = Object.entries(acceptedHeadlines)
-    //             .map(([headline, currentYear]) => ({ headline, currentYear }))
-    //             .reverse(); // Reverse the array to show newest headlines at the top
-    //         setFinalAcceptedHeadlines(headlinesArray);
-    //     });
-
-    //     return () => {
-    //         socket.off('finalTimeline');
-    //     };
-    // }, []); 
+ 
 
     useEffect(() => {
         // Update state when the acceptedHeadlines prop changes
