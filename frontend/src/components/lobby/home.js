@@ -33,7 +33,7 @@ const Home = () => {
  
   return (
     <div>
-      <h1>Welcome to the Matrix Game!</h1>
+      <h1>Welcome to whom the gods must destroy, they first make mad!</h1>
       <input 
         type="text" 
         value={name} 

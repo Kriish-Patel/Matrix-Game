@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation, useParams, useNavigate } from 'react-router-dom';
 
-import '../../styles/App.css';
+import '../../styles/Lobby.css';
 import socket from '../../socket'
 
 const Lobby = () => {
@@ -111,7 +111,7 @@ const Lobby = () => {
   };
 
   return (
-    <div className="container">
+    <div className="lobby-container">
       <div className="lobby-header">
         <h1>{host ? `${host}'s Lobby` : 'Lobby'}</h1>
         <h3 className="player-count">Player Count: {playerCount}</h3>
@@ -134,7 +134,9 @@ const Lobby = () => {
       {socket.id === hostSocketId && (
         <button onClick={handleStartGame}>Start Game</button>
       )}
-      <button onClick={copyLink}>Copy lobby link</button>
+      {socket.id === hostSocketId && (
+        <button onClick={copyLink}>Copy lobby link</button>
+      )}
     </div>
   );
 };

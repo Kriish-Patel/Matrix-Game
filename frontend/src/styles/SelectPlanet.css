@@ -18,10 +18,10 @@
 
   .selected-planet {
     position: absolute;
-  bottom: 20px; /* Position at the bottom with some padding */
-  left: 0; /* Align to the left */
-  width: 100%;
-  text-align: center;
+    bottom: 20px; /* Position at the bottom with some padding */
+    left: 0; /* Align to the left */
+    width: 100%;
+    text-align: center;
   }
   
   
@@ -48,8 +48,7 @@
     margin-bottom: 10px;
   }
   
-  
-  
+
   .hovered-planet-info {
     display: block;
     text-align: center;
@@ -94,6 +93,10 @@
   
   button[data-planet="Pluto"]:hover::after {
     background-image: url('/public/images/pluto.jpg');
+  }
+
+  button[data-planet="PlanetX"]:hover::after {
+    background-image: url('/public/images/planetX.jpg');
   }
   
 

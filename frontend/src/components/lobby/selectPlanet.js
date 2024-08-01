@@ -22,7 +22,8 @@ const SelectPlanet = () => {
     'Saturn',
     'Uranus',
     'Neptune',
-    'Pluto'
+    'Pluto',
+    'PlanetX'
   ]);
 
   useEffect(() => {

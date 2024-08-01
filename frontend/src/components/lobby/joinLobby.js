@@ -18,7 +18,7 @@ const JoinLobby = () => {
   };
 
   return (
-    <div className="container">
+    <div className="lobby-container">
       <div className="lobby-header">
         <h1>Join Lobby</h1>
       </div>

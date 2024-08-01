@@ -135,7 +135,7 @@ const processUmpireReview = async (headlineId, isConsistent, umpireScore) => {
     if (isConsistent) {
       // Calculate juror's score based on -log(p/100)
       const jurorScore = headline.jurorScore;
-      const jurorCalculatedScore = -4 * Math.log(jurorScore / 100);
+      const jurorCalculatedScore = -6 * Math.log(jurorScore / 100);
 
       // Round the result to 1 decimal place
       const roundedResult = Math.round(jurorCalculatedScore * 10) / 10;
@@ -175,7 +175,7 @@ const processUmpireReview = async (headlineId, isConsistent, umpireScore) => {
 
     await headline.save();
     console.log(`player ID: ${headline.player}`);
-    return { success: true, playerId: headline.player.socketId, combinedScore: combinedScore, headline: headline.headline };
+    return { success: true, playerId: headline.player.socketId, combinedScore: combinedScore, headline: headline.headline, plausibility: headline.jurorScore };
   } catch (error) {
     console.error('Error processing umpire review:', error);
     return { success: false, error };

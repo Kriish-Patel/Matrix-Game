@@ -1,42 +1,41 @@
 import React, { useState, useEffect } from 'react';
-import socket from '../../socket';
+import socket from '../../socket'; // Ensure this is the correct path to your socket instance
+
+// Helper function to calculate the current month and year
+const calculateCurrentMonthYear = (minutesPassed) => {
+  const y = 2026.05 + 6.4 * (Math.exp(0.02 * minutesPassed) - 1);
+  const year = Math.floor(y);
+  const month = Math.ceil(12 * (y - year));
+  return { month, year };
+};
 
 const GameTimer = () => {
-    const [startTime, setStartTime] = useState(Date.now()); // Initialize start time when the component mounts
-    const [currentTime, setCurrentTime] = useState(Date.now());
+  const [minutesPassed, setMinutesPassed] = useState(0);
+  const [currentDate, setCurrentDate] = useState(calculateCurrentMonthYear(0));
 
-    useEffect(() => {
-        const timer = setInterval(() => {
-            setCurrentTime(Date.now());
-        }, 1000); // Update the current time every second
+  useEffect(() => {
+    // Increment the minutesPassed state every minute
+    const interval = setInterval(() => {
+      setMinutesPassed(prev => prev + 1);
+    }, 60000); // 60000 milliseconds = 1 minute
 
-        return () => clearInterval(timer);
-    }, []);
+    return () => clearInterval(interval);
+  }, []);
 
-    const getElapsedTimeInMinutes = (start, current) => {
-        return Math.floor((current - start) / 60000); // Convert milliseconds to minutes
-    };
+  useEffect(() => {
+    const date = calculateCurrentMonthYear(minutesPassed);
+    setCurrentDate(date);
 
-    const calculateGameYear = (m) => {
-        const intermediateValue = Math.exp(0.027 * m) - 1;
-        const gameYear = 2025 + 3.6 * intermediateValue;
-        
-        return gameYear;
-    };
+    // Emit the current year to the backend using socket
+    socket.emit('updateCurrentYear', { currentYear: date.year.toFixed(0) });
 
-    const elapsedTimeInMinutes = getElapsedTimeInMinutes(startTime, currentTime);
-    const gameYear = calculateGameYear(elapsedTimeInMinutes);
+  }, [minutesPassed]);
 
-    useEffect(() => {
-        // Send the current year to the back end whenever it updates
-        socket.emit('updateCurrentYear', { currentYear: gameYear.toFixed(0) });
-      }, [currentTime]); // Update dependency to currentTime
+  return (
     
-    return (
-        <div>
-            <p>Current Year: {gameYear.toFixed(0)}</p>
-        </div>
-    );
+      <h2>Current Date: {`${currentDate.month.toString().padStart(2, '0')}/${currentDate.year}`}</h2>
+    
+  );
 };
 
 export default GameTimer;
