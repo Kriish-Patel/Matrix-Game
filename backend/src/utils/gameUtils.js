@@ -123,15 +123,6 @@ const assignHeadlineToJuror = (headlineId, headline, io) => {
   }
 };
 
-const registerJuror = (jurorSocketId) => {
-  if (!jurorQueues[jurorSocketId]) {
-    jurorQueues[jurorSocketId] = [];
-  }
-};
-
-const deregisterJuror = (jurorSocketId) => {
-  delete jurorQueues[jurorSocketId];
-};
 const processUmpireReview = async (headlineId, isConsistent, umpireScore) => {
   try {
     // Find the headline and the juror's score
@@ -198,8 +189,6 @@ module.exports = {
   assignRole,
   // updateHeadlineAcceptance,
   assignHeadlineToJuror,
-  registerJuror,
-  deregisterJuror,
   processUmpireReview
   
 };

@@ -4,8 +4,6 @@ const {
   submitJurorScore,
   updateHeadlineAcceptance,
   assignHeadlineToJuror,
-  registerJuror,
-  deregisterJuror,
   processUmpireReview,
   
   assignRole,
@@ -237,16 +235,6 @@ const handleSocketConnection = (socket, io) => {
       console.error('Error submitting score:', error);
       socket.emit('error', { message: 'Failed to submit score' });
     }
-  });
-
-  socket.on('registerJuror', () => {
-    registerJuror(socket.id);
-    console.log(`Juror registered: ${socket.id}`);
-  });
-
-  socket.on('deregisterJuror', () => {
-    deregisterJuror(socket.id);
-    console.log(`Juror deregistered: ${socket.id}`);
   });
 
   socket.on('updateCurrentYear', ({ currentYear: year }) => {
