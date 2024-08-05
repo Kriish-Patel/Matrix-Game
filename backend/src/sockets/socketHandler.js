@@ -5,17 +5,20 @@ const {
   updateHeadlineAcceptance,
   assignHeadlineToJuror,
   processUmpireReview,
+  registerJuror,
+  deregisterJuror,
   
   assignRole,
 } = require('../utils/gameUtils');
 let Headline = require('../../models/headlines.model')
 let Player = require('../../models/player.model');
 const headlinesModel = require('../../models/headlines.model');
+const players = require('../utils/Players.js')
 
 let currentYear;
 let hostSocketId = null;
 let hostName = null;
-let players = {}  // {id: [name, role, hostStatus, planet]}
+// let players = {}  // {id: [name, role, hostStatus, planet]}
 let acceptedHeadlines = {}
 
 let availablePlanets = [
@@ -42,35 +45,38 @@ const handleSocketConnection = (socket, io) => {
       socket.emit('error', { message: 'Lobby already created' });
       return;
     }
-    const playerData = [name, 'host', true, 'none',0];
-    players[socket.id] = playerData;
+    // const playerData = [name, 'host', true, 'none',0];
+    // players[socket.id] = playerData;
     hostSocketId = socket.id;
     hostName = name;
-    const newPlayer = new Player({
-      playerName: name,
-      socketId: socket.id,
-      role: 'host'
-    });
-    newPlayer.save()
-    .then((savedPlayer) => {
-      console.log('Host created:', savedPlayer);
-      return savedPlayer;
-    })
-    .catch((error) => {
-      console.error('Error creating host:', error);
-    });
+    // const newPlayer = new Player({
+    //   playerName: name,
+    //   socketId: socket.id,
+    //   role: 'host'
+    // });
+    // newPlayer.save()
+    // .then((savedPlayer) => {
+    //   console.log('Host created:', savedPlayer);
+    //   return savedPlayer;
+    // })
+    // .catch((error) => {
+    //   console.error('Error creating host:', error);
+    // });
     
+    players.addPlayer(socket.id, name, 'host', true);
+
     socket.join('game-room');
     
     io.to('game-room').emit('host-info', { hostName: name, hostSocketId: hostSocketId });
     io.to('game-room').emit('updatePlayerList', {
-      players: Object.keys(players).map(id => ({
-        id,
-        name: players[id][0],
-        role: players[id][1],
-        isHost: players[id][2],
-        planet: players[id][3]
+      players: players.getPlayersArray().map(player => ({
+        id: player.socketId,
+        name: player.playerName,
+        role: player.role,
+        isHost: player.isHost,
+        planet: player.Planet
       }))
+      // players: players.getPlayersArray()
     });
   });
 
@@ -80,31 +86,33 @@ const handleSocketConnection = (socket, io) => {
       socket.emit('error', { message: 'Lobby has not been created yet' });
       return;
     }
-    const playerData = [name, '', false, '',0];
-    players[socket.id] = playerData;
-    const newPlayer = new Player({
-      playerName: name,
-      socketId: socket.id
-    });
-    newPlayer.save()
-    .then((savedPlayer) => {
-      console.log('Player created:', savedPlayer);
-      return savedPlayer;
-    })
-    .catch((error) => {
-      console.error('Error creating player:', error);
-    });
+    // const playerData = [name, '', false, '',0];
+    // players[socket.id] = playerData;
+    // const newPlayer = new Player({
+    //   playerName: name,
+    //   socketId: socket.id
+    // });
+    // newPlayer.save()
+    // .then((savedPlayer) => {
+    //   console.log('Player created:', savedPlayer);
+    //   return savedPlayer;
+    // })
+    // .catch((error) => {
+    //   console.error('Error creating player:', error);
+    // });
+    players.addPlayer(socket.id, name);
 
     socket.join('game-room'); // Join the single room
     io.to('game-room').emit('host-info', { hostName: hostName, hostSocketId: hostSocketId });
     io.to('game-room').emit('updatePlayerList', {
-      players: Object.keys(players).map(id => ({
-        id,
-        name: players[id][0],
-        role: players[id][1],
-        isHost: players[id][2],
-        planet: players[id][3]
+      players: players.getPlayersArray().map(player => ({
+        id: player.socketId,
+        name: player.playerName,
+        role: player.role,
+        isHost: player.isHost,
+        planet: player.Planet
       }))
+      // players: players.getPlayersArray()
     });
 
   });
@@ -123,23 +131,36 @@ const handleSocketConnection = (socket, io) => {
 
     if (availablePlanets.includes(planet)) {
       availablePlanets = availablePlanets.filter((p) => p !== planet);
-      players[playerId][3] = planet
-      const player = await Player.findOne({socketId: playerId})
-      player.Planet = planet
-      player.save()
+      // players[playerId][3] = planet
+      // const player = await Player.findOne({socketId: playerId})
+      // player.Planet = planet
+      // player.save()
+      const player = players.getPlayer(playerId);
+      player.setPlanet(planet);
         
       io.to('game-room').emit('planetSelected', planet);
       io.to('game-room').emit('updatePlayerList', {
-        players: Object.keys(players).map(id => ({
-          id,
-          name: players[id][0],
-          role: players[id][1],
-          isHost: players[id][2],
-          planet: players[id][3]
+        players: players.getPlayersArray().map(player => ({
+          id: player.socketId,
+          name: player.playerName,
+          role: player.role,
+          isHost: player.isHost,
+          planet: player.Planet
         }))
+        // players: players.getPlayersArray()
       });
     }
-  });3
+  });
+
+  socket.on('registerJuror', () => {
+    registerJuror(socket.id);
+    console.log(`Juror registered: ${socket.id}`);
+  });
+
+  socket.on('deregisterJuror', () => {
+    deregisterJuror(socket.id);
+    console.log(`Juror deregistered: ${socket.id}`);
+  });
 
   socket.on('assignRole', async ({playerId, role }) => {
     if (socket.id === hostSocketId) {
@@ -148,15 +169,17 @@ const handleSocketConnection = (socket, io) => {
         return;
       }
       await assignRole(playerId, role);
-      players[playerId][1] = role;
+      // players[playerId][1] = role;
       io.to('game-room').emit('updatePlayerList', {
-        players: Object.keys(players).map(id => ({
-          id,
-          name: players[id][0],
-          role: players[id][1],
-          isHost: players[id][2],
-          planet: players[id][3]
+        players: players.getPlayersArray().map(player => ({
+          id: player.socketId,
+          name: player.playerName,
+          role: player.role,
+          isHost: player.isHost,
+          planet: player.Planet
         }))
+        // players: players.getPlayersArray()
+
       });
     } else {
       socket.emit('error', { message: 'Only the host can assign roles' });
@@ -180,8 +203,9 @@ const handleSocketConnection = (socket, io) => {
 
     console.log(`startGame event received for lobby ${lobbyId}`);
     
-    const actualPlayers = Object.values(players).filter(player => player[1] === 'player');
-    const unassignedPlayers = Object.values(players).filter(player => player[1] === '');
+
+    const actualPlayers = players.getPlayersArray().filter(player => player.role === 'player');
+    const unassignedPlayers = players.getPlayersArray().filter(player => player.role === '');
 
     io.in('game-room').emit('actualPlayersCount', {actualPlayers})
   
@@ -195,13 +219,14 @@ const handleSocketConnection = (socket, io) => {
 
   socket.on('to-game-manager', () => {
     io.to('game-room').emit('updatePlayerList', {
-      players: Object.keys(players).map(id => ({
-        id,
-        name: players[id][0],
-        role: players[id][1],
-        isHost: players[id][2],
-        planet: players[id][3]
+      players: players.getPlayersArray().map(player => ({
+        id: player.socketId,
+        name: player.playerName,
+        role: player.role,
+        isHost: player.isHost,
+        planet: player.Planet
       }))
+      // players: players.getPlayersArray()
     });
     io.to('game-room').emit('navigate:selectPlanet');
   });
@@ -266,11 +291,11 @@ const handleSocketConnection = (socket, io) => {
         socket.to(result.playerId.toString()).emit('updatePlayerScore', { score: result.combinedScore});
         io.emit('updateAverageScore', {score: result.combinedScore})
 
-        io.emit('sendPlayerCount', { playerCount: Object.keys(players)
-          .filter(id => players[id][1].toLowerCase() === "player")
+        io.emit('sendPlayerCount', { playerCount: players.getPlayersArray()
+          .filter(player => player.role === 'player')
           .length})
         
-        players[result.playerId][4] = result.combinedScore
+        // players[result.playerId][4] = result.combinedScore
         io.emit('acceptedHeadline', {headline: result.headline, currentYear, plausibility: result.plausibility})
         
         socket.to(result.playerId.toString()).emit('updatePlayerStatus', { socketId: result.playerId, headlineId, headline: result.headline, status: 'success' });
@@ -288,23 +313,33 @@ const handleSocketConnection = (socket, io) => {
 
   socket.on('endGame', ()=>{
 
-    const array = Object.keys(players)
-    .filter(id => players[id][1].toLowerCase() === "player")
-    .map(id => ({
-      id,
-      name: players[id][0],
-      score: players[id][4]
-    }))
-    console.log(`inside socket: ${array}`)
+    const playersArray = players.getPlayersArray();
+
+    const filteredPlayers = playersArray
+      .filter(player => player.role && player.role.toLowerCase() === "player")
+      .map(player => ({
+        id: player.socketId,
+        name: player.playerName,
+        score: player.Score
+      }));
+    // const array = Object.keys(players)
+    // .filter(id => players[id][1].toLowerCase() === "player")
+    // .map(id => ({
+    //   id,
+    //   name: players[id][0],
+    //   score: players[id][4]
+    // }))
+    console.log(`inside socket: ${filteredPlayers}`)
     
-    io.emit('showLeaderboard', {players: Object.keys(players)
-      .filter(id => players[id][1].toLowerCase() === "player")
-      .map(id => ({
-        id,
-        name: players[id][0],
-        score: players[id][4],
-        planet: players[id][3]
-      })), acceptedHeadlines})
+    // io.emit('showLeaderboard', {players: Object.keys(players)
+    //   .filter(id => players[id][1].toLowerCase() === "player")
+    //   .map(id => ({
+    //     id,
+    //     name: players[id][0],
+    //     score: players[id][4],
+    //     planet: players[id][3]
+    //   })), acceptedHeadlines})
+    io.emit('showLeaderboard', { players: filteredPlayers, acceptedHeadlines });
       
       
   //  io.to('game-room').emit('finalTimeline', {acceptedHeadlines});

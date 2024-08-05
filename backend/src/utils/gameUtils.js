@@ -2,6 +2,7 @@
 const { v4: uuidv4 } = require('uuid');
 const Headline = require('../../models/headlines.model');
 const Player = require('../../models/player.model');
+const players = require('./Players.js')
 
 const jurorQueues = {}; // { jurorSocketId: [headlineId1, headlineId2, ...] }
 
@@ -11,9 +12,20 @@ const createLobby = () => {
   return lobbyId;
 };
 
+
+const registerJuror = (jurorSocketId) => {
+  if (!jurorQueues[jurorSocketId]) {
+    jurorQueues[jurorSocketId] = [];
+  }
+};
+
+const deregisterJuror = (jurorSocketId) => {
+  delete jurorQueues[jurorSocketId];
+};
+
 const saveHeadline = async (socketId, headlineText) => {
 // find player by socketid
-  const player = await Player.findOne({ socketId });
+  const player = players.getPlayer(socketId);
 
   if (!player) {
     throw new Error('Player not found');
@@ -80,7 +92,8 @@ const removeHeadlineFromJurorQueue = (jurorSocketId, headlineId) => {
 
 
 const assignRole = async (socketId, role) => {
-  const player = await Player.findOne({ socketId });
+  // const player = await Player.findOne({ socketId });
+  const player = players.getPlayer(socketId)
 
   if (!player) {
     throw new Error('Player not found');
@@ -93,7 +106,7 @@ const assignRole = async (socketId, role) => {
   player.role = role;
   await player.save();
 
-  return player;
+  return;
 };
 
 
@@ -153,16 +166,17 @@ const processUmpireReview = async (headlineId, isConsistent, umpireScore) => {
       headline.combinedScore = combinedScore;
 
       // Update the player's running total score
-      const player = await Player.findById(headline.player);
+      const player = players.getPlayer(headline.player.socketId)
       if (player) {
         console.log(`player found, player score is ${player.Score}`)
-        if (player.Score === null){
-          console.log(`player score is null`)
-          player.Score = combinedScore;
-        }
-        else{
-          player.Score += combinedScore;
-        }
+        player.incrementScore(combinedScore)
+        // if (player.Score === null){
+        //   console.log(`player score is null`)
+        //   player.Score = combinedScore;
+        // }
+        // else{
+        //   player.Score += combinedScore;
+        // }
         await player.save();
         console.log(`player score: ${player.Score}`);
       }
@@ -187,6 +201,8 @@ module.exports = {
   submitJurorScore,
   saveHeadline,
   assignRole,
+  registerJuror,
+  deregisterJuror,
   // updateHeadlineAcceptance,
   assignHeadlineToJuror,
   processUmpireReview

@@ -7,7 +7,7 @@ class Players {
     this.players = {};
   }
 
-  async addPlayer(socketId, name, role = '', isHost = false, planet = 'none', score = 0) {
+  async addPlayer(socketId, name, role = null, isHost = false, planet = 'none', score = 0) {
     const player = new Player({
       playerName: name,
       socketId,
@@ -25,12 +25,12 @@ class Players {
     delete this.players[socketId];
   }
 
-  async updatePlayer(socketId, updates) {
-    if (this.players[socketId]) {
-      Object.assign(this.players[socketId], updates);
-      await this.players[socketId].save();
-    }
-  }
+  // async updatePlayer(socketId, updates) {
+  //   if (this.players[socketId]) {
+  //     Object.assign(this.players[socketId], updates);
+  //     await this.players[socketId].save();
+  //   }
+  // }
 
   getPlayer(socketId) {
     return this.players[socketId];
