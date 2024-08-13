@@ -14,6 +14,8 @@ let Headline = require('../../models/headlines.model')
 let Player = require('../../models/player.model');
 const headlinesModel = require('../../models/headlines.model');
 const players = require('../utils/Players.js')
+const sessionStore = require('../../sessionStore.js')
+
 
 let currentYear;
 let hostSocketId = null;
@@ -36,6 +38,13 @@ let availablePlanets = [
 
 const handleSocketConnection = (socket, io) => {
 
+  socket.emit("session", {
+    sessionID: socket.sessionID,
+    userID: socket.userID,
+  });
+
+
+
 
   //LOBBY SOCKETS
 
@@ -47,7 +56,8 @@ const handleSocketConnection = (socket, io) => {
     }
     // const playerData = [name, 'host', true, 'none',0];
     // players[socket.id] = playerData;
-    hostSocketId = socket.id;
+    console.log(`the host socket session ID: ${socket.sessionID}`)
+    hostSocketId = socket.sessionID;
     hostName = name;
     // const newPlayer = new Player({
     //   playerName: name,
@@ -63,7 +73,7 @@ const handleSocketConnection = (socket, io) => {
     //   console.error('Error creating host:', error);
     // });
     
-    players.addPlayer(socket.id, name, 'host', true);
+    players.addPlayer(socket.sessionID, name, 'host', true);
 
     socket.join('game-room');
     
@@ -100,7 +110,7 @@ const handleSocketConnection = (socket, io) => {
     // .catch((error) => {
     //   console.error('Error creating player:', error);
     // });
-    players.addPlayer(socket.id, name);
+    players.addPlayer(socket.sessionID, name);
 
     socket.join('game-room'); // Join the single room
     io.to('game-room').emit('host-info', { hostName: hostName, hostSocketId: hostSocketId });
@@ -120,7 +130,7 @@ const handleSocketConnection = (socket, io) => {
 
 
   socket.on('togglePause', ({ lobbyId, isPaused }) => {
-    if (socket.id === hostSocketId) {
+    if (socket.sessionID === hostSocketId) {
       io.to('game-room').emit('gamePaused', { isPaused });
     } else {
       socket.emit('error', { message: 'Only the host can pause/resume the game' });
@@ -135,7 +145,7 @@ const handleSocketConnection = (socket, io) => {
       // const player = await Player.findOne({socketId: playerId})
       // player.Planet = planet
       // player.save()
-      const player = players.getPlayer(playerId);
+      const player = players.getPlayer(socket.sessionID);
       player.setPlanet(planet);
         
       io.to('game-room').emit('planetSelected', planet);
@@ -163,12 +173,12 @@ const handleSocketConnection = (socket, io) => {
   });
 
   socket.on('assignRole', async ({playerId, role }) => {
-    if (socket.id === hostSocketId) {
-      if (playerId === hostSocketId) {
-        socket.emit('error', { message: 'Host cannot assign a role to themselves' });
-        return;
-      }
-      await assignRole(playerId, role);
+    if (socket.sessionID === hostSocketId) {
+      // if (playerId === hostSocketId) {
+      //   socket.emit('error', { message: 'Host cannot assign a role to themselves' });
+      //   return;
+      // }
+      await assignRole(socket.sessionID, role);
       // players[playerId][1] = role;
       io.to('game-room').emit('updatePlayerList', {
         players: players.getPlayersArray().map(player => ({
@@ -187,6 +197,16 @@ const handleSocketConnection = (socket, io) => {
   });
 
   socket.on('disconnect', () => {
+
+      // notify other users
+    socket.broadcast.emit("user disconnected", socket.userID);
+    // update the connection status of the session
+    sessionStore.saveSession(socket.sessionID, {
+      userID: socket.userID,
+      username: socket.username,
+      connected: false,
+    });
+
     console.log(`Client disconnected: ${socket.id}`);
 
     // Handle host disconnection
@@ -233,12 +253,12 @@ const handleSocketConnection = (socket, io) => {
   
   socket.on('submitHeadline', async ({ socketId, headline }) => {
     try {
-      const savedHeadline = await saveHeadline(socketId, headline);
-      console.log(`Headline submitted: ${headline} from socket ID: ${socketId}`);
+      const savedHeadline = await saveHeadline(socket.sessionID, headline);
+      console.log(`Headline submitted: ${headline} from socket ID: ${socket.sessionID}`);
 
       // Assign the headline to a juror
       assignHeadlineToJuror(savedHeadline._id, savedHeadline.headline, io);
-      socket.emit('updatePlayerStatus', { socketId: socketId, headlineId: savedHeadline._id, headline: savedHeadline.headline, status: 'with Juror, pending' })
+      socket.emit('updatePlayerStatus', { socketId: socket.sessionID, headlineId: savedHeadline._id, headline: savedHeadline.headline, status: 'with Juror, pending' })
     } catch (error) {
       console.error('Error submitting headline:', error);
       socket.emit('error', { message: 'Failed to submit headline' });

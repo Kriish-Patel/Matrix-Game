@@ -1,33 +1,34 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation, useParams, useNavigate } from 'react-router-dom';
-
 import '../../styles/Lobby.css';
-import socket from '../../socket'
+import socket from '../../socket';
 
 const Lobby = () => {
-
-  console.log(`Component rendered from id: ${socket.id}`);
-
-  
   const { lobbyId } = useParams();
   const location = useLocation();
   const navigate = useNavigate();
-  const [players, setPlayers] = useState([]);
-  const [playerCount, setPlayerCount] = useState(0);
 
+  const [players, setPlayers] = useState(() => {
+    const savedPlayers = localStorage.getItem('players');
+    return savedPlayers ? JSON.parse(savedPlayers) : [];
+  });
+  const [playerCount, setPlayerCount] = useState(0);
   const [host, setHost] = useState('');
   const [hostSocketId, setHostSocketId] = useState('');
-
   const [name, setName] = useState(location.state ? location.state.name : '');
-  const [actualPlayersCount, setActualPlayersCount] = useState(0)
+  const [actualPlayersCount, setActualPlayersCount] = useState(0);
   const [hasJoined, setHasJoined] = useState(false);
   const [initialJoin, setInitialJoin] = useState(false);
   const [roles, setRoles] = useState({});
 
-  
   useEffect(() => {
+    const sessionID = localStorage.getItem('sessionID');
+    if (sessionID) {
+      socket.auth = { sessionID };
+      socket.connect();
+      console.log(`sessionID: ${sessionID}`);
+    }
 
-    // if user hasnt joined, send them to joinLobby.js
     if (!location.state || !location.state.name) {
       navigate(`/join-lobby/${lobbyId}`);
       return;
@@ -36,12 +37,11 @@ const Lobby = () => {
     const joinLobby = (userName) => {
       if (userName && !hasJoined) {
         setHasJoined(true);
-        socket.emit('jo', { name: userName});
+        socket.emit('join-lobby', { name: userName });
       }
     };
 
     if (!initialJoin && location.state && location.state.name) {
-      
       joinLobby(location.state.name);
       setInitialJoin(true);
     } else if (!initialJoin && !location.state) {
@@ -49,15 +49,15 @@ const Lobby = () => {
       setInitialJoin(true);
     }
 
-    socket.on('host-info', ({hostName, hostSocketId}) => {
-      
+    socket.on('host-info', ({ hostName, hostSocketId }) => {
       setHost(hostName);
       setHostSocketId(hostSocketId);
     });
 
-    socket.on('updatePlayerList', ({players}) => {
+    socket.on('updatePlayerList', ({ players }) => {
       setPlayers(players);
       setPlayerCount(players.length);
+      localStorage.setItem('players', JSON.stringify(players));
       const currentPlayer = players.find(player => player.id === socket.id);
       if (currentPlayer && currentPlayer.role === 'host') {
         setHostSocketId(socket.id);
@@ -68,12 +68,8 @@ const Lobby = () => {
       const finalActualPlayerCount = players.filter(player => player.role === 'player').length;
       setActualPlayersCount(finalActualPlayerCount);
       navigate(`/game/${lobbyId}`, { state: { role: roles[socket.id], actualPlayersCount: finalActualPlayerCount } });
-      
       socket.emit('to-game-manager');
-      
     });
-
-    
 
     socket.on('error', (message) => {
       alert(message);
@@ -88,22 +84,17 @@ const Lobby = () => {
     };
   }, [location.state, lobbyId, hasJoined, initialJoin, name, roles, navigate, players]);
 
-
   const handleAssignRole = (playerId, role) => {
-   
     if (socket.id === hostSocketId && playerId !== hostSocketId) {
-      socket.emit('assignRole', {playerId, role });
-      
+      socket.emit('assignRole', { playerId, role });
     } else if (playerId === hostSocketId) {
       alert('As the host, you cannot assign a role to yourself.');
     }
   };
 
   const handleStartGame = () => {
-
-    
     socket.emit('startGame', { lobbyId });
-  };  
+  };
 
   const copyLink = () => {
     navigator.clipboard.writeText(window.location.href);

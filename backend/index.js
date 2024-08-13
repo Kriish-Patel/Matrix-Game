@@ -6,7 +6,11 @@ const cors = require('cors');
 const { handleCreateLobby } = require('./src/controllers/gameController');
 const handleSocketConnection = require('./src/sockets/socketHandler');
 const mongoose = require('mongoose')
+const { v4: uuidv4 } = require('uuid');
 require('dotenv').config();
+
+const sessionStore = require('./sessionStore.js')
+
 
 const app = express();
 const server = http.createServer(app);
@@ -29,6 +33,26 @@ const connection = mongoose.connection;
 connection.once('open',() => {
   console.log("Mongoose connected");
 })
+
+io.use((socket, next) => {
+  const sessionID = socket.handshake.auth.sessionID;
+  console.log(`sessionID in the auth thing: ${socket.handshake.auth.sessionID}`)
+  if (sessionID) {
+    // find existing session
+    const session = sessionStore.findSession(sessionID);
+    console.log(`tf is up with this session: ${session}`)
+    if (session) {
+      console.log('found a session')
+      socket.sessionID = sessionID;
+      socket.userID = session.userID;
+      return next();
+    }
+  }
+  // create new session
+  socket.sessionID = uuidv4();
+  socket.userID = uuidv4();
+  next();
+});
 
 
 // Route to create a new lobby

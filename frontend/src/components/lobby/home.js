@@ -9,14 +9,17 @@ const Home = () => {
 
   
   const navigate = useNavigate();
+  
 
   const createLobby = async () => {
     try {
+      
 
       socket.connect(); // Connect the socket when creating a lobby
   
       socket.emit('create-lobby', {name}); // Emit create-lobby event to the server
 
+          // Retrieve the session ID from localStorage and connect
 
       const response = await axios.get('http://localhost:5001/create-lobby'); // Backend URL
      

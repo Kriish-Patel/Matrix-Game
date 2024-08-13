@@ -9,7 +9,10 @@ const JoinLobby = () => {
   const navigate = useNavigate();
   
   const handleJoinLobby = () => {
+
+
     if (name && lobbyId) {
+      
       socket.connect();
       socket.emit('join-lobby', { name});
       

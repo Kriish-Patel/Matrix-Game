@@ -11,8 +11,10 @@ import EndGameScreen from './components/game/EndGameScreen.js'
 
 import './styles/App.css';
 
-
 function App() {
+
+
+
 
   
   return (
