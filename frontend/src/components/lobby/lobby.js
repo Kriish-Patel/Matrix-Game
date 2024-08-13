@@ -33,22 +33,6 @@ const Lobby = () => {
       return;
     }
 
-    const joinLobby = (userName) => {
-      if (userName && !hasJoined) {
-        setHasJoined(true);
-        socket.emit('jo', { name: userName});
-      }
-    };
-
-    if (!initialJoin && location.state && location.state.name) {
-      
-      joinLobby(location.state.name);
-      setInitialJoin(true);
-    } else if (!initialJoin && !location.state) {
-      joinLobby(name);
-      setInitialJoin(true);
-    }
-
     socket.on('host-info', ({hostName, hostSocketId}) => {
       
       setHost(hostName);
@@ -72,8 +56,6 @@ const Lobby = () => {
       socket.emit('to-game-manager');
       
     });
-
-    
 
     socket.on('error', (message) => {
       alert(message);
@@ -101,7 +83,6 @@ const Lobby = () => {
 
   const handleStartGame = () => {
 
-    
     socket.emit('startGame', { lobbyId });
   };  
 
