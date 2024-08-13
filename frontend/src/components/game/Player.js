@@ -86,7 +86,7 @@ const Player = ({ planet }) => {
             onChange={(e) => setHeadline(e.target.value)}
             placeholder="Enter your headline"
             className="headline-input"
-            disabled={hasPendingHeadline}
+            // disabled={hasPendingHeadline}
             maxLength={60}
           />
           <div className="button-container">

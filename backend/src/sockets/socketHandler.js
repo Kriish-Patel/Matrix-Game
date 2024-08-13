@@ -286,6 +286,8 @@ const handleSocketConnection = (socket, io) => {
         io.emit('acceptedHeadline', {headline: result.headline, currentYear, plausibility: result.plausibility})
         
         socket.to(result.playerId.toString()).emit('updatePlayerStatus', { socketId: result.playerId, headlineId, headline: result.headline, status: 'success' });
+        socket.to(result.playerId.toString()).emit('sendHeadlineScore', { quality: umpireScore, headline: result.headline})
+
         
       }
       else {
