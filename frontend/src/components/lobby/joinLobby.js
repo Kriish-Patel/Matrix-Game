@@ -14,7 +14,8 @@ const JoinLobby = () => {
     if (name && lobbyId) {
       
       socket.connect();
-      socket.emit('join-lobby', { name});
+      console.log("joining a lobby")
+      // socket.emit('join-lobby', { name});
       
       navigate(`/lobby/${lobbyId}`, { state: { name} });
     }

@@ -54,7 +54,7 @@ const Player = ({ planet }) => {
 
   const submitHeadline = () => {
     if (headline.trim() && !hasPendingHeadline) {
-      socket.emit('submitHeadline', { socketId: socket.id, headline });
+      socket.emit('submitHeadline', { socketId: socket.sessionID, headline });
       setHeadline('');
       setHasPendingHeadline(true);
     }

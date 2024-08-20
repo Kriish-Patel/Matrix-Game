@@ -94,6 +94,7 @@ const removeHeadlineFromJurorQueue = (jurorSocketId, headlineId) => {
 const assignRole = async (socketId, role) => {
   // const player = await Player.findOne({ socketId });
   const player = players.getPlayer(socketId)
+  console.log(`socket id of the player you are assigning a role to: ${socketId}`)
 
   if (!player) {
     throw new Error('Player not found');

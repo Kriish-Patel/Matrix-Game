@@ -13,7 +13,7 @@ socket.on('session', ({ sessionID, userID }) => {
   // Store it in the localStorage
   localStorage.setItem('sessionID', sessionID);
   // Save the ID of the user
-  socket.userID = userID;
+  socket.sessionID = sessionID;
 });
 
 

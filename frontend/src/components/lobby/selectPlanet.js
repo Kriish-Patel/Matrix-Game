@@ -52,7 +52,7 @@ const SelectPlanet = () => {
   };
 
   const handleProceedToGame = () => {
-    socket.emit('selectPlanet', { planet: selectedPlanet, playerId: socket.id });
+    socket.emit('selectPlanet', { planet: selectedPlanet, playerId: socket.sessionID });
     navigate(`/game/${lobbyId}`, { state: { name, planet: selectedPlanet } });
   };
   return (

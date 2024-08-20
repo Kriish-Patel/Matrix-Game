@@ -73,7 +73,14 @@ const handleSocketConnection = (socket, io) => {
     //   console.error('Error creating host:', error);
     // });
     
-    players.addPlayer(socket.sessionID, name, 'host', true);
+    try {
+      players.addPlayer(socket.sessionID, name, 'host', true);
+  } catch (error) {
+      console.error('Error adding player:', error);
+      // Optionally, you can add more error handling logic here, such as sending a response to the client
+      // socket.emit('error', { message: 'Failed to add player' });
+  }
+  
 
     socket.join('game-room');
     
@@ -110,8 +117,10 @@ const handleSocketConnection = (socket, io) => {
     // .catch((error) => {
     //   console.error('Error creating player:', error);
     // });
-    players.addPlayer(socket.sessionID, name);
-
+    if (socket.sessionID != hostSocketId){
+      console.log(`adding an extra player: ${socket.sessionID}`)
+      players.addPlayer(socket.sessionID, name);
+    }
     socket.join('game-room'); // Join the single room
     io.to('game-room').emit('host-info', { hostName: hostName, hostSocketId: hostSocketId });
     io.to('game-room').emit('updatePlayerList', {

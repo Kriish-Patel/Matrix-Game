@@ -7,12 +7,12 @@ class Players {
     this.players = {};
   }
 
-  async addPlayer(socketId, name, role = null, isHost = false, planet = 'none', score = 0) {
+  async addPlayer(socketId, name, role, planet = 'none', score = 0) {
+    console.log(`the role is: ${role}`)
     const player = new Player({
       playerName: name,
       socketId,
       role,
-      isHost,
       planet,
       score
     });

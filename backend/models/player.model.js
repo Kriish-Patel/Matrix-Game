@@ -10,7 +10,7 @@ const playerSchema = new Schema({
   socketId: {
     type: String,
     required: true,
-    unique: true
+    // unique: true
   },
   role: {
     type: String,

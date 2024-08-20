@@ -26,7 +26,7 @@ const Lobby = () => {
     if (sessionID) {
       socket.auth = { sessionID };
       socket.connect();
-      console.log(`sessionID: ${sessionID}`);
+      console.log(`sessionID and we have reconnected: ${sessionID}`);
     }
 
     if (!location.state || !location.state.name) {
@@ -58,16 +58,18 @@ const Lobby = () => {
       setPlayers(players);
       setPlayerCount(players.length);
       localStorage.setItem('players', JSON.stringify(players));
-      const currentPlayer = players.find(player => player.id === socket.id);
+      const currentPlayer = players.find(player => player.id === socket.sessionID);
+      console.log(`lets see if sessionID shows on front end: ${socket.sessionID}`)
       if (currentPlayer && currentPlayer.role === 'host') {
-        setHostSocketId(socket.id);
+        console.log("host has been set")
+        setHostSocketId(socket.sessionID);
       }
     });
 
     socket.on('roundStarted', () => {
       const finalActualPlayerCount = players.filter(player => player.role === 'player').length;
       setActualPlayersCount(finalActualPlayerCount);
-      navigate(`/game/${lobbyId}`, { state: { role: roles[socket.id], actualPlayersCount: finalActualPlayerCount } });
+      navigate(`/game/${lobbyId}`, { state: { role: roles[socket.sessionID], actualPlayersCount: finalActualPlayerCount } });
       socket.emit('to-game-manager');
     });
 
@@ -85,7 +87,7 @@ const Lobby = () => {
   }, [location.state, lobbyId, hasJoined, initialJoin, name, roles, navigate, players]);
 
   const handleAssignRole = (playerId, role) => {
-    if (socket.id === hostSocketId && playerId !== hostSocketId) {
+    if (socket.sessionID === hostSocketId && playerId !== hostSocketId) {
       socket.emit('assignRole', { playerId, role });
     } else if (playerId === hostSocketId) {
       alert('As the host, you cannot assign a role to yourself.');
@@ -112,7 +114,7 @@ const Lobby = () => {
         {players.map((player, index) => (
           <li key={index}>
             {player.name} ({player.role || 'No role assigned'})
-            {socket.id === hostSocketId && player.id !== hostSocketId && (
+            {socket.sessionID === hostSocketId && player.id !== hostSocketId && (
               <div>
                 <button onClick={() => handleAssignRole(player.id, 'umpire')}>Assign Umpire</button>
                 <button onClick={() => handleAssignRole(player.id, 'player')}>Assign Player</button>
@@ -122,10 +124,10 @@ const Lobby = () => {
           </li>
         ))}
       </ul>
-      {socket.id === hostSocketId && (
+      {socket.sessionID === hostSocketId && (
         <button onClick={handleStartGame}>Start Game</button>
       )}
-      {socket.id === hostSocketId && (
+      {socket.sessionID === hostSocketId && (
         <button onClick={copyLink}>Copy lobby link</button>
       )}
     </div>
