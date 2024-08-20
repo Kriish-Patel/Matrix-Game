@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import socket from '../../socket';
+import socket from '../../../socket';
 
 const AverageScore = () => {
   const [scores, setScores] = useState([]);

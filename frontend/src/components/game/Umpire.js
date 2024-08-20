@@ -6,11 +6,12 @@ import '../../styles/Player.css';
 import '../../styles/App.css';
 import '../../styles/Umpire.css'
 
-const Umpire = ({ waitingMessage }) => {
+const Umpire = ({ acceptedHeadlines }) => {
   const [headlines, setHeadlines] = useState([]);
   const [selectedScores, setSelectedScores] = useState({}); // Store scores for each headline
   const [logicalConsistency, setLogicalConsistency] = useState({}); // Store logical consistency for each headline
   const [isPaused, setIsPaused] = useState(false);
+  let waitingMessage = "waiting for jurors..."
 
   useEffect(() => {
     socket.on('umpireReview', ({ headlineId, headline, planet }) => {
@@ -123,7 +124,7 @@ const Umpire = ({ waitingMessage }) => {
         )}
       </div>
       <div className="global-timeline-container">
-        <GlobalTimeline />
+        <GlobalTimeline acceptedHeadlines = {acceptedHeadlines}  />
       </div>
     </div>
   );

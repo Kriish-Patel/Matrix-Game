@@ -5,11 +5,10 @@ import GlobalTimeline from './GlobalTimeline';
 import '../../styles/Player.css';
 import '../../styles/App.css';
 
-
-
-const Juror = ({ waitingMessage }) => {
+const Juror = ({acceptedHeadlines}) => {
   const [headLines, setHeadLines] = useState([]);
   const [isPaused, setIsPaused] = useState(false);
+  let waitingMessage = "waiting for players to submit headlines..."
 
   useEffect(() => {
     socket.emit('registerJuror');
@@ -80,7 +79,7 @@ const Juror = ({ waitingMessage }) => {
       )}
     </div>
     <div className="global-timeline-container">
-      <GlobalTimeline />
+      <GlobalTimeline acceptedHeadlines = {acceptedHeadlines}  />
     </div>
   </div>
   );

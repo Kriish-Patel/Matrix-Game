@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import socket from '../../socket';
 import GlobalTimeline from './GlobalTimeline'
 
-const Host = ({ lobbyId }) => {
+const Host = ({ lobbyId, acceptedHeadlines}) => {
   const [isPaused, setIsPaused] = useState(false);
 
   const handleTogglePause = () => {
@@ -24,7 +24,7 @@ const Host = ({ lobbyId }) => {
       </button>
       <button onClick={handleEndGame}>End Game</button>
       <div className="global-timeline-container">
-        <GlobalTimeline />
+        <GlobalTimeline acceptedHeadlines = {acceptedHeadlines}  />
       </div>
     </div>
 
