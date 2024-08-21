@@ -13,7 +13,7 @@ const server = http.createServer(app);
 const PORT = process.env.PORT || 5001;
 
 const corsOptions = {
-  connectionStateRecovery: {maxDisconnectionDuration: 2 * 60 * 1000},
+  // connectionStateRecovery: {maxDisconnectionDuration: 2 * 60 * 1000},
   origin: "https://headlines-game-frontend.onrender.com",
   methods: ["GET", "POST"],
   credentials: true
@@ -23,7 +23,7 @@ app.use(cors(corsOptions));
 app.use(express.json());
 
 const io = socketIo(server, {
-  connectionStateRecovery: {maxDisconnectionDuration: 2 * 60 * 1000},
+  // connectionStateRecovery: {maxDisconnectionDuration: 2 * 60 * 1000},
   cors: corsOptions
 });
 
