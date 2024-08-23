@@ -23,30 +23,33 @@ const Lobby = () => {
 
   useEffect(() => {
     const sessionID = localStorage.getItem('sessionID');
+    console.log(`sessionID before reconnection ${sessionID}`)
     if (sessionID) {
       socket.auth = { sessionID };
       socket.connect();
       console.log(`sessionID and we have reconnected: ${sessionID}`);
     }
+    if (!sessionID){
 
-    if (!location.state || !location.state.name) {
-      navigate(`/join-lobby/${lobbyId}`);
-      return;
-    }
-
-    const joinLobby = (userName) => {
-      if (userName && !hasJoined) {
-        setHasJoined(true);
-        socket.emit('join-lobby', { name: userName });
+      if (!location.state || !location.state.name) {
+        navigate(`/join-lobby/${lobbyId}`);
+        return;
       }
-    };
 
-    if (!initialJoin && location.state && location.state.name) {
-      joinLobby(location.state.name);
-      setInitialJoin(true);
-    } else if (!initialJoin && !location.state) {
-      joinLobby(name);
-      setInitialJoin(true);
+      const joinLobby = (userName) => {
+        if (userName && !hasJoined) {
+          setHasJoined(true);
+          socket.emit('join-lobby', { name: userName });
+        }
+      };
+
+      if (!initialJoin && location.state && location.state.name) {
+        joinLobby(location.state.name);
+        setInitialJoin(true);
+      } else if (!initialJoin && !location.state) {
+        joinLobby(name);
+        setInitialJoin(true);
+      }
     }
 
     socket.on('host-info', ({ hostName, hostSocketId }) => {
@@ -69,6 +72,11 @@ const Lobby = () => {
     socket.on('roundStarted', () => {
       const finalActualPlayerCount = players.filter(player => player.role === 'player').length;
       setActualPlayersCount(finalActualPlayerCount);
+      console.log("This is inside roundStarted")
+      console.log(`socket.sessionID: ${socket.sessionID}`)
+      console.log(`roles dictionary: ${JSON.stringify(roles)}`)
+      console.log(`specific role thingy: ${roles[socket.sessionID]}`)
+      console.log(`finalActualPlayerCount: ${finalActualPlayerCount}`)
       navigate(`/game/${lobbyId}`, { state: { role: roles[socket.sessionID], actualPlayersCount: finalActualPlayerCount } });
       socket.emit('to-game-manager');
     });

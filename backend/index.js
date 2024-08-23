@@ -60,6 +60,8 @@ app.get('/create-lobby', handleCreateLobby);
 
 io.on('connection', (socket) => {
 
+  socket.join('game-room');
+
   console.log(`Client connected, id: ${socket.id}`);
 
 

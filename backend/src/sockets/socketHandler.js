@@ -187,7 +187,7 @@ const handleSocketConnection = (socket, io) => {
       //   socket.emit('error', { message: 'Host cannot assign a role to themselves' });
       //   return;
       // }
-      await assignRole(socket.sessionID, role);
+      await assignRole(playerId, role);
       // players[playerId][1] = role;
       io.to('game-room').emit('updatePlayerList', {
         players: players.getPlayersArray().map(player => ({
