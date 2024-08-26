@@ -3,6 +3,7 @@ const { v4: uuidv4 } = require('uuid');
 const Headline = require('../../models/headlines.model');
 const Player = require('../../models/player.model');
 const players = require('./Players.js')
+// const { bufferOrEmitMessage } = require('./sharedUtil.js');
 
 const jurorQueues = {}; // { jurorSocketId: [headlineId1, headlineId2, ...] }
 
@@ -113,7 +114,7 @@ const assignRole = async (socketId, role) => {
 
 
 
-const assignHeadlineToJuror = (headlineId, headline, io) => {
+const assignHeadlineToJuror = (headlineId, headline, io, bufferOrEmitMessage) => {
   // Find the juror with the least number of headlines in their queue
   let leastLoadedJuror = null;
   let minQueueSize = Infinity;
@@ -130,7 +131,8 @@ const assignHeadlineToJuror = (headlineId, headline, io) => {
   // Assign the headline to this juror
   if (leastLoadedJuror) {
     jurorQueues[leastLoadedJuror].push(headlineId);
-    io.to(leastLoadedJuror).emit('newHeadline', { headlineId, headline });
+    // io.to(userSessions[leastLoadedJuror]).emit('newHeadline', { headlineId, headline });
+    bufferOrEmitMessage(leastLoadedJuror, 'newHeadline', { headlineId, headline });
     console.log(`Assigned headline ID ${headlineId} to juror ${leastLoadedJuror}`);
   } else {
     console.error('No jurors available to assign headline');
@@ -155,9 +157,9 @@ const processUmpireReview = async (headlineId, isConsistent, umpireScore) => {
       const roundedResult = Math.round(jurorCalculatedScore * 10) / 10;
       
       console.log(roundedResult);    
-      // const roundedJurorCalculatedScore = jurorCalculatedScore.toFixed(1);
       console.log(`juror score: ${headline.jurorScore}, calculated score: ${roundedResult}`)
       console.log(`umpire Score: ${umpireScore}`)
+
       // Calculate the combined score
       combinedScore = roundedResult + umpireScore;
 
@@ -167,17 +169,12 @@ const processUmpireReview = async (headlineId, isConsistent, umpireScore) => {
       headline.combinedScore = combinedScore;
 
       // Update the player's running total score
-      const player = players.getPlayer(headline.player.socketId)
+      const player = players.getPlayer(headline.player.socketId);
       if (player) {
         console.log(`player found, player score is ${player.Score}`)
-        player.incrementScore(combinedScore)
-        // if (player.Score === null){
-        //   console.log(`player score is null`)
-        //   player.Score = combinedScore;
-        // }
-        // else{
-        //   player.Score += combinedScore;
-        // }
+        await player.incrementScore(combinedScore);
+
+        // Save the player document first, then the headline document
         await player.save();
         console.log(`player score: ${player.Score}`);
       }
@@ -185,9 +182,10 @@ const processUmpireReview = async (headlineId, isConsistent, umpireScore) => {
       headline.logicallyConsistent = false;
       headline.umpireScore = null;
       headline.combinedScore = 0;
-      combinedScore = 0
+      combinedScore = 0;
     }
 
+    // Save the headline document after the player document has been saved
     await headline.save();
     console.log(`player ID: ${headline.player}`);
     return { success: true, playerId: headline.player.socketId, combinedScore: combinedScore, headline: headline.headline, plausibility: headline.jurorScore };
@@ -196,6 +194,7 @@ const processUmpireReview = async (headlineId, isConsistent, umpireScore) => {
     return { success: false, error };
   }
 };
+
 
 module.exports = {
   createLobby,

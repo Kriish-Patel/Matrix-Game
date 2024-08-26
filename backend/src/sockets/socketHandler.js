@@ -10,11 +10,15 @@ const {
   
   assignRole,
 } = require('../utils/gameUtils');
+
+// const {bufferOrEmitMessage} = require('../utils/sharedUtil.js')
 let Headline = require('../../models/headlines.model')
 let Player = require('../../models/player.model');
 const headlinesModel = require('../../models/headlines.model');
 const players = require('../utils/Players.js')
 const sessionStore = require('../../sessionStore.js')
+const messageBuffers = {};
+let userSessions ={};
 
 
 let currentYear;
@@ -36,11 +40,27 @@ let availablePlanets = [
   'PlanetX'
 ];
 
+
+
+
+
 const handleSocketConnection = (socket, io) => {
+  userSessions[socket.sessionID] = socket.id
+  console.log(`the current sessionID: ${socket.sessionID}`)
+
+  messageBuffers[socket.sessionID] = messageBuffers[socket.sessionID] || [];
+
+  if (messageBuffers[socket.sessionID].length > 0) {
+    messageBuffers[socket.sessionID].forEach((message) => {
+      socket.emit(message.event, message.data);
+    });
+    messageBuffers[socket.sessionID] = []; // Clear the buffer after sending
+  }
 
   socket.emit("session", {
     sessionID: socket.sessionID,
     userID: socket.userID,
+    
   });
 
 
@@ -84,16 +104,27 @@ const handleSocketConnection = (socket, io) => {
 
     socket.join('game-room');
     
-    io.to('game-room').emit('host-info', { hostName: name, hostSocketId: hostSocketId });
-    io.to('game-room').emit('updatePlayerList', {
-      players: players.getPlayersArray().map(player => ({
-        id: player.socketId,
-        name: player.playerName,
-        role: player.role,
-        isHost: player.isHost,
-        planet: player.Planet
-      }))
-      // players: players.getPlayersArray()
+    // io.to('game-room').emit('host-info', { hostName: name, hostSocketId: hostSocketId });
+    // io.to('game-room').emit('updatePlayerList', {
+    //   players: players.getPlayersArray().map(player => ({
+    //     id: player.socketId,
+    //     name: player.playerName,
+    //     role: player.role,
+    //     isHost: player.isHost,
+    //     planet: player.Planet
+    //   }))
+    //   // players: players.getPlayersArray()
+    // });
+
+    bufferOrEmitToRoom('game-room', 'host-info', { hostName: name, hostSocketId: hostSocketId });
+    bufferOrEmitToRoom('game-room', 'updatePlayerList', {
+        players: players.getPlayersArray().map(player => ({
+            id: player.socketId,
+            name: player.playerName,
+            role: player.role,
+            isHost: player.isHost,
+            planet: player.Planet
+        }))
     });
   });
 
@@ -121,17 +152,27 @@ const handleSocketConnection = (socket, io) => {
       console.log(`adding an extra player: ${socket.sessionID}`)
       players.addPlayer(socket.sessionID, name);
     }
-    socket.join('game-room'); // Join the single room
-    io.to('game-room').emit('host-info', { hostName: hostName, hostSocketId: hostSocketId });
-    io.to('game-room').emit('updatePlayerList', {
-      players: players.getPlayersArray().map(player => ({
-        id: player.socketId,
-        name: player.playerName,
-        role: player.role,
-        isHost: player.isHost,
-        planet: player.Planet
-      }))
-      // players: players.getPlayersArray()
+    // io.to('game-room').emit('host-info', { hostName: hostName, hostSocketId: hostSocketId });
+    // io.to('game-room').emit('updatePlayerList', {
+    //   players: players.getPlayersArray().map(player => ({
+    //     id: player.socketId,
+    //     name: player.playerName,
+    //     role: player.role,
+    //     isHost: player.isHost,
+    //     planet: player.Planet
+    //   }))
+    //   // players: players.getPlayersArray()
+    // });
+
+    bufferOrEmitToRoom('game-room', 'host-info', { hostName: hostName, hostSocketId: hostSocketId });
+    bufferOrEmitToRoom('game-room', 'updatePlayerList', {
+        players: players.getPlayersArray().map(player => ({
+            id: player.socketId,
+            name: player.playerName,
+            role: player.role,
+            isHost: player.isHost,
+            planet: player.Planet
+        }))
     });
 
   });
@@ -140,7 +181,8 @@ const handleSocketConnection = (socket, io) => {
 
   socket.on('togglePause', ({ lobbyId, isPaused }) => {
     if (socket.sessionID === hostSocketId) {
-      io.to('game-room').emit('gamePaused', { isPaused });
+      // io.to('game-room').emit('gamePaused', { isPaused });
+      bufferOrEmitToRoom('game-room', 'gamePaused', { isPaused });
     } else {
       socket.emit('error', { message: 'Only the host can pause/resume the game' });
     }
@@ -157,28 +199,40 @@ const handleSocketConnection = (socket, io) => {
       const player = players.getPlayer(socket.sessionID);
       player.setPlanet(planet);
         
-      io.to('game-room').emit('planetSelected', planet);
-      io.to('game-room').emit('updatePlayerList', {
-        players: players.getPlayersArray().map(player => ({
-          id: player.socketId,
-          name: player.playerName,
-          role: player.role,
-          isHost: player.isHost,
-          planet: player.Planet
-        }))
-        // players: players.getPlayersArray()
+      // io.to('game-room').emit('planetSelected', planet);
+      // io.to('game-room').emit('updatePlayerList', {
+      //   players: players.getPlayersArray().map(player => ({
+      //     id: player.socketId,
+      //     name: player.playerName,
+      //     role: player.role,
+      //     isHost: player.isHost,
+      //     planet: player.Planet
+      //   }))
+      //   // players: players.getPlayersArray()
+      // });
+
+      bufferOrEmitToRoom('game-room', 'planetSelected', planet);
+      bufferOrEmitToRoom('game-room', 'updatePlayerList', {
+          players: players.getPlayersArray().map(player => ({
+              id: player.socketId,
+              name: player.playerName,
+              role: player.role,
+              isHost: player.isHost,
+              planet: player.Planet
+          }))
       });
+
     }
   });
 
   socket.on('registerJuror', () => {
-    registerJuror(socket.id);
-    console.log(`Juror registered: ${socket.id}`);
+    registerJuror(socket.sessionID);
+    console.log(`Juror registered: ${socket.sessionID}`);
   });
 
   socket.on('deregisterJuror', () => {
-    deregisterJuror(socket.id);
-    console.log(`Juror deregistered: ${socket.id}`);
+    deregisterJuror(socket.sessionID);
+    console.log(`Juror deregistered: ${socket.sessionID}`);
   });
 
   socket.on('assignRole', async ({playerId, role }) => {
@@ -189,14 +243,24 @@ const handleSocketConnection = (socket, io) => {
       // }
       await assignRole(playerId, role);
       // players[playerId][1] = role;
-      io.to('game-room').emit('updatePlayerList', {
+      // io.to('game-room').emit('updatePlayerList', {
+      //   players: players.getPlayersArray().map(player => ({
+      //     id: player.socketId,
+      //     name: player.playerName,
+      //     role: player.role,
+      //     isHost: player.isHost,
+      //     planet: player.Planet
+      //   }))
+
+      bufferOrEmitToRoom('game-room', 'updatePlayerList', {
         players: players.getPlayersArray().map(player => ({
-          id: player.socketId,
-          name: player.playerName,
-          role: player.role,
-          isHost: player.isHost,
-          planet: player.Planet
+            id: player.socketId,
+            name: player.playerName,
+            role: player.role,
+            isHost: player.isHost,
+            planet: player.Planet
         }))
+    
         // players: players.getPlayersArray()
 
       });
@@ -236,28 +300,44 @@ const handleSocketConnection = (socket, io) => {
     const actualPlayers = players.getPlayersArray().filter(player => player.role === 'player');
     const unassignedPlayers = players.getPlayersArray().filter(player => player.role === '');
 
-    io.in('game-room').emit('actualPlayersCount', {actualPlayers})
+    // io.in('game-room').emit('actualPlayersCount', {actualPlayers})
+    bufferOrEmitToRoom('game-room', 'actualPlayersCount', {actualPlayers});
   
     if (unassignedPlayers.length > 0) {
       socket.emit('error', 'All players must have assigned roles before starting the game');
       return;
     }
-    io.in('game-room').emit('roundStarted');
+    // io.in('game-room').emit('roundStarted');
+    bufferOrEmitToRoom('game-room', 'roundStarted');
     
   });
 
   socket.on('to-game-manager', () => {
-    io.to('game-room').emit('updatePlayerList', {
+    // io.to('game-room').emit('updatePlayerList', {
+    //   players: players.getPlayersArray().map(player => ({
+    //     id: player.socketId,
+    //     name: player.playerName,
+    //     role: player.role,
+    //     isHost: player.isHost,
+    //     planet: player.Planet
+    //   }))
+    //   // players: players.getPlayersArray()
+    // });
+    // io.to('game-room').emit('navigate:selectPlanet');
+
+    // Buffer or emit the updatePlayerList event to the game-room
+    bufferOrEmitToRoom('game-room', 'updatePlayerList', {
       players: players.getPlayersArray().map(player => ({
-        id: player.socketId,
-        name: player.playerName,
-        role: player.role,
-        isHost: player.isHost,
-        planet: player.Planet
+          id: player.socketId,
+          name: player.playerName,
+          role: player.role,
+          isHost: player.isHost,
+          planet: player.Planet
       }))
-      // players: players.getPlayersArray()
     });
-    io.to('game-room').emit('navigate:selectPlanet');
+
+  // Buffer or emit the navigate:selectPlanet event to the game-room
+    bufferOrEmitToRoom('game-room', 'navigate:selectPlanet');
   });
   
   socket.on('submitHeadline', async ({ socketId, headline }) => {
@@ -266,8 +346,14 @@ const handleSocketConnection = (socket, io) => {
       console.log(`Headline submitted: ${headline} from socket ID: ${socket.sessionID}`);
 
       // Assign the headline to a juror
-      assignHeadlineToJuror(savedHeadline._id, savedHeadline.headline, io);
-      socket.emit('updatePlayerStatus', { socketId: socket.sessionID, headlineId: savedHeadline._id, headline: savedHeadline.headline, status: 'with Juror, pending' })
+      assignHeadlineToJuror(savedHeadline._id, savedHeadline.headline, io, bufferOrEmitMessage);
+      // socket.emit('updatePlayerStatus', { socketId: socket.sessionID, headlineId: savedHeadline._id, headline: savedHeadline.headline, status: 'with Juror, pending' })
+      bufferOrEmitMessage(socket.sessionID, 'updatePlayerStatus', { 
+        socketId: socket.sessionID, 
+        headlineId: savedHeadline._id, 
+        headline: savedHeadline.headline, 
+        status: 'with Juror, pending' 
+      });
     } catch (error) {
       console.error('Error submitting headline:', error);
       socket.emit('error', { message: 'Failed to submit headline' });
@@ -279,20 +365,25 @@ const handleSocketConnection = (socket, io) => {
       const { headline, accepted } = await submitJurorScore(headlineId, socket.id, score);
       console.log(`Score submitted: ${score} for headline ID: ${headlineId} from Juror: ${socket.id}`);
 
-      if (headline && accepted) {
-        console.log(`user planet: ${headline.player.Planet}`)
-        io.to('game-room').emit('umpireReview', { headlineId: headline._id, headline: headline.headline, planet: headline.player.Planet});
+      if (headline) {
+        const playerSocketID = headline.player.socketId.toString();
 
-        // Emit changeStatus
-        console.log(`Emitting to ${headline.player.socketId}, changeStatus with status: 'with Umpire, pending'`);
-        socket.to(headline.player.socketId.toString()).emit('updatePlayerStatus', { socketId: headline.player.socketId, headlineId: headline._id, headline: headline.headline, status: 'with Umpire, pending' })
-        socket.to(headline.player.socketId.toString()).emit('sendHeadlineScore', { plausibility: score, headline: headline.headline})
-      }
-      if (headline && !accepted) {
-        // Emit changeStatus
-        console.log(`Emitting changeStatus with status: 'failed'`);
-        socket.to(headline.player.socketId).emit('updatePlayerStatus', { socketId: headline.player.socketId, headlineId: headline._id, headline: headline.headline, status: 'failed' })
-        socket.to(headline.player.socketId.toString()).emit('sendHeadlineScore', { plausibility: score, headline: headline.headline})
+        if (accepted) {
+          console.log(`user planet: ${headline.player.Planet}`);
+          // io.to('game-room').emit('umpireReview', { headlineId: headline._id, headline: headline.headline, planet: headline.player.Planet });
+          bufferOrEmitToRoom('game-room', 'umpireReview', { 
+            headlineId: headline._id, 
+            headline: headline.headline, 
+            planet: headline.player.Planet 
+          });
+
+          bufferOrEmitMessage(playerSocketID, 'updatePlayerStatus', { socketId: headline.player.socketId, headlineId: headline._id, headline: headline.headline, status: 'with Umpire, pending' });
+          bufferOrEmitMessage(playerSocketID, 'sendHeadlineScore', { plausibility: score, headline: headline.headline });
+        } else {
+          console.log(`Emitting changeStatus with status: 'failed'`);
+          bufferOrEmitMessage(playerSocketID, 'updatePlayerStatus', { socketId: headline.player.socketId, headlineId: headline._id, headline: headline.headline, status: 'failed' });
+          bufferOrEmitMessage(playerSocketID, 'sendHeadlineScore', { plausibility: score, headline: headline.headline });
+        }
       }
     } catch (error) {
       console.error('Error submitting score:', error);
@@ -307,31 +398,34 @@ const handleSocketConnection = (socket, io) => {
 
  
   socket.on('submitUmpireReview', async ({ headlineId, isConsistent, umpireScore }) => {
+    console.log("hi")
     const result = await processUmpireReview(headlineId, isConsistent, umpireScore);
 
     if (result.success) {
       console.log(`is it consistent?: ${isConsistent}`)
+      const playerSocketID = result.playerId.toString();
       // Emit an event to notify the player of the updated score if the headline is consistent
       if (isConsistent) {
         
         acceptedHeadlines[result.headline] = currentYear;
        
+        bufferOrEmitMessage(playerSocketID, 'updatePlayerScore', { score: result.combinedScore });
+        // socket.to(userSessions[result.playerId.toString()]).emit('updatePlayerScore', { score: result.combinedScore});
+        bufferOrEmitToAll('updateAverageScore', {score: result.combinedScore});
+        bufferOrEmitToAll('sendPlayerCount', { playerCount: players.getPlayersArray()
+            .filter(player => player.role === 'player')
+            .length
+        });
+        bufferOrEmitToAll('acceptedHeadline', {headline: result.headline, currentYear, plausibility: result.plausibility});
         
-        socket.to(result.playerId.toString()).emit('updatePlayerScore', { score: result.combinedScore});
-        io.emit('updateAverageScore', {score: result.combinedScore})
-
-        io.emit('sendPlayerCount', { playerCount: players.getPlayersArray()
-          .filter(player => player.role === 'player')
-          .length})
-        
-        // players[result.playerId][4] = result.combinedScore
-        io.emit('acceptedHeadline', {headline: result.headline, currentYear, plausibility: result.plausibility})
-        
-        socket.to(result.playerId.toString()).emit('updatePlayerStatus', { socketId: result.playerId, headlineId, headline: result.headline, status: 'success' });
+        bufferOrEmitMessage(playerSocketID, 'updatePlayerStatus', { socketId: result.playerId, headlineId, headline: result.headline, status: 'success' });
+        // socket.to(userSessions[result.playerId.toString()]).emit('updatePlayerStatus', { socketId: result.playerId, headlineId, headline: result.headline, status: 'success' });
         
       }
       else {
-        socket.to(result.playerId.toString()).emit('updatePlayerStatus', { socketId: result.playerId, headlineId, headline: result.headline, status: 'failed' });
+
+        bufferOrEmitMessage(playerSocketID, 'updatePlayerStatus', { socketId: result.playerId, headlineId, headline: result.headline, status: 'failed' });
+        // socket.to(userSessions[result.playerId.toString()]).emit('updatePlayerStatus', { socketId: result.playerId, headlineId, headline: result.headline, status: 'failed' });
       }
       console.log('Umpire review submitted and player score updated');
     } else {
@@ -368,7 +462,8 @@ const handleSocketConnection = (socket, io) => {
     //     score: players[id][4],
     //     planet: players[id][3]
     //   })), acceptedHeadlines})
-    io.emit('showLeaderboard', { players: filteredPlayers, acceptedHeadlines });
+    // io.emit('showLeaderboard', { players: filteredPlayers, acceptedHeadlines });
+    bufferOrEmitToAll('showLeaderboard', { players: filteredPlayers, acceptedHeadlines });
       
       
   //  io.to('game-room').emit('finalTimeline', {acceptedHeadlines});
@@ -377,6 +472,36 @@ const handleSocketConnection = (socket, io) => {
     
   })
 
-};
+    // Helper function to buffer or emit a message
+  function bufferOrEmitMessage(sessionID, event, data) {
+    if (userSessions[sessionID] && io.sockets.sockets.get(userSessions[sessionID])) {
+      io.to(userSessions[sessionID]).emit(event, data);
+    } else {
+      messageBuffers[sessionID] = messageBuffers[sessionID] || [];
+      messageBuffers[sessionID].push({ event, data });
+    }
+  }
 
-module.exports = handleSocketConnection;
+  function bufferOrEmitToRoom(room, event, data) {
+    const clients = io.sockets.adapter.rooms.get(room);
+    
+    if (clients) {
+        clients.forEach((socketID) => {
+            const sessionID = Object.keys(userSessions).find(key => userSessions[key] === socketID);
+            if (sessionID) {
+                bufferOrEmitMessage(sessionID, event, data);
+            }
+        });
+    }
+  }
+
+  function bufferOrEmitToAll(event, data) {
+    Object.keys(userSessions).forEach((sessionID) => {
+        bufferOrEmitMessage(sessionID, event, data);
+    });
+  }
+}
+
+module.exports = {
+  handleSocketConnection, // Exporting the main connection handler // Exporting the helper function
+};

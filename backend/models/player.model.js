@@ -19,7 +19,7 @@ const playerSchema = new Schema({
   },
   Score: {
     type: Number,
-    default: null
+    default: 0
   },
   Planet: {
     type: String,

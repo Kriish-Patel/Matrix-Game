@@ -4,26 +4,39 @@ const http = require('http');
 const socketIo = require('socket.io');
 const cors = require('cors');
 const { handleCreateLobby } = require('./src/controllers/gameController');
-const handleSocketConnection = require('./src/sockets/socketHandler');
+const {handleSocketConnection} = require('./src/sockets/socketHandler');
 const mongoose = require('mongoose')
 const { v4: uuidv4 } = require('uuid');
+
 require('dotenv').config();
 
 const sessionStore = require('./sessionStore.js')
 
+const corsOptions = {
+  connectionStateRecovery: {maxDisconnectionDuration: 2 * 60 * 1000},
+  origin: "https://headlines-game-frontend.onrender.com",
+  methods: ["GET", "POST"],
+  credentials: true
+};
+
 
 const app = express();
 const server = http.createServer(app);
+// const io = socketIo(server, {
+//   connectionStateRecovery: {maxDisconnectionDuration: 2 * 60 * 1000},
+//   cors: {
+//     origin: "http://localhost:3000", // Allow the frontend URL
+//     methods: ["GET", "POST"]
+//   }
+// });
+
 const io = socketIo(server, {
   connectionStateRecovery: {maxDisconnectionDuration: 2 * 60 * 1000},
-  cors: {
-    origin: "http://localhost:3000", // Allow the frontend URL
-    methods: ["GET", "POST"]
-  }
+  cors: corsOptions
 });
 const PORT = process.env.PORT || 5001;
 
-app.use(cors());
+app.use(cors(corsOptions));
 app.use(express.json());
 
 const uri = process.env.ATLAS_URI;
@@ -33,6 +46,15 @@ const connection = mongoose.connection;
 connection.once('open',() => {
   console.log("Mongoose connected");
 })
+
+// Catch-all route
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, '../frontend/build', 'index.html'));
+});
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).send('Something broke!');
+});
 
 io.use((socket, next) => {
   const sessionID = socket.handshake.auth.sessionID;

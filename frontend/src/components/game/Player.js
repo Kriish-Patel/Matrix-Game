@@ -1,4 +1,3 @@
-// frontend/src/components/game/Player.js
 import React, { useState, useEffect } from 'react';
 import socket from '../../socket';
 import ReactModal from 'react-modal';
@@ -10,23 +9,50 @@ import PlayerTimeline from './PlayerTimeline';
 import PauseOverlay from './PauseOverlay';
 import AverageScore from './AverageScore';
 
-
 const Player = ({ planet }) => {
-  const [headline, setHeadline] = useState('');
-  const [briefing, setBriefing] = useState(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [hasPendingHeadline, setHasPendingHeadline] = useState(false);
-  const [isPaused, setIsPaused] = useState(false);
-  const [playerScore, setPlayerScore] = useState(0);
+  const [headline, setHeadline] = useState(() => {
+    const savedHeadline = sessionStorage.getItem('headline');
+    return savedHeadline ? savedHeadline : '';
+  });
+  const [briefing, setBriefing] = useState(() => {
+    const savedBriefing = sessionStorage.getItem('briefing');
+    return savedBriefing ? JSON.parse(savedBriefing) : null;
+  });
+  const [isModalOpen, setIsModalOpen] = useState(() => {
+    const savedIsModalOpen = sessionStorage.getItem('isModalOpen');
+    return savedIsModalOpen ? JSON.parse(savedIsModalOpen) : false;
+  });
+  const [hasPendingHeadline, setHasPendingHeadline] = useState(() => {
+    const savedHasPendingHeadline = sessionStorage.getItem('hasPendingHeadline');
+    return savedHasPendingHeadline ? JSON.parse(savedHasPendingHeadline) : false;
+  });
+  const [isPaused, setIsPaused] = useState(() => {
+    const savedIsPaused = sessionStorage.getItem('isPaused');
+    return savedIsPaused ? JSON.parse(savedIsPaused) : false;
+  });
+  const [playerScore, setPlayerScore] = useState(() => {
+    const savedPlayerScore = sessionStorage.getItem('playerScore');
+    return savedPlayerScore ? parseInt(savedPlayerScore, 10) : 0;
+  });
+  const [mySessionId, setMySessionId] = useState(() => {
+    const savedSessionId = sessionStorage.getItem('sessionID');
+    return savedSessionId || undefined;
+  });
 
   useEffect(() => {
+    
+    const savedSessionId = sessionStorage.getItem('sessionID');
+    if (savedSessionId && !mySessionId) {
+      console.log("Updating mySessionId from sessionStorage:", savedSessionId);
+      setMySessionId(savedSessionId);
+    }
     // Fetch the briefing information for the player's planet
     fetch('/player_briefings.json')
       .then((response) => response.json())
       .then((data) => {
-        
         if (data[planet]) {
           setBriefing(data[planet]);
+          sessionStorage.setItem('briefing', JSON.stringify(data[planet]));
         }
       })
       .catch((error) => console.error('Error fetching briefing data:', error));
@@ -35,43 +61,52 @@ const Player = ({ planet }) => {
       console.log(`Player ${socketId} changed status to ${status} for headline ${headlineId}, ${headline}`);
       if (status === 'success' || status === 'failed') {
         setHasPendingHeadline(false);
+        sessionStorage.setItem('hasPendingHeadline', JSON.stringify(false));
       }
     });
 
-    socket.on('updatePlayerScore', ({score}) => {
-        setPlayerScore(prevscore => prevscore + score );
+    socket.on('updatePlayerScore', ({ score }) => {
+      setPlayerScore((prevScore) => {
+        const newScore = prevScore + score;
+        sessionStorage.setItem('playerScore', newScore);
+        return newScore;
       });
+    });
 
     socket.on('gamePaused', ({ isPaused }) => {
       setIsPaused(isPaused);
+      sessionStorage.setItem('isPaused', JSON.stringify(isPaused));
     });
 
     return () => {
       socket.off('updatePlayerStatus');
       socket.off('gamePaused');
     };
-  }, [planet]);
+  }, [planet, mySessionId]);
 
   const submitHeadline = () => {
     if (headline.trim() && !hasPendingHeadline) {
-      socket.emit('submitHeadline', { socketId: socket.sessionID, headline });
+      socket.emit('submitHeadline', { socketId: mySessionId, headline });
       setHeadline('');
+      sessionStorage.setItem('headline', '');
       setHasPendingHeadline(true);
+      sessionStorage.setItem('hasPendingHeadline', JSON.stringify(true));
     }
   };
 
   const openModal = () => {
     setIsModalOpen(true);
+    sessionStorage.setItem('isModalOpen', JSON.stringify(true));
   };
 
   const closeModal = () => {
     setIsModalOpen(false);
+    sessionStorage.setItem('isModalOpen', JSON.stringify(false));
   };
 
   return (
     <div className="main-container">
     
-      {isPaused && <PauseOverlay />}
       <div className="player-timeline-container">
         <PlayerTimeline />
       </div>
@@ -83,7 +118,10 @@ const Player = ({ planet }) => {
           <input
             type="text"
             value={headline}
-            onChange={(e) => setHeadline(e.target.value)}
+            onChange={(e) => {
+              setHeadline(e.target.value);
+              sessionStorage.setItem('headline', e.target.value);
+            }}
             placeholder="Enter your headline"
             className="headline-input"
             disabled={hasPendingHeadline}
@@ -150,7 +188,6 @@ const Player = ({ planet }) => {
       <div className="global-timeline-container">
         <GlobalTimeline />
       </div>
-      
     </div>
   );
 };

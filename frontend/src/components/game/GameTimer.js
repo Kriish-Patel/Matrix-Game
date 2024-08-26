@@ -10,13 +10,24 @@ const calculateCurrentMonthYear = (minutesPassed) => {
 };
 
 const GameTimer = () => {
-  const [minutesPassed, setMinutesPassed] = useState(0);
-  const [currentDate, setCurrentDate] = useState(calculateCurrentMonthYear(0));
+  const [minutesPassed, setMinutesPassed] = useState(() => {
+    const savedMinutes = sessionStorage.getItem('minutesPassed');
+    return savedMinutes ? parseInt(savedMinutes, 10) : 0;
+  });
+
+  const [currentDate, setCurrentDate] = useState(() => {
+    const savedMinutes = sessionStorage.getItem('minutesPassed');
+    return calculateCurrentMonthYear(savedMinutes ? parseInt(savedMinutes, 10) : 0);
+  });
 
   useEffect(() => {
     // Increment the minutesPassed state every minute
     const interval = setInterval(() => {
-      setMinutesPassed(prev => prev + 1);
+      setMinutesPassed(prev => {
+        const newMinutes = prev + 1;
+        sessionStorage.setItem('minutesPassed', newMinutes);
+        return newMinutes;
+      });
     }, 60000); // 60000 milliseconds = 1 minute
 
     return () => clearInterval(interval);
@@ -32,9 +43,7 @@ const GameTimer = () => {
   }, [minutesPassed]);
 
   return (
-    
-      <h2>Current Date: {`${currentDate.month.toString().padStart(2, '0')}/${currentDate.year}`}</h2>
-    
+    <h2>Current Date: {`${currentDate.month.toString().padStart(2, '0')}/${currentDate.year}`}</h2>
   );
 };
 
