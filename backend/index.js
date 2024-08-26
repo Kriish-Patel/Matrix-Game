@@ -40,7 +40,7 @@ const PORT = process.env.PORT || 5001;
 app.use(cors());
 app.use(express.json());
 
-const uri = process.env.ATLAS_URI;
+/const uri = "mongodb+srv://zcabaak:TEgYhDg7cQ0zX5WK@headline-game.8ctvsgm.mongodb.net/?retryWrites=true&w=majority&appName=Headline-Game"   //process.env.ATLAS_URI;
 mongoose.connect(uri);
 
 const connection = mongoose.connection;
