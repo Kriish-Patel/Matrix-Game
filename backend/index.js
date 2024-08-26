@@ -25,6 +25,12 @@ const app = express();
 const server = http.createServer(app);
 const io = socketIo(server, {
   connectionStateRecovery: {maxDisconnectionDuration: 2 * 60 * 1000},
+  cors: {
+    origin: '*', // Allow all origins (or replace with your specific origin)
+    methods: ["GET", "POST"],
+    allowedHeaders: ["https://headliners-frontend-4terhkl0u-aymans-projects-f9d1fc59.vercel.app"],
+    credentials: true
+  }
   // cors: {
   //   //http://localhost:3000
   //   origin: "https://vercel.com/aymans-projects-f9d1fc59/headliners-frontend/JE79HUTsZ5z1yfjBScdSzS1mD4ag", // Allow the frontend URL
