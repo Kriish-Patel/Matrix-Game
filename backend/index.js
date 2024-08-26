@@ -26,10 +26,12 @@ const server = http.createServer(app);
 const io = socketIo(server, {
   connectionStateRecovery: {maxDisconnectionDuration: 2 * 60 * 1000},
   cors: {
-    origin: "http://localhost:3000", // Allow the frontend URL
+    //http://localhost:3000
+    origin: "https://vercel.com/aymans-projects-f9d1fc59/headliners-frontend/JE79HUTsZ5z1yfjBScdSzS1mD4ag", // Allow the frontend URL
     methods: ["GET", "POST"]
   }
 });
+
 
 // const io = socketIo(server, {
 //   connectionStateRecovery: {maxDisconnectionDuration: 2 * 60 * 1000},
