@@ -22,21 +22,21 @@ const corsOptions = {
 
 const app = express();
 const server = http.createServer(app);
-// const io = socketIo(server, {
-//   connectionStateRecovery: {maxDisconnectionDuration: 2 * 60 * 1000},
-//   cors: {
-//     origin: "http://localhost:3000", // Allow the frontend URL
-//     methods: ["GET", "POST"]
-//   }
-// });
-
 const io = socketIo(server, {
   connectionStateRecovery: {maxDisconnectionDuration: 2 * 60 * 1000},
-  cors: corsOptions
+  cors: {
+    origin: "http://localhost:3000", // Allow the frontend URL
+    methods: ["GET", "POST"]
+  }
 });
+
+// const io = socketIo(server, {
+//   connectionStateRecovery: {maxDisconnectionDuration: 2 * 60 * 1000},
+//   cors: corsOptions
+// });
 const PORT = process.env.PORT || 5001;
 
-app.use(cors(corsOptions));
+app.use(cors());
 app.use(express.json());
 
 const uri = process.env.ATLAS_URI;
@@ -48,13 +48,13 @@ connection.once('open',() => {
 })
 
 // Catch-all route
-app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, '../frontend/build', 'index.html'));
-});
-app.use((err, req, res, next) => {
-  console.error(err.stack);
-  res.status(500).send('Something broke!');
-});
+// app.get('*', (req, res) => {
+//   res.sendFile(path.join(__dirname, '../frontend/build', 'index.html'));
+// });
+// app.use((err, req, res, next) => {
+//   console.error(err.stack);
+//   res.status(500).send('Something broke!');
+// });
 
 io.use((socket, next) => {
   const sessionID = socket.handshake.auth.sessionID;

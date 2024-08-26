@@ -103,6 +103,8 @@ const handleSocketConnection = (socket, io) => {
   
 
     socket.join('game-room');
+    const room = io.sockets.adapter.rooms.get('game-room');
+    console.log(`Room 'game-room' now contains: ${JSON.stringify([...room])}, ${JSON.stringify(room)}`);
     
     // io.to('game-room').emit('host-info', { hostName: name, hostSocketId: hostSocketId });
     // io.to('game-room').emit('updatePlayerList', {
@@ -116,8 +118,8 @@ const handleSocketConnection = (socket, io) => {
     //   // players: players.getPlayersArray()
     // });
 
-    bufferOrEmitToRoom('game-room', 'host-info', { hostName: name, hostSocketId: hostSocketId });
-    bufferOrEmitToRoom('game-room', 'updatePlayerList', {
+    bufferOrEmitToAll('host-info', { hostName: name, hostSocketId: hostSocketId });
+    bufferOrEmitToAll('updatePlayerList', {
         players: players.getPlayersArray().map(player => ({
             id: player.socketId,
             name: player.playerName,
@@ -164,8 +166,8 @@ const handleSocketConnection = (socket, io) => {
     //   // players: players.getPlayersArray()
     // });
 
-    bufferOrEmitToRoom('game-room', 'host-info', { hostName: hostName, hostSocketId: hostSocketId });
-    bufferOrEmitToRoom('game-room', 'updatePlayerList', {
+    bufferOrEmitToAll('host-info', { hostName: hostName, hostSocketId: hostSocketId });
+    bufferOrEmitToAll('updatePlayerList', {
         players: players.getPlayersArray().map(player => ({
             id: player.socketId,
             name: player.playerName,
@@ -182,7 +184,7 @@ const handleSocketConnection = (socket, io) => {
   socket.on('togglePause', ({ lobbyId, isPaused }) => {
     if (socket.sessionID === hostSocketId) {
       // io.to('game-room').emit('gamePaused', { isPaused });
-      bufferOrEmitToRoom('game-room', 'gamePaused', { isPaused });
+      bufferOrEmitToAll('gamePaused', { isPaused });
     } else {
       socket.emit('error', { message: 'Only the host can pause/resume the game' });
     }
@@ -211,8 +213,8 @@ const handleSocketConnection = (socket, io) => {
       //   // players: players.getPlayersArray()
       // });
 
-      bufferOrEmitToRoom('game-room', 'planetSelected', planet);
-      bufferOrEmitToRoom('game-room', 'updatePlayerList', {
+      bufferOrEmitToAll('planetSelected', planet);
+      bufferOrEmitToAll('updatePlayerList', {
           players: players.getPlayersArray().map(player => ({
               id: player.socketId,
               name: player.playerName,
@@ -252,7 +254,7 @@ const handleSocketConnection = (socket, io) => {
       //     planet: player.Planet
       //   }))
 
-      bufferOrEmitToRoom('game-room', 'updatePlayerList', {
+      bufferOrEmitToAll('updatePlayerList', {
         players: players.getPlayersArray().map(player => ({
             id: player.socketId,
             name: player.playerName,
@@ -301,18 +303,19 @@ const handleSocketConnection = (socket, io) => {
     const unassignedPlayers = players.getPlayersArray().filter(player => player.role === '');
 
     // io.in('game-room').emit('actualPlayersCount', {actualPlayers})
-    bufferOrEmitToRoom('game-room', 'actualPlayersCount', {actualPlayers});
+    bufferOrEmitToAll('actualPlayersCount', {actualPlayers});
   
     if (unassignedPlayers.length > 0) {
       socket.emit('error', 'All players must have assigned roles before starting the game');
       return;
     }
     // io.in('game-room').emit('roundStarted');
-    bufferOrEmitToRoom('game-room', 'roundStarted');
+    bufferOrEmitToAll('roundStarted');
     
   });
 
   socket.on('to-game-manager', () => {
+    bufferOrEmitToAll('navigate:selectPlanet');
     // io.to('game-room').emit('updatePlayerList', {
     //   players: players.getPlayersArray().map(player => ({
     //     id: player.socketId,
@@ -326,7 +329,7 @@ const handleSocketConnection = (socket, io) => {
     // io.to('game-room').emit('navigate:selectPlanet');
 
     // Buffer or emit the updatePlayerList event to the game-room
-    bufferOrEmitToRoom('game-room', 'updatePlayerList', {
+    bufferOrEmitToAll('updatePlayerList', {
       players: players.getPlayersArray().map(player => ({
           id: player.socketId,
           name: player.playerName,
@@ -337,7 +340,6 @@ const handleSocketConnection = (socket, io) => {
     });
 
   // Buffer or emit the navigate:selectPlanet event to the game-room
-    bufferOrEmitToRoom('game-room', 'navigate:selectPlanet');
   });
   
   socket.on('submitHeadline', async ({ socketId, headline }) => {
@@ -371,7 +373,7 @@ const handleSocketConnection = (socket, io) => {
         if (accepted) {
           console.log(`user planet: ${headline.player.Planet}`);
           // io.to('game-room').emit('umpireReview', { headlineId: headline._id, headline: headline.headline, planet: headline.player.Planet });
-          bufferOrEmitToRoom('game-room', 'umpireReview', { 
+          bufferOrEmitToAll('umpireReview', { 
             headlineId: headline._id, 
             headline: headline.headline, 
             planet: headline.player.Planet 
@@ -483,7 +485,8 @@ const handleSocketConnection = (socket, io) => {
   }
 
   function bufferOrEmitToRoom(room, event, data) {
-    const clients = io.sockets.adapter.rooms.get(room);
+    const clients = io.sockets.adapter.rooms.get('game-room');
+    console.log(`players in function: ${JSON.stringify(clients)}`)
     
     if (clients) {
         clients.forEach((socketID) => {
