@@ -25,11 +25,11 @@ const app = express();
 const server = http.createServer(app);
 const io = socketIo(server, {
   connectionStateRecovery: {maxDisconnectionDuration: 2 * 60 * 1000},
-  cors: {
-    //http://localhost:3000
-    origin: "https://vercel.com/aymans-projects-f9d1fc59/headliners-frontend/JE79HUTsZ5z1yfjBScdSzS1mD4ag", // Allow the frontend URL
-    methods: ["GET", "POST"]
-  }
+  // cors: {
+  //   //http://localhost:3000
+  //   origin: "https://vercel.com/aymans-projects-f9d1fc59/headliners-frontend/JE79HUTsZ5z1yfjBScdSzS1mD4ag", // Allow the frontend URL
+  //   methods: ["GET", "POST"]
+  // }
 });
 
 
@@ -39,7 +39,9 @@ const io = socketIo(server, {
 // });
 const PORT = process.env.PORT || 5001;
 
-app.use(cors());
+app.use(cors({
+  origin: '*'
+}));
 app.use(express.json());
 
 const uri = "mongodb+srv://zcabaak:TEgYhDg7cQ0zX5WK@headline-game.8ctvsgm.mongodb.net/?retryWrites=true&w=majority&appName=Headline-Game"   //process.env.ATLAS_URI;
