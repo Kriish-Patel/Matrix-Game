@@ -12,12 +12,12 @@ require('dotenv').config();
 
 const sessionStore = require('./sessionStore.js')
 
-const corsOptions = {
-  connectionStateRecovery: {maxDisconnectionDuration: 2 * 60 * 1000},
-  origin: "https://headlines-game-frontend.onrender.com",
-  methods: ["GET", "POST"],
-  credentials: true
-};
+// const corsOptions = {
+//   connectionStateRecovery: {maxDisconnectionDuration: 2 * 60 * 1000},
+//   origin: "https://headlines-game-frontend.onrender.com",
+//   methods: ["GET", "POST"],
+//   credentials: true
+// };
 
 
 
