@@ -58,7 +58,6 @@ const Lobby = () => {
       navigate(`/join-lobby/${lobbyId}`);
       return;
     }
-    console.log("hey")
 
     const joinLobby = (userName) => {
       if (userName && !hasJoined) {
