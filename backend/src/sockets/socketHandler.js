@@ -76,7 +76,7 @@ const handleSocketConnection = (socket, io) => {
     }
     // const playerData = [name, 'host', true, 'none',0];
     // players[socket.id] = playerData;
-    console.log(`the host socket session ID: ${socket.sessionID}`)
+    console.log(`the host socket session ID: ${socket.sessionID}.`)
     hostSocketId = socket.sessionID;
     hostName = name;
     // const newPlayer = new Player({
