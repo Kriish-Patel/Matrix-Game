@@ -39,12 +39,7 @@ const server = http.createServer(app);
 // });
 const io = socketIo(server, {
   connectionStateRecovery: { maxDisconnectionDuration: 2 * 60 * 1000 },
-  cors: {
-    origin: ['https://headliners-frontend.vercel.app/', 'http://localhost:3000'], // Allow multiple origins
-    methods: ["GET", "POST"],
-    allowedHeaders: ["Content-Type", "Authorization"],
-    credentials: true
-  }
+  cors: corsOptions
 });
 
 // Apply the same CORS configuration to your Express app
@@ -67,8 +62,10 @@ const PORT = process.env.PORT || 5001;
 // }));
 app.use(express.json());
 
-const uri = "mongodb+srv://zcabaak:TEgYhDg7cQ0zX5WK@headline-game.8ctvsgm.mongodb.net/?retryWrites=true&w=majority&appName=Headline-Game"   //process.env.ATLAS_URI;
-mongoose.connect(uri);
+const uri = process.env.ATLAS_URI;
+mongoose.connect(uri, { useNewUrlParser: true, useUnifiedTopology: true })
+  .then(() => console.log("MongoDB connected successfully"))
+  .catch(err => console.log("MongoDB connection error: ", err));
 
 const connection = mongoose.connection;
 connection.once('open',() => {
