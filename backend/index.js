@@ -40,7 +40,7 @@ const server = http.createServer(app);
 const io = socketIo(server, {
   connectionStateRecovery: { maxDisconnectionDuration: 2 * 60 * 1000 },
   cors: {
-    origin: ['https://headliners-frontend-jsru55y2h-aymans-projects-f9d1fc59.vercel.app', 'http://localhost:3000'], // Allow multiple origins
+    origin: ['https://headliners-frontend.vercel.app/', 'http://localhost:3000'], // Allow multiple origins
     methods: ["GET", "POST"],
     allowedHeaders: ["Content-Type", "Authorization"],
     credentials: true
@@ -49,7 +49,7 @@ const io = socketIo(server, {
 
 // Apply the same CORS configuration to your Express app
 app.use(cors({
-  origin: ['https://headliners-frontend-jsru55y2h-aymans-projects-f9d1fc59.vercel.app', 'http://localhost:3000'], // Allow multiple origins
+  origin: ['https://headliners-frontend.vercel.app/', 'http://localhost:3000'], // Allow multiple origins
   methods: ["GET", "POST"],
   credentials: true
 }));
