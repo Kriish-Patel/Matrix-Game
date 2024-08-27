@@ -11,12 +11,12 @@ const calculateCurrentMonthYear = (minutesPassed) => {
 
 const GameTimer = () => {
   const [minutesPassed, setMinutesPassed] = useState(() => {
-    const savedMinutes = sessionStorage.getItem('minutesPassed');
+    const savedMinutes = localStorage.getItem('minutesPassed');
     return savedMinutes ? parseInt(savedMinutes, 10) : 0;
   });
 
   const [currentDate, setCurrentDate] = useState(() => {
-    const savedMinutes = sessionStorage.getItem('minutesPassed');
+    const savedMinutes = localStorage.getItem('minutesPassed');
     return calculateCurrentMonthYear(savedMinutes ? parseInt(savedMinutes, 10) : 0);
   });
 
@@ -25,7 +25,7 @@ const GameTimer = () => {
     const interval = setInterval(() => {
       setMinutesPassed(prev => {
         const newMinutes = prev + 1;
-        sessionStorage.setItem('minutesPassed', newMinutes);
+        localStorage.setItem('minutesPassed', newMinutes);
         return newMinutes;
       });
     }, 60000); // 60000 milliseconds = 1 minute

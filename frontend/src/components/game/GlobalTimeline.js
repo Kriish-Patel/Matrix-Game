@@ -4,7 +4,7 @@ import '../../styles/GlobalTimeline.css';
 
 const GlobalTimeline = () => {
     const [acceptedHeadlines, setAcceptedHeadlines] = useState(() => {
-        const savedHeadlines = sessionStorage.getItem('acceptedHeadlines');
+        const savedHeadlines = localStorage.getItem('acceptedHeadlines');
         return savedHeadlines ? JSON.parse(savedHeadlines) : [
             { headline: 'Driverless Taxi trial blamed for spike in road deaths', currentYear: 2025, plausibility: 60 },
             { headline: 'AI Curator debuts exhibition at Venice Biennale', currentYear: 2025, plausibility: 80 },
@@ -22,7 +22,7 @@ const GlobalTimeline = () => {
         socket.on('acceptedHeadline', ({ headline, currentYear, plausibility }) => {
             setAcceptedHeadlines(prevHeadlines => {
                 const updatedHeadlines = [{ headline, currentYear, plausibility }, ...prevHeadlines];
-                sessionStorage.setItem('acceptedHeadlines', JSON.stringify(updatedHeadlines));
+                localStorage.setItem('acceptedHeadlines', JSON.stringify(updatedHeadlines));
                 return updatedHeadlines;
             });
         });

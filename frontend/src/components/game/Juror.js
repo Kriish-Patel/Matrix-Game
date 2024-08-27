@@ -7,12 +7,12 @@ import '../../styles/App.css';
 
 const Juror = ({ waitingMessage }) => {
   const [headLines, setHeadLines] = useState(() => {
-    const savedHeadlines = sessionStorage.getItem('headLines');
+    const savedHeadlines = localStorage.getItem('headLines');
     return savedHeadlines ? JSON.parse(savedHeadlines) : [];
   });
 
   const [isPaused, setIsPaused] = useState(() => {
-    const savedIsPaused = sessionStorage.getItem('isPaused');
+    const savedIsPaused = localStorage.getItem('isPaused');
     return savedIsPaused ? JSON.parse(savedIsPaused) : false;
   });
 
@@ -23,14 +23,14 @@ const Juror = ({ waitingMessage }) => {
       console.log("received new headline for review");
       setHeadLines((prevHeadlines) => {
         const updatedHeadlines = [...prevHeadlines, { headlineId, headline }];
-        sessionStorage.setItem('headLines', JSON.stringify(updatedHeadlines));
+        localStorage.setItem('headLines', JSON.stringify(updatedHeadlines));
         return updatedHeadlines;
       });
     });
 
     socket.on('gamePaused', ({ isPaused }) => {
       setIsPaused(isPaused);
-      sessionStorage.setItem('isPaused', JSON.stringify(isPaused));
+      localStorage.setItem('isPaused', JSON.stringify(isPaused));
     });
 
     return () => {
@@ -53,7 +53,7 @@ const Juror = ({ waitingMessage }) => {
 
     setHeadLines((prevHeadlines) => {
       const updatedHeadlines = prevHeadlines.filter((_, i) => i !== index);
-      sessionStorage.setItem('headLines', JSON.stringify(updatedHeadlines));
+      localStorage.setItem('headLines', JSON.stringify(updatedHeadlines));
       return updatedHeadlines;
     });
   };

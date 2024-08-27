@@ -16,17 +16,17 @@ const GameManager = () => {
   const navigate = useNavigate();
 
   const [players, setPlayers] = useState(() => {
-    const savedPlayers = sessionStorage.getItem('players');
+    const savedPlayers = localStorage.getItem('players');
     return savedPlayers ? JSON.parse(savedPlayers) : [];
   });
 
   const [role, setRole] = useState(() => {
-    const savedRole = sessionStorage.getItem('role');
+    const savedRole = localStorage.getItem('role');
     return savedRole || '';
   });
 
   const [currentPlayerName, setCurrentPlayerName] = useState(() => {
-    const savedName = sessionStorage.getItem('currentPlayerName');
+    const savedName = localStorage.getItem('currentPlayerName');
     return savedName || null;
   });
 
@@ -35,15 +35,15 @@ const GameManager = () => {
   useEffect(() => {
     socket.on('updatePlayerList', ({ players }) => {
       setPlayers(players);
-      sessionStorage.setItem('players', JSON.stringify(players));
+      localStorage.setItem('players', JSON.stringify(players));
 
       const currentPlayer = players.find(player => player.id === socket.sessionID);
       
       if (currentPlayer) {
         setRole(currentPlayer.role);
         setCurrentPlayerName(currentPlayer.name);
-        sessionStorage.setItem('role', currentPlayer.role);
-        sessionStorage.setItem('currentPlayerName', currentPlayer.name);
+        localStorage.setItem('role', currentPlayer.role);
+        localStorage.setItem('currentPlayerName', currentPlayer.name);
       }
     });
     
