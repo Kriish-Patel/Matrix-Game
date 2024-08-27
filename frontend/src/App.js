@@ -21,12 +21,12 @@ function App() {
       console.log(`session socket received, sessionID: ${sessionID}`)
       // Attach the session ID to the next reconnection attempts
       socket.auth = { sessionID };
-      // Store it in the sessionStorage
+      // Store it in the localStorage
       localStorage.setItem('sessionID', sessionID);
       // Save the ID of the user
       socket.sessionID = sessionID;
     });
-    const sessionID = sessionStorage.getItem('sessionID');
+    const sessionID = localStorage.getItem('sessionID');
     console.log(`sessionID before reconnection ${sessionID}`);
     if (sessionID) {
       socket.auth = { sessionID };
