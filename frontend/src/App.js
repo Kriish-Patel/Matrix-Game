@@ -22,7 +22,7 @@ function App() {
       // Attach the session ID to the next reconnection attempts
       socket.auth = { sessionID };
       // Store it in the sessionStorage
-      sessionStorage.setItem('sessionID', sessionID);
+      localStorage.setItem('sessionID', sessionID);
       // Save the ID of the user
       socket.sessionID = sessionID;
     });
