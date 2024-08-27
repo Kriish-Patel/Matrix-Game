@@ -19,7 +19,7 @@ const sessionStore = require('./sessionStore.js')
 //   credentials: true
 // };
 const corsOptions = {
-  origin: "https://headliners-frontend.vercel.app", // Allow only your frontend's origin
+  origin: "https://headlines-game-frontend.onrender.com", // Allow only your frontend's origin
   methods: ['GET', 'POST'],
   credentials: true, // Allow credentials to be sent
 };
