@@ -42,23 +42,7 @@ const Lobby = () => {
   const [roles, setRoles] = useState({});
 
   useEffect(() => {
-      socket.on('session', ({ sessionID, userID }) => {
-        console.log("waterfall")
-        console.log(`session socket received, sessionID: ${sessionID}`)
-        // Attach the session ID to the next reconnection attempts
-        socket.auth = { sessionID };
-        // Store it in the sessionStorage
-        sessionStorage.setItem('sessionID', sessionID);
-        // Save the ID of the user
-        socket.sessionID = sessionID;
-      });
-      const sessionID = sessionStorage.getItem('sessionID');
-      console.log(`sessionID before reconnection ${sessionID}`);
-      if (sessionID) {
-        socket.auth = { sessionID };
-        socket.connect();
-        console.log(`sessionID and we have reconnected: ${sessionID}`);
-      }
+
 
     const savedSessionId = sessionStorage.getItem('sessionID');
     if (savedSessionId && !mySessionId) {
