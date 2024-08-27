@@ -18,6 +18,11 @@ const sessionStore = require('./sessionStore.js')
 //   methods: ["GET", "POST"],
 //   credentials: true
 // };
+const corsOptions = {
+  origin: ['https://headliners-frontend.vercel.app'], // Allow only your frontend's origin
+  methods: ['GET', 'POST'],
+  credentials: true, // Allow credentials to be sent
+};
 
 
 
@@ -42,12 +47,7 @@ const io = socketIo(server, {
   cors: corsOptions
 });
 
-// Apply the same CORS configuration to your Express app
-const corsOptions = {
-  origin: ['https://headliners-frontend.vercel.app'], // Allow only your frontend's origin
-  methods: ['GET', 'POST'],
-  credentials: true, // Allow credentials to be sent
-};
+
 
 app.use(cors(corsOptions));
 
