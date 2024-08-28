@@ -43,7 +43,7 @@ const server = http.createServer(app);
   // }
 // });
 const io = socketIo(server, {
-  connectionStateRecovery: { maxDisconnectionDuration: 2 * 60 * 1000 },
+  // connectionStateRecovery: { maxDisconnectionDuration: 2 * 60 * 1000 },
   cors: corsOptions
 });
 

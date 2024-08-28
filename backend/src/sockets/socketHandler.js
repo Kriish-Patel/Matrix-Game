@@ -484,19 +484,19 @@ const handleSocketConnection = (socket, io) => {
     }
   }
 
-  function bufferOrEmitToRoom(room, event, data) {
-    const clients = io.sockets.adapter.rooms.get('game-room');
-    console.log(`players in function: ${JSON.stringify(clients)}`)
+  // function bufferOrEmitToRoom(room, event, data) {
+  //   const clients = io.sockets.adapter.rooms.get('game-room');
+  //   console.log(`players in function: ${JSON.stringify(clients)}`)
     
-    if (clients) {
-        clients.forEach((socketID) => {
-            const sessionID = Object.keys(userSessions).find(key => userSessions[key] === socketID);
-            if (sessionID) {
-                bufferOrEmitMessage(sessionID, event, data);
-            }
-        });
-    }
-  }
+  //   if (clients) {
+  //       clients.forEach((socketID) => {
+  //           const sessionID = Object.keys(userSessions).find(key => userSessions[key] === socketID);
+  //           if (sessionID) {
+  //               bufferOrEmitMessage(sessionID, event, data);
+  //           }
+  //       });
+  //   }
+  // }
 
   function bufferOrEmitToAll(event, data) {
     Object.keys(userSessions).forEach((sessionID) => {
