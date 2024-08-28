@@ -34,6 +34,7 @@ function App() {
       console.log(`sessionID and we have reconnected: ${sessionID}`);
     }
     else{
+      console.log('arbonara')
       socket.connect();
     }
   }, []); // Empty dependency array ensures this runs only once when the app starts
