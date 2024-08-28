@@ -33,6 +33,9 @@ function App() {
       socket.connect();
       console.log(`sessionID and we have reconnected: ${sessionID}`);
     }
+    else{
+      socket.connect();
+    }
   }, []); // Empty dependency array ensures this runs only once when the app starts
 
 
