@@ -37,6 +37,14 @@ function App() {
       console.log('arbonara')
       socket.connect();
     }
+    // Attach sessionID on every reconnect attempt
+    socket.on('reconnect_attempt', () => {
+      const sessionID = localStorage.getItem('sessionID');
+      if (sessionID) {
+        socket.auth = { sessionID };
+        console.log("SessionID attached on reconnect attempt: ", sessionID);
+      }
+    });
   }, []); // Empty dependency array ensures this runs only once when the app starts
 
 
