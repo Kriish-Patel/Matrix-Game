@@ -5,7 +5,7 @@ const socket = io('https://headlines-game.onrender.com', {
   transports: ['websocket', 'polling'],
   autoConnect: false, // Do not connect automatically
   withCredentials:true,
-  reconnection: true,   
+  reconnection: false,   
   auth: {
     sessionID: localStorage.getItem('sessionID') || undefined, // Retrieve sessionID from localStorage if it exists
   },          // Enable reconnection
