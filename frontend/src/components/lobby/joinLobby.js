@@ -13,8 +13,6 @@ const JoinLobby = () => {
 
     if (name && lobbyId) {
       
-      socket.connect();
-      console.log("joining a lobby")
       // socket.emit('join-lobby', { name});
       
       navigate(`/lobby/${lobbyId}`, { state: { name} });
@@ -29,6 +27,7 @@ const JoinLobby = () => {
       <h3>Enter your name to join the lobby</h3>
       <div>
         <input 
+          name = "customInput"
           type="text" 
           value={name} 
           onChange={(e) => setName(e.target.value)} 
