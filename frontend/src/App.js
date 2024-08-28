@@ -38,7 +38,7 @@ function App() {
       socket.connect();
     }
     // Attach sessionID on every reconnect attempt
-    socket.on('reconnect_attempt', () => {
+    socket.io.on('reconnect_attempt', () => {
       const sessionID = localStorage.getItem('sessionID');
       if (sessionID) {
         socket.auth = { sessionID };
