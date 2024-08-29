@@ -106,6 +106,7 @@ io.use((socket, next) => {
 app.get('/create-lobby', handleCreateLobby);
 
 io.on('connection', (socket) => {
+  console.log(`socket.handshake authorised: ${socket.handshake.auth}`);
 
   socket.join('game-room');
 

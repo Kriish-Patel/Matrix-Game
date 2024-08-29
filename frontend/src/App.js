@@ -33,18 +33,15 @@ function App() {
       socket.connect();
       console.log(`sessionID and we have reconnected: ${sessionID}`);
     }
-    else{
-      console.log('arbonara')
-      socket.connect();
-    }
+
     // Attach sessionID on every reconnect attempt
-    socket.io.on('reconnect_attempt', () => {
-      const sessionID = localStorage.getItem('sessionID');
-      if (sessionID) {
-        socket.auth = { sessionID };
-        console.log("SessionID attached on reconnect attempt: ", sessionID);
-      }
-    });
+    // socket.io.on('reconnect_attempt', () => {
+    //   const sessionID = localStorage.getItem('sessionID');
+    //   if (sessionID) {
+    //     socket.auth = { sessionID };
+    //     console.log("SessionID attached on reconnect attempt: ", sessionID);
+    //   }
+    // });
   }, []); // Empty dependency array ensures this runs only once when the app starts
 
 
