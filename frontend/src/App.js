@@ -33,6 +33,9 @@ function App() {
       socket.connect();
       console.log(`sessionID and we have reconnected: ${sessionID}`);
     }
+    else{
+      socket.connect()
+    }
 
     // Attach sessionID on every reconnect attempt
     // socket.io.on('reconnect_attempt', () => {
