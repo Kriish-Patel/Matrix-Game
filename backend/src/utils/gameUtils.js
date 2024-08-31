@@ -18,8 +18,6 @@ const saveHeadline = async (socketId, headlineText) => {
   if (!player) {
     throw new Error('Player not found');
   }
-
-
   const headline = new Headline({
     player: player._id,
     headline: headlineText,
@@ -31,17 +29,16 @@ const saveHeadline = async (socketId, headlineText) => {
   return savedHeadline;
 };
 
-const submitJurorScore = async (headlineId, socketId, score) => {
+const processDiceRoll = async (headlineId, socketId, plausibilityScore, diceRollNumber) => {
 
-  const randomNumber = Math.floor(Math.random() * 101);
-  console.log(`Random number generated for headline ID ${headlineId} is ${randomNumber}`);
-  console.log(`Score for headline ID ${headlineId} is ${score}`);
+  console.log(`Plausibility score for headline ID ${headlineId} is ${plausibilityScore}`);
+  console.log(`Dice Roll from processDiceRoll: ${diceRollNumber}`);
 
   const headline = await Headline.findById(headlineId).populate('player');
 
-  headline.jurorScore = score;
+  headline.plausabilityScore = plausibilityScore;
 
-  if (randomNumber < score) {
+  if (diceRollNumber < plausibilityScore) {
     headline.accepted = true;
     console.log(`Headline ID ${headlineId} accepted based on random number`);
   }
@@ -64,20 +61,6 @@ const removeHeadlineFromJurorQueue = (jurorSocketId, headlineId) => {
   }
 };
 
-// const updateHeadlineAcceptance = async (headlineId, accepted) => {
-//   const headline = await Headline.findById(headlineId);
-  
-//   if (!headline) {
-//     throw new Error('Headline not found');
-//   }
-  
-//   headline.accepted = accepted;
-//   await headline.save();
-
-//   return headline;
-// };
-
-
 
 const assignRole = async (socketId, role) => {
   const player = await Player.findOne({ socketId });
@@ -95,9 +78,6 @@ const assignRole = async (socketId, role) => {
 
   return player;
 };
-
-
-
 
 const assignHeadlineToJuror = (headlineId, headline, io) => {
   // Find the juror with the least number of headlines in their queue
@@ -132,7 +112,7 @@ const registerJuror = (jurorSocketId) => {
 const deregisterJuror = (jurorSocketId) => {
   delete jurorQueues[jurorSocketId];
 };
-const processUmpireReview = async (headlineId, isConsistent, umpireScore) => {
+const processJurorReview = async (headlineId, isConsistent, jurorScore, plausabilityScore) => {
   try {
     // Find the headline and the juror's score
     const headline = await Headline.findById(headlineId).populate('player');
@@ -143,22 +123,20 @@ const processUmpireReview = async (headlineId, isConsistent, umpireScore) => {
 
     if (isConsistent) {
       // Calculate juror's score based on -log(p/100)
-      const jurorScore = headline.jurorScore;
-      const jurorCalculatedScore = -6 * Math.log(jurorScore / 100);
+      headline.plausabilityScore = plausabilityScore;
+      headline.logicallyConsistent = true;
+      const CalculatedPlausibilityScore = -6 * Math.log(plausabilityScore / 100);
 
       // Round the result to 1 decimal place
-      const roundedResult = Math.round(jurorCalculatedScore * 10) / 10;
+      const roundedPlausabilityScore = Math.round(CalculatedPlausibilityScore * 10) / 10;
+    
+      console.log(`juror score: ${headline.jurorScore}, calculated score: ${roundedPlausabilityScore}`)
       
-      console.log(roundedResult);    
-      // const roundedJurorCalculatedScore = jurorCalculatedScore.toFixed(1);
-      console.log(`juror score: ${headline.jurorScore}, calculated score: ${roundedResult}`)
-      console.log(`umpire Score: ${umpireScore}`)
       // Calculate the combined score
-      combinedScore = roundedResult + umpireScore;
+      combinedScore = roundedPlausabilityScore + jurorScore;
 
       // Update the headline
-      headline.logicallyConsistent = true;
-      headline.umpireScore = umpireScore;
+      
       headline.combinedScore = combinedScore;
 
       // Update the player's running total score
@@ -177,29 +155,27 @@ const processUmpireReview = async (headlineId, isConsistent, umpireScore) => {
       }
     } else {
       headline.logicallyConsistent = false;
-      headline.umpireScore = null;
       headline.combinedScore = 0;
-      combinedScore = 0
+      combinedScore = 0;
     }
 
     await headline.save();
     console.log(`player ID: ${headline.player}`);
-    return { success: true, playerId: headline.player.socketId, combinedScore: combinedScore, headline: headline.headline, plausibility: headline.jurorScore };
+    return { success: true, playerId: headline.player.socketId, combinedScore: combinedScore, headline: headline.headline, plausibility: headline.plausabilityScore };
   } catch (error) {
-    console.error('Error processing umpire review:', error);
+    console.error('Error processing juror review:', error);
     return { success: false, error };
   }
 };
 
 module.exports = {
   createLobby,
-  submitJurorScore,
+  processDiceRoll,
   saveHeadline,
   assignRole,
-  // updateHeadlineAcceptance,
   assignHeadlineToJuror,
   registerJuror,
   deregisterJuror,
-  processUmpireReview
+  processJurorReview
   
 };

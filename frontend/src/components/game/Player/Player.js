@@ -8,15 +8,18 @@ import GlobalTimeline from '../GlobalTimeline';
 import PlayerTimeline from '../PlayerTimeline';
 import PauseOverlay from '../PauseOverlay';
 import BriefingModal from './BriefingModal';
-import HeadlineForm from './SubmitHeadlineForm';
+import SubmitHeadlineForm from './SubmitHeadlineForm';
 import ScoreDisplay from './AverageScore';
+import WorkingArea from './WorkingArea';
 
 const Player = ({ planet, acceptedHeadlines }) => {
+  const [headline, setHeadline] = useState('');
   const [briefing, setBriefing] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [hasPendingHeadline, setHasPendingHeadline] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
   const [playerScore, setPlayerScore] = useState(0);
+  const [currentHeadlineID, setCurrentHeadlineID] = useState(null);
 
   useEffect(() => {
     // Fetch the briefing information for the player's planet
@@ -30,6 +33,7 @@ const Player = ({ planet, acceptedHeadlines }) => {
       .catch((error) => console.error('Error fetching briefing data:', error));
 
     socket.on('updatePlayerStatus', ({ socketId, headlineId, headline, status }) => {
+      setCurrentHeadlineID(headlineId);
       console.log(`Player ${socketId} changed status to ${status} for headline ${headlineId}, ${headline}`);
       if (status === 'success' || status === 'failed') {
         setHasPendingHeadline(false);
@@ -67,9 +71,12 @@ const Player = ({ planet, acceptedHeadlines }) => {
       <div className="player-container">
         <ScoreDisplay playerScore={playerScore} />
         <h2>Enter Headline</h2>
-        <HeadlineForm
+        <SubmitHeadlineForm
+          headline={headline}
+          setHeadline={setHeadline}
           hasPendingHeadline={hasPendingHeadline}
           setHasPendingHeadline={setHasPendingHeadline}
+          headlineID = {currentHeadlineID}
         />
         <button onClick={openModal}>View Briefing</button>
         {briefing && (
@@ -80,6 +87,9 @@ const Player = ({ planet, acceptedHeadlines }) => {
             planet={planet}
           />
         )}
+      </div>
+      <div className="working-area-container">
+        <WorkingArea setHeadline={setHeadline} /> 
       </div>
       <div className="global-timeline-container">
         <GlobalTimeline acceptedHeadlines={acceptedHeadlines} />

@@ -2,14 +2,14 @@ const {
   
   saveHeadline,
   submitJurorScore,
-  updateHeadlineAcceptance,
   assignHeadlineToJuror,
   registerJuror,
   deregisterJuror,
-  processUmpireReview,
-  
+  processJurorReview,
+  processDiceRoll,
   assignRole,
 } = require('../utils/gameUtils');
+
 let Headline = require('../../models/headlines.model')
 let Player = require('../../models/player.model');
 const headlinesModel = require('../../models/headlines.model');
@@ -19,6 +19,7 @@ let hostSocketId = null;
 let hostName = null;
 let players = {}  // {id: [name, role, hostStatus, planet]}
 let acceptedHeadlines = {}
+let diceRolls = {}; // {}
 
 let availablePlanets = [
   'Mercury',
@@ -34,8 +35,6 @@ let availablePlanets = [
 ];
 
 const handleSocketConnection = (socket, io) => {
-
-
   //LOBBY SOCKETS
 
   socket.on('create-lobby', ({name}) => {
@@ -212,39 +211,34 @@ const handleSocketConnection = (socket, io) => {
     try {
       const savedHeadline = await saveHeadline(socketId, headline);
       console.log(`Headline submitted: ${headline} from socket ID: ${socketId}`);
-
-      // Assign the headline to a juror
-      assignHeadlineToJuror(savedHeadline._id, savedHeadline.headline, io);
       socket.emit('updatePlayerStatus', { socketId: socketId, headlineId: savedHeadline._id, headline: savedHeadline.headline, status: 'with Juror, pending' })
+      assignHeadlineToJuror(savedHeadline._id, savedHeadline.headline, io);
+      
     } catch (error) {
       console.error('Error submitting headline:', error);
       socket.emit('error', { message: 'Failed to submit headline' });
     }
   });
 
-  socket.on('submitScore', async ({ headlineId, score }) => {
+  socket.on('submitDiceRoll', async ({ socketId, randomNumber, headlineID }) => {
+    console.log(`Received dice roll of ${randomNumber} from socket ${socketId} for headlineID "${headlineID}"`);
+  
     try {
-      const { headline, accepted } = await submitJurorScore(headlineId, socket.id, score);
-      console.log(`Score submitted: ${score} for headline ID: ${headlineId} from Juror: ${socket.id}`);
-
-      if (headline && accepted) {
-        console.log(`user planet: ${headline.player.Planet}`)
-        io.to('game-room').emit('umpireReview', { headlineId: headline._id, headline: headline.headline, planet: headline.player.Planet});
-
-        // Emit changeStatus
-        console.log(`Emitting to ${headline.player.socketId}, changeStatus with status: 'with Umpire, pending'`);
-        socket.to(headline.player.socketId.toString()).emit('updatePlayerStatus', { socketId: headline.player.socketId, headlineId: headline._id, headline: headline.headline, status: 'with Umpire, pending' })
-        socket.to(headline.player.socketId.toString()).emit('sendHeadlineScore', { plausibility: score, headline: headline.headline})
+      // Find the headline by the headlineID
+      const headlineDoc = await Headline.findOne({ headlineID });
+  
+      if (!headlineDoc) {
+        console.error(`Headline not found for ID:"${headlineID}"`);
+        return;
       }
-      if (headline && !accepted) {
-        // Emit changeStatus
-        console.log(`Emitting changeStatus with status: 'failed'`);
-        socket.to(headline.player.socketId).emit('updatePlayerStatus', { socketId: headline.player.socketId, headlineId: headline._id, headline: headline.headline, status: 'failed' })
-        socket.to(headline.player.socketId.toString()).emit('sendHeadlineScore', { plausibility: score, headline: headline.headline})
-      }
+  
+      // Store the dice roll in the headline document
+      headlineDoc.diceRoll = randomNumber;
+      await headlineDoc.save();
+  
+      console.log(`Stored dice roll of ${randomNumber} for headline ID ${headlineDoc._id}`);
     } catch (error) {
-      console.error('Error submitting score:', error);
-      socket.emit('error', { message: 'Failed to submit score' });
+      console.error(`Error storing dice roll for headlineID "${headlineID}":`, error);
     }
   });
 
@@ -260,40 +254,64 @@ const handleSocketConnection = (socket, io) => {
 
   socket.on('updateCurrentYear', ({ currentYear: year }) => {
     currentYear = year;
-    
   });
 
- 
-  socket.on('submitUmpireReview', async ({ headlineId, isConsistent, umpireScore }) => {
-    const result = await processUmpireReview(headlineId, isConsistent, umpireScore);
+  socket.on('submitJurorReview', async ({ headlineId, isConsistent, jurorScore, plausibilityScore}) => {
+    const headlineDoc = await Headline.findOne(headlineId);
 
+    if (!headlineDoc) {
+        console.error(`Headline not found for ID: ${headlineId}`);
+        return;
+    }
+    // Access the dice roll number from the headline document
+    const diceRollNumber = headlineDoc.diceRoll;
+
+    if (diceRollNumber === undefined || diceRollNumber === null) {
+        console.error(`Dice roll not found for headline ID: ${headlineId}`);
+        return;
+    }
+    console.log(`Dice Roll from submitJurorReview: ${diceRollNumber}`);
+
+    const { headline, accepted } = await processDiceRoll(headlineId, socket.id, plausibilityScore, diceRollNumber);
+    const result = await processJurorReview(headlineId, isConsistent, jurorScore, plausibilityScore);
+    socket.to(headline.player.socketId.toString()).emit('sendHeadlinePlausibilityScore', { plausibility: plausibilityScore, headline: headline.headline})
+
+    
     if (result.success) {
       console.log(`is it consistent?: ${isConsistent}`)
       // Emit an event to notify the player of the updated score if the headline is consistent
       if (isConsistent) {
-        
-        acceptedHeadlines[result.headline] = currentYear;
-       
-        
-        socket.to(result.playerId.toString()).emit('updatePlayerScore', { score: result.combinedScore});
-        io.emit('updateAverageScore', {score: result.combinedScore})
 
-        io.emit('sendPlayerCount', { playerCount: Object.keys(players)
-          .filter(id => players[id][1].toLowerCase() === "player")
-          .length})
-        
-        players[result.playerId][4] = result.combinedScore
-        io.emit('acceptedHeadline', {headline: result.headline, currentYear, plausibility: result.plausibility})
-        
-        socket.to(result.playerId.toString()).emit('updatePlayerStatus', { socketId: result.playerId, headlineId, headline: result.headline, status: 'success' });
-        
+        if (headline && accepted) {
+          
+          acceptedHeadlines[result.headline] = currentYear;
+       
+          socket.to(result.playerId.toString()).emit('updatePlayerScore', { score: result.combinedScore});
+          io.emit('updateAverageScore', {score: result.combinedScore})
+
+          io.emit('sendPlayerCount', { playerCount: Object.keys(players)
+            .filter(id => players[id][1].toLowerCase() === "player")
+            .length})
+          
+          players[result.playerId][4] = result.combinedScore
+          io.emit('acceptedHeadline', {headline: result.headline, currentYear, plausibility: result.plausibility})
+          
+          socket.to(result.playerId.toString()).emit('updatePlayerStatus', { socketId: result.playerId, headlineId, headline: result.headline, status: 'success' });
+          
+        }
+
+        if (headline && !accepted) {
+          // Emit changeStatus
+          console.log(`Emitting changeStatus with status: 'failed'`);
+          socket.to(headline.player.socketId).emit('updatePlayerStatus', { socketId: headline.player.socketId, headlineId: headline._id, headline: headline.headline, status: 'failed' })
+        }
       }
       else {
         socket.to(result.playerId.toString()).emit('updatePlayerStatus', { socketId: result.playerId, headlineId, headline: result.headline, status: 'failed' });
       }
-      console.log('Umpire review submitted and player score updated');
+      console.log('Juror review submitted and player score updated');
     } else {
-      console.error('Error processing umpire review:', result.error);
+      console.error('Error processing Juror review:', result.error);
     }
   });
 
@@ -317,12 +335,6 @@ const handleSocketConnection = (socket, io) => {
         score: players[id][4],
         planet: players[id][3]
       })), acceptedHeadlines})
-      
-      
-  //  io.to('game-room').emit('finalTimeline', {acceptedHeadlines});
-    
-    
-    
   })
 
 };

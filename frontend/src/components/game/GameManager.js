@@ -89,7 +89,7 @@ const GameManager = () => {
 
       {role === 'player' && <Player planet={planet} acceptedHeadlines = {acceptedHeadlines} />}
       {role === 'juror' && <Juror acceptedHeadlines = {acceptedHeadlines} />}
-      {role === 'umpire' && <Umpire acceptedHeadlines = {acceptedHeadlines} />}
+      {/* {role === 'umpire' && <Umpire acceptedHeadlines = {acceptedHeadlines} />} */}
       {role === 'host' && <Host lobbyId = {lobbyId} acceptedHeadlines = {acceptedHeadlines} />}
     </div>
   );

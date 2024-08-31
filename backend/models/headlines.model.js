@@ -13,19 +13,31 @@ const headlineSchema = new Schema({
     required: true,
     trim: true
   },
+  diceRoll: {
+    type: Number,
+  },
   accepted: {
     type: Boolean,
     required: true,
     default: false
   },
-  jurorScore: {
+  plausabilityScore: {
     type: Number,
     default: null
   },
-  umpireScore: {
+  grammarScore:{
     type: Number,
     default: null
   },
+  planetAlignmentScore:{
+    type: Number,
+    default: null
+  },
+  narrativeScore:{
+    type: Number,
+    default: null
+  },
+  
   isConsistent: {
     type: Boolean,
     required: true,

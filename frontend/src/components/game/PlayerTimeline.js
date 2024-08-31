@@ -24,7 +24,7 @@ const PlayerTimeline = () => {
             });
           });
         
-        socket.on('sendHeadlineScore', ({ headline, plausibility}) => {
+        socket.on('sendHeadlinePlausibilityScore', ({ headline, plausibility}) => {
             setPlayerHeadlines(prevHeadlines => {
                 const headlineIndex = prevHeadlines.findIndex(h => h.headline === headline);
         

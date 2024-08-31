@@ -35,6 +35,21 @@
   padding: 20px;
 }
 
+.working-area-container {
+  position: fixed; /* Fix the position relative to the viewport */
+  bottom: 0; /* Align it to the bottom of the screen */
+  left: 0; /* Align it to the left of the screen */
+  right: 0; /* Stretch it to the right of the screen */
+  margin: 0 auto; /* Center it horizontally */
+  margin-bottom: 20px;
+  width: 500px; /* Same width as the player-container for consistency */
+  margin-top: 20px; /* Space between the player container and the working area */
+  padding: 20px;
+  background-color: #333;
+  border-radius: 10px;
+  color: white;
+}
+
 .global-timeline-container {
   width: 325px; 
   background-color: #333;

@@ -48,7 +48,6 @@ const Lobby = () => {
             {player.name} ({player.role || 'No role assigned'})
             {socket.id === hostSocketId && player.id !== hostSocketId && (
               <div>
-                <button onClick={() => handleAssignRole(player.id, 'umpire')}>Assign Umpire</button>
                 <button onClick={() => handleAssignRole(player.id, 'player')}>Assign Player</button>
                 <button onClick={() => handleAssignRole(player.id, 'juror')}>Assign Juror</button>
               </div>
