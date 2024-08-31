@@ -10,10 +10,38 @@ const createLobby = () => {
   // lobbies[lobbyId] = { players: [], roles: {}, host: null, gameState: 'waiting', headlines: [], jurorScores: {} };
   return lobbyId;
 };
+const assignHeadlineToJuror = (headlineId, headline, io) => {
+  // Find the juror with the least number of headlines in their queue
+  let leastLoadedJuror = null;
+  let minQueueSize = Infinity;
 
+  for (const jurorSocketId in jurorQueues) {
+    const queueSize = jurorQueues[jurorSocketId].length;
+    console.log(`jurorSocketId: ${jurorSocketId}, queueSize: ${queueSize}`)
+    if (queueSize < minQueueSize) {
+      minQueueSize = queueSize;
+      leastLoadedJuror = jurorSocketId;
+    }
+  }
+
+  // Assign the headline to this juror
+  if (leastLoadedJuror) {
+    jurorQueues[leastLoadedJuror].push(headlineId);
+    io.to(leastLoadedJuror).emit('newHeadline', { headlineId, headline });
+    console.log(`Assigned headline ID ${headlineId} to juror ${leastLoadedJuror}`);
+  } else {
+    console.error('No jurors available to assign headline');
+  }
+};
+
+const registerJuror = (jurorSocketId) => {
+  if (!jurorQueues[jurorSocketId]) {
+    jurorQueues[jurorSocketId] = [];
+  }
+};
 const saveHeadline = async (socketId, headlineText) => {
 // find player by socketid
-  const player = await Player.findOne({ socketId });
+  const player = await Player.findOne( {socketId} );
 
   if (!player) {
     throw new Error('Player not found');
@@ -79,35 +107,7 @@ const assignRole = async (socketId, role) => {
   return player;
 };
 
-const assignHeadlineToJuror = (headlineId, headline, io) => {
-  // Find the juror with the least number of headlines in their queue
-  let leastLoadedJuror = null;
-  let minQueueSize = Infinity;
 
-  for (const jurorSocketId in jurorQueues) {
-    const queueSize = jurorQueues[jurorSocketId].length;
-    console.log(`jurorSocketId: ${jurorSocketId}, queueSize: ${queueSize}`)
-    if (queueSize < minQueueSize) {
-      minQueueSize = queueSize;
-      leastLoadedJuror = jurorSocketId;
-    }
-  }
-
-  // Assign the headline to this juror
-  if (leastLoadedJuror) {
-    jurorQueues[leastLoadedJuror].push(headlineId);
-    io.to(leastLoadedJuror).emit('newHeadline', { headlineId, headline });
-    console.log(`Assigned headline ID ${headlineId} to juror ${leastLoadedJuror}`);
-  } else {
-    console.error('No jurors available to assign headline');
-  }
-};
-
-const registerJuror = (jurorSocketId) => {
-  if (!jurorQueues[jurorSocketId]) {
-    jurorQueues[jurorSocketId] = [];
-  }
-};
 
 const deregisterJuror = (jurorSocketId) => {
   delete jurorQueues[jurorSocketId];

@@ -31,9 +31,14 @@ const Player = ({ planet, acceptedHeadlines }) => {
         }
       })
       .catch((error) => console.error('Error fetching briefing data:', error));
+    
+    socket.on('getHeadlineID', ({headlineID}) => {
+      setCurrentHeadlineID(headlineID);
+      console.log(`headlineID received in frontend: ${headlineID}`)
+    });
 
     socket.on('updatePlayerStatus', ({ socketId, headlineId, headline, status }) => {
-      setCurrentHeadlineID(headlineId);
+      
       console.log(`Player ${socketId} changed status to ${status} for headline ${headlineId}, ${headline}`);
       if (status === 'success' || status === 'failed') {
         setHasPendingHeadline(false);

@@ -209,10 +209,14 @@ const handleSocketConnection = (socket, io) => {
   
   socket.on('submitHeadline', async ({ socketId, headline }) => {
     try {
-      const savedHeadline = await saveHeadline(socketId, headline);
-      console.log(`Headline submitted: ${headline} from socket ID: ${socketId}`);
-      socket.emit('updatePlayerStatus', { socketId: socketId, headlineId: savedHeadline._id, headline: savedHeadline.headline, status: 'with Juror, pending' })
-      assignHeadlineToJuror(savedHeadline._id, savedHeadline.headline, io);
+      const newHeadline = await saveHeadline(socketId, headline);
+      
+      console.log(`1. Headline received: ${headline},socket ID: ${socketId}, headline id: ${newHeadline._id}`);
+      socket.emit('getHeadlineID', {headlineID: newHeadline._id})
+      console.log(`2. Headline ID sent to front`);
+
+      socket.emit('updatePlayerStatus', { socketId: socketId, headlineId: newHeadline._id, headline: newHeadline.headline, status: 'with Juror, pending' })
+      assignHeadlineToJuror(newHeadline._id, newHeadline.headline, io);
       
     } catch (error) {
       console.error('Error submitting headline:', error);
@@ -221,11 +225,11 @@ const handleSocketConnection = (socket, io) => {
   });
 
   socket.on('submitDiceRoll', async ({ socketId, randomNumber, headlineID }) => {
-    console.log(`Received dice roll of ${randomNumber} from socket ${socketId} for headlineID "${headlineID}"`);
+    
   
     try {
       // Find the headline by the headlineID
-      const headlineDoc = await Headline.findOne({ headlineID });
+      const headlineDoc = await Headline.findById(headlineID);
   
       if (!headlineDoc) {
         console.error(`Headline not found for ID:"${headlineID}"`);
@@ -236,7 +240,7 @@ const handleSocketConnection = (socket, io) => {
       headlineDoc.diceRoll = randomNumber;
       await headlineDoc.save();
   
-      console.log(`Stored dice roll of ${randomNumber} for headline ID ${headlineDoc._id}`);
+      console.log(`3. Stored dice roll of ${randomNumber} for headline ID ${headlineID}`);
     } catch (error) {
       console.error(`Error storing dice roll for headlineID "${headlineID}":`, error);
     }
@@ -257,7 +261,7 @@ const handleSocketConnection = (socket, io) => {
   });
 
   socket.on('submitJurorReview', async ({ headlineId, isConsistent, jurorScore, plausibilityScore}) => {
-    const headlineDoc = await Headline.findOne(headlineId);
+    const headlineDoc = await Headline.findById(headlineId);
 
     if (!headlineDoc) {
         console.error(`Headline not found for ID: ${headlineId}`);

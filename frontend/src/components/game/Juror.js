@@ -15,7 +15,7 @@ const Juror = ({ acceptedHeadlines, waitingMessage = "waiting for players to sub
     socket.emit('registerJuror');
 
     socket.on('newHeadline', ({ headlineId, headline }) => {
-      console.log("received new headline for review");
+      console.log("juror received new headline for review (f)");
       setHeadlineData(prevData => ({
         ...prevData,
         [headlineId]: { 

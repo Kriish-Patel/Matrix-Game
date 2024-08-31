@@ -21,7 +21,8 @@ const HeadlineForm = ({ headline, setHeadline, hasPendingHeadline, setHasPending
   const rollDice = () => {
     const randomNumber = Math.floor(Math.random() * 100) + 1;
     socket.emit('submitDiceRoll', { socketId: socket.id, randomNumber, headlineID});
-    alert(`You rolled a ${randomNumber}!`);
+
+    alert(`You rolled a ${randomNumber}`);
   };
 
   return (
