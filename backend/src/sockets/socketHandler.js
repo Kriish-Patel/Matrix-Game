@@ -214,7 +214,7 @@ const handleSocketConnection = (socket, io) => {
       socket.emit('getHeadlineID', {headlineID: newHeadline._id})
       console.log(`2. Headline ID sent to front`);
 
-      socket.emit('updatePlayerStatus', { socketId: socketId, headlineId: newHeadline._id, headline: newHeadline.headline, status: 'with Juror, pending' })
+      socket.emit('updatePlayerStatus', { headline: newHeadline.headline, status: 'with Juror, pending' })
       assignHeadlineToJuror(newHeadline._id, newHeadline.headline, io);
       
     } catch (error) {
@@ -274,12 +274,14 @@ const handleSocketConnection = (socket, io) => {
       if (headline.isConsistent) {
         if (accepted) {
           acceptedHeadlines[headline.headline] = currentYear;
-          socket.to(headline.player.socketId.toString()).emit('updatePlayerStatus', {headline: headline.headline, status: 'success'});
+          io.to(headline.player.socketId.toString()).emit('updatePlayerStatus', { headline: headline.headline, status: 'success' });
+
           io.emit('acceptedHeadline', {headline: headline.headline, currentYear, plausibility: headline.plausibility})
         }
 
         if (!accepted) {
-          socket.to(headline.player.socketId.toString()).emit('updatePlayerStatus', {headline: headline.headline, status: 'failed'});
+          io.to(headline.player.socketId.toString()).emit('updatePlayerStatus', { headline: headline.headline, status: 'failed' });
+
         }
       }
       else {

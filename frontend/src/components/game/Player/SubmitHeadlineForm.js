@@ -17,15 +17,17 @@ const HeadlineForm = ({ headline, setHeadline, hasPendingHeadline, setHasPending
   const rollDice = () => {
     const randomNumber = Math.floor(Math.random() * 100) + 1;
     socket.emit('RollDice', { socketId: socket.id, diceRollNumber: randomNumber, headlineID });
-    setCanRollDice(false);
     alert(`You rolled a ${randomNumber}`);
+    setCanRollDice(false);
+    setHasPendingHeadline(false)
+    setHeadline('')
   };
 
   return (
     <div className="headline-input-container">
       <input
         type="text"
-        value={hasPendingHeadline ? undefined : headline}
+        value={hasPendingHeadline ? '' : headline}
         onChange={handleInputChange}
         placeholder="Enter your headline"
         className="headline-input"
