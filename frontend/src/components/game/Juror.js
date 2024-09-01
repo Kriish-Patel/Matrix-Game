@@ -15,7 +15,7 @@ const Juror = ({ acceptedHeadlines, waitingMessage = "waiting for players to sub
     socket.emit('registerJuror');
 
     socket.on('newHeadline', ({ headlineId, headline }) => {
-      console.log("juror received new headline for review (f)");
+      console.log("juror received new headline for review ");
       setHeadlineData(prevData => ({
         ...prevData,
         [headlineId]: { 
@@ -28,7 +28,6 @@ const Juror = ({ acceptedHeadlines, waitingMessage = "waiting for players to sub
         }
       }));
     });
-
 
     socket.on('gamePaused', ({ isPaused }) => {
       setIsPaused(isPaused);
@@ -100,7 +99,7 @@ const Juror = ({ acceptedHeadlines, waitingMessage = "waiting for players to sub
       alert('Headline force accepted!');
     }
 
-    socket.emit('submitJurorReview', { headlineId, isConsistent, jurorScore, plausibilityScore });
+    socket.emit('submitJurorReview', { headlineId, isConsistent, plausibilityScore, grammaticallyCorrect, narrativeBuilding, jurorScore });
 
     // Remove the headline data after submission
     setHeadlineData(prevData => {

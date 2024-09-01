@@ -10,6 +10,7 @@ const PlayerTimeline = () => {
 
         socket.on('updatePlayerStatus', ({ headline, status }) => {
             setPlayerHeadlines(prevHeadlines => {
+              console.log(`status: ${status}`);
               const headlineIndex = prevHeadlines.findIndex(h => h.headline === headline);
       
               if (headlineIndex !== -1) {

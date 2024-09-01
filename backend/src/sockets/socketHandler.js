@@ -1,11 +1,10 @@
 const {
   
   saveHeadline,
-  submitJurorScore,
   assignHeadlineToJuror,
   registerJuror,
   deregisterJuror,
-  processJurorReview,
+  processPlayerScores,
   processDiceRoll,
   assignRole,
 } = require('../utils/gameUtils');
@@ -210,8 +209,8 @@ const handleSocketConnection = (socket, io) => {
   socket.on('submitHeadline', async ({ socketId, headline }) => {
     try {
       const newHeadline = await saveHeadline(socketId, headline);
-      
       console.log(`1. Headline received: ${headline},socket ID: ${socketId}, headline id: ${newHeadline._id}`);
+
       socket.emit('getHeadlineID', {headlineID: newHeadline._id})
       console.log(`2. Headline ID sent to front`);
 
@@ -224,27 +223,7 @@ const handleSocketConnection = (socket, io) => {
     }
   });
 
-  socket.on('submitDiceRoll', async ({ socketId, randomNumber, headlineID }) => {
-    
-  
-    try {
-      // Find the headline by the headlineID
-      const headlineDoc = await Headline.findById(headlineID);
-  
-      if (!headlineDoc) {
-        console.error(`Headline not found for ID:"${headlineID}"`);
-        return;
-      }
-  
-      // Store the dice roll in the headline document
-      headlineDoc.diceRoll = randomNumber;
-      await headlineDoc.save();
-  
-      console.log(`3. Stored dice roll of ${randomNumber} for headline ID ${headlineID}`);
-    } catch (error) {
-      console.error(`Error storing dice roll for headlineID "${headlineID}":`, error);
-    }
-  });
+
 
   socket.on('registerJuror', () => {
     registerJuror(socket.id);
@@ -260,66 +239,55 @@ const handleSocketConnection = (socket, io) => {
     currentYear = year;
   });
 
-  socket.on('submitJurorReview', async ({ headlineId, isConsistent, jurorScore, plausibilityScore}) => {
-    const headlineDoc = await Headline.findById(headlineId);
-
-    if (!headlineDoc) {
+  socket.on('submitJurorReview', async ({ headlineId, isConsistent, plausibilityScore, grammaticallyCorrect, narrativeBuilding, jurorScore }) => {
+    try {
+      const currHeadline = await Headline.findById(headlineId).populate('player');
+      
+      if (!currHeadline) {
         console.error(`Headline not found for ID: ${headlineId}`);
         return;
+      }
+      // Store the juror scores in the database
+      currHeadline.isConsistent = isConsistent;
+      currHeadline.plausibilityScore = plausibilityScore;
+      currHeadline.grammaticallyCorrect = grammaticallyCorrect;
+      currHeadline.narrativeBuilding = narrativeBuilding;
+      currHeadline.jurorScore = jurorScore;
+      
+      // Save the changes to the database
+      await currHeadline.save();
+  
+      // Send plausibility score to player timeline
+      socket.to(currHeadline.player.socketId.toString()).emit('sendHeadlinePlausibilityScore', { plausibility: plausibilityScore, headline: currHeadline.headline });
+  
+      // Notify player to roll the dice
+      socket.to(currHeadline.player.socketId.toString()).emit('updatePlayerStatus', { headline: currHeadline.headline, status: 'Roll the dice!' });
+    } catch (error) {
+      console.error(`Error saving juror review for headline ID "${headlineId}":`, error);
     }
-    // Access the dice roll number from the headline document
-    const diceRollNumber = headlineDoc.diceRoll;
-
-    if (diceRollNumber === undefined || diceRollNumber === null) {
-        console.error(`Dice roll not found for headline ID: ${headlineId}`);
-        return;
-    }
-    console.log(`Dice Roll from submitJurorReview: ${diceRollNumber}`);
-
-    const { headline, accepted } = await processDiceRoll(headlineId, socket.id, plausibilityScore, diceRollNumber);
-    const result = await processJurorReview(headlineId, isConsistent, jurorScore, plausibilityScore);
-    socket.to(headline.player.socketId.toString()).emit('sendHeadlinePlausibilityScore', { plausibility: plausibilityScore, headline: headline.headline})
-
-    
-    if (result.success) {
-      console.log(`is it consistent?: ${isConsistent}`)
-      // Emit an event to notify the player of the updated score if the headline is consistent
-      if (isConsistent) {
-
-        if (headline && accepted) {
-          
-          acceptedHeadlines[result.headline] = currentYear;
-       
-          socket.to(result.playerId.toString()).emit('updatePlayerScore', { score: result.combinedScore});
-          io.emit('updateAverageScore', {score: result.combinedScore})
-
-          io.emit('sendPlayerCount', { playerCount: Object.keys(players)
-            .filter(id => players[id][1].toLowerCase() === "player")
-            .length})
-          
-          players[result.playerId][4] = result.combinedScore
-          io.emit('acceptedHeadline', {headline: result.headline, currentYear, plausibility: result.plausibility})
-          
-          socket.to(result.playerId.toString()).emit('updatePlayerStatus', { socketId: result.playerId, headlineId, headline: result.headline, status: 'success' });
-          
+  });
+  
+  socket.on('RollDice', async ({diceRollNumber, headlineID }) => {
+  
+      const {headline, accepted} = await processDiceRoll(headlineID, socket.id, diceRollNumber);
+     
+      if (headline.isConsistent) {
+        if (accepted) {
+          acceptedHeadlines[headline.headline] = currentYear;
+          socket.to(headline.player.socketId.toString()).emit('updatePlayerStatus', {headline: headline.headline, status: 'success'});
+          io.emit('acceptedHeadline', {headline: headline.headline, currentYear, plausibility: headline.plausibility})
         }
 
-        if (headline && !accepted) {
-          // Emit changeStatus
-          console.log(`Emitting changeStatus with status: 'failed'`);
-          socket.to(headline.player.socketId).emit('updatePlayerStatus', { socketId: headline.player.socketId, headlineId: headline._id, headline: headline.headline, status: 'failed' })
+        if (!accepted) {
+          socket.to(headline.player.socketId.toString()).emit('updatePlayerStatus', {headline: headline.headline, status: 'failed'});
         }
       }
       else {
-        socket.to(result.playerId.toString()).emit('updatePlayerStatus', { socketId: result.playerId, headlineId, headline: result.headline, status: 'failed' });
+        socket.to(headline.player.socketId.toString()).emit('updatePlayerStatus', {  headline: headline.headline, status: 'failed' });
       }
-      console.log('Juror review submitted and player score updated');
-    } else {
-      console.error('Error processing Juror review:', result.error);
-    }
-  });
-
-
+      processPlayerScores(io, socket, headlineID);
+      });
+      
   socket.on('endGame', ()=>{
 
     const array = Object.keys(players)

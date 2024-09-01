@@ -57,28 +57,27 @@ const saveHeadline = async (socketId, headlineText) => {
   return savedHeadline;
 };
 
-const processDiceRoll = async (headlineId, socketId, plausibilityScore, diceRollNumber) => {
-
-  console.log(`Plausibility score for headline ID ${headlineId} is ${plausibilityScore}`);
-  console.log(`Dice Roll from processDiceRoll: ${diceRollNumber}`);
+const processDiceRoll = async (headlineId, socketId, diceRollNumber) => {
 
   const headline = await Headline.findById(headlineId).populate('player');
+  // Find the headline by the headlineID
+  
+  // Store the dice roll in the DB
+  headline.diceRoll = diceRollNumber;
+  await headline.save();
+  console.log(`3. Stored dice roll of ${diceRollNumber} for headline ID ${headlineId}`);
 
-  headline.plausabilityScore = plausibilityScore;
-
-  if (diceRollNumber < plausibilityScore) {
+  if (diceRollNumber < headline.plausibilityScore) {
     headline.accepted = true;
     console.log(`Headline ID ${headlineId} accepted based on random number`);
   }
-
   await headline.save();
   removeHeadlineFromJurorQueue(socketId, headlineId);
-  return { headline, accepted: headline.accepted };
+  return { headline: headline, accepted: headline.accepted };
 };
 
 const removeHeadlineFromJurorQueue = (jurorSocketId, headlineId) => {
   if (jurorQueues[jurorSocketId]) {
-
 
     // Use filter method with ObjectId comparison
     jurorQueues[jurorSocketId] = jurorQueues[jurorSocketId].filter(id => {
@@ -112,61 +111,69 @@ const assignRole = async (socketId, role) => {
 const deregisterJuror = (jurorSocketId) => {
   delete jurorQueues[jurorSocketId];
 };
-const processJurorReview = async (headlineId, isConsistent, jurorScore, plausabilityScore) => {
+
+const processPlayerScores = async (io, socket, headlineId) => {
   try {
+    console.log(`Starting processPlayerScores for headline ID: ${headlineId}`);
+    
     // Find the headline and the juror's score
     const headline = await Headline.findById(headlineId).populate('player');
+    
     if (!headline) {
       throw new Error('Headline not found');
     }
-    let combinedScore;
-
-    if (isConsistent) {
+    
+    let combinedScore = 0;
+    
+    
+    if (headline.isConsistent) {
+      
       // Calculate juror's score based on -log(p/100)
-      headline.plausabilityScore = plausabilityScore;
-      headline.logicallyConsistent = true;
-      const CalculatedPlausibilityScore = -6 * Math.log(plausabilityScore / 100);
+      const CalculatedPlausibilityScore = -6 * Math.log(headline.plausibilityScore / 100);
 
       // Round the result to 1 decimal place
       const roundedPlausabilityScore = Math.round(CalculatedPlausibilityScore * 10) / 10;
     
-      console.log(`juror score: ${headline.jurorScore}, calculated score: ${roundedPlausabilityScore}`)
+      console.log(`juror score: ${headline.jurorScore}, calculated score: ${roundedPlausabilityScore}`);
       
       // Calculate the combined score
-      combinedScore = roundedPlausabilityScore + jurorScore;
+      combinedScore = roundedPlausabilityScore + headline.jurorScore;
 
-      // Update the headline
+      // Send score to frontend
+      socket.to(headline.player.socketId.toString()).emit('updatePlayerScore', { score: combinedScore });
       
-      headline.combinedScore = combinedScore;
+      // Update average score across all players
+      io.emit('updateAverageScore', { score: combinedScore });
 
-      // Update the player's running total score
+      // Update the player score in the database
       const player = await Player.findById(headline.player);
+
       if (player) {
-        console.log(`player found, player score is ${player.Score}`)
-        if (player.Score === null){
-          console.log(`player score is null`)
+        console.log(`Player found, player score is ${player.Score}`);
+
+        if (player.Score === null) {
+          console.log(`Player score is null`);
           player.Score = combinedScore;
-        }
-        else{
+        } else {
           player.Score += combinedScore;
         }
+        
         await player.save();
-        console.log(`player score: ${player.Score}`);
+        console.log(`Player score updated to: ${player.Score}`);
+      } else {
+        console.error(`Player not found for headline ID: ${headlineId}`);
       }
     } else {
-      headline.logicallyConsistent = false;
-      headline.combinedScore = 0;
-      combinedScore = 0;
+      console.log(`Headline ID ${headlineId} is not consistent, no score calculated.`);
     }
 
-    await headline.save();
-    console.log(`player ID: ${headline.player}`);
-    return { success: true, playerId: headline.player.socketId, combinedScore: combinedScore, headline: headline.headline, plausibility: headline.plausabilityScore };
   } catch (error) {
-    console.error('Error processing juror review:', error);
-    return { success: false, error };
+    console.error(`Error processing player scores for headline ID "${headlineId}":`, error);
   }
 };
+
+
+   
 
 module.exports = {
   createLobby,
@@ -176,6 +183,6 @@ module.exports = {
   assignHeadlineToJuror,
   registerJuror,
   deregisterJuror,
-  processJurorReview
+  processPlayerScores
   
 };

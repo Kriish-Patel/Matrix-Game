@@ -17,6 +17,7 @@ const Player = ({ planet, acceptedHeadlines }) => {
   const [briefing, setBriefing] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [hasPendingHeadline, setHasPendingHeadline] = useState(false);
+  const [canRollDice, setCanRollDice] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
   const [playerScore, setPlayerScore] = useState(0);
   const [currentHeadlineID, setCurrentHeadlineID] = useState(null);
@@ -37,11 +38,14 @@ const Player = ({ planet, acceptedHeadlines }) => {
       console.log(`headlineID received in frontend: ${headlineID}`)
     });
 
-    socket.on('updatePlayerStatus', ({ socketId, headlineId, headline, status }) => {
-      
-      console.log(`Player ${socketId} changed status to ${status} for headline ${headlineId}, ${headline}`);
+    socket.on('updatePlayerStatus', ({ status }) => {
+
       if (status === 'success' || status === 'failed') {
         setHasPendingHeadline(false);
+        setCanRollDice(false);
+      }
+      if (status == 'Roll the dice!'){
+        setCanRollDice(true);
       }
     });
 
@@ -81,6 +85,8 @@ const Player = ({ planet, acceptedHeadlines }) => {
           setHeadline={setHeadline}
           hasPendingHeadline={hasPendingHeadline}
           setHasPendingHeadline={setHasPendingHeadline}
+          canRollDice = {canRollDice}
+          setCanRollDice = {setCanRollDice}
           headlineID = {currentHeadlineID}
         />
         <button onClick={openModal}>View Briefing</button>

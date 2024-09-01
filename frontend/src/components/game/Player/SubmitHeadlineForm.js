@@ -1,27 +1,23 @@
-
 import React, { useState } from 'react';
 import socket from '../../../socket';
 
-const HeadlineForm = ({ headline, setHeadline, hasPendingHeadline, setHasPendingHeadline, headlineID }) => {
-  const [isInputDisabled, setIsInputDisabled] = useState(false);
+const HeadlineForm = ({ headline, setHeadline, hasPendingHeadline, setHasPendingHeadline, canRollDice, setCanRollDice, headlineID }) => {
   
   const handleInputChange = (e) => {
     setHeadline(e.target.value);
-    setIsInputDisabled(false); // Re-enable input on change
   };
 
   const submitHeadline = () => {
     if (headline.trim() && !hasPendingHeadline) {
       socket.emit('submitHeadline', { socketId: socket.id, headline });
       setHasPendingHeadline(true);
-      setIsInputDisabled(true);
     }
   };
 
   const rollDice = () => {
     const randomNumber = Math.floor(Math.random() * 100) + 1;
-    socket.emit('submitDiceRoll', { socketId: socket.id, randomNumber, headlineID});
-
+    socket.emit('RollDice', { socketId: socket.id, diceRollNumber: randomNumber, headlineID });
+    setCanRollDice(false);
     alert(`You rolled a ${randomNumber}`);
   };
 
@@ -29,18 +25,18 @@ const HeadlineForm = ({ headline, setHeadline, hasPendingHeadline, setHasPending
     <div className="headline-input-container">
       <input
         type="text"
-        value={isInputDisabled ? '' : headline}
+        value={hasPendingHeadline ? undefined : headline}
         onChange={handleInputChange}
         placeholder="Enter your headline"
         className="headline-input"
-        disabled={hasPendingHeadline || isInputDisabled}
+        disabled={hasPendingHeadline}
         maxLength={60}
       />
       <div className="button-container">
         <button onClick={submitHeadline} disabled={hasPendingHeadline}>
           {hasPendingHeadline ? 'Waiting for response...' : 'Submit'}
         </button>
-        {hasPendingHeadline && (
+        {canRollDice && (
           <button onClick={rollDice} className="dice-roll-button">
             Dice Roll
           </button>

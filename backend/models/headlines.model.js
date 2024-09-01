@@ -21,7 +21,7 @@ const headlineSchema = new Schema({
     required: true,
     default: false
   },
-  plausabilityScore: {
+  plausibilityScore: {
     type: Number,
     default: null
   },
@@ -42,7 +42,11 @@ const headlineSchema = new Schema({
     type: Boolean,
     required: true,
     default: false
-  }
+  },
+  jurorScore:{
+    type: Number,
+    default: null
+  },
 
 }, {
   timestamps: true
