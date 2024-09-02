@@ -25,15 +25,12 @@ const PlayerTimeline = () => {
           });
         
         socket.on('sendHeadlinePlausibilityScore', ({ headline, plausibility}) => {
-            setPlayerHeadlines(prevHeadlines => {
-                const headlineIndex = prevHeadlines.findIndex(h => h.headline === headline);
-
-                if (headlineIndex !== -1) {
-                    // If the headline exists, update its plausibility and quality scores
-                    prevHeadlines[headlineIndex].plausibility = plausibility;
-                    prevHeadlines[headlineIndex].quality = quality;
-                }
-                return [...prevHeadlines];
+        setPlayerHeadlines(prevHeadlines => {
+            const headlineIndex = prevHeadlines.findIndex(h => h.headline === headline);
+    
+            prevHeadlines[headlineIndex].plausibility = plausibility;
+            return [...prevHeadlines];
+            
             });
         });
 
