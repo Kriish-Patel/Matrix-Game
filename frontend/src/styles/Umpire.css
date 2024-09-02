@@ -1,4 +1,3 @@
-
 /* Main container setup */
 .umpire-main-container {
   display: flex;
@@ -33,12 +32,16 @@
 }
 
 .score {
-  flex: 1;
+  flex: 3;
 }
 
-.score select {
+.score label {
+  display: block;
+  margin-bottom: 5px;
+}
+
+.score input[type="checkbox"] {
   margin-left: 10px;
-  margin-right: 10px;
 }
 
 .submit-button {
@@ -54,5 +57,3 @@
 .submit-button:hover {
   background-color: #0056b3;
 }
-
-

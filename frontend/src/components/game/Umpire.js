@@ -38,28 +38,28 @@ const Umpire = ({ acceptedHeadlines }) => {
     if (!isConsistent) {
       setSelectedScores((prevState) => ({
         ...prevState,
-        [headlineId]: undefined
+        [headlineId]: {}
       }));
     }
   };
 
-  const handleScoreChange = (headlineId, score) => {
+  const handleCheckboxChange = (headlineId, checkboxName, isChecked) => {
     setSelectedScores((prevState) => ({
       ...prevState,
-      [headlineId]: score
+      [headlineId]: {
+        ...prevState[headlineId],
+        [checkboxName]: isChecked
+      }
     }));
   };
 
   const handleSubmit = (headlineId) => {
     const isConsistent = logicalConsistency[headlineId];
-    const umpireScore = selectedScores[headlineId];
+    const scoreData = selectedScores[headlineId] || {};
+    const score = Object.values(scoreData).filter(Boolean).length;
 
-    if (isConsistent && umpireScore === undefined) {
-      alert('Please select a score.');
-      return;
-    }
 
-    socket.emit('submitUmpireReview', { headlineId, isConsistent, umpireScore });
+    socket.emit('submitUmpireReview', { headlineId, isConsistent, umpireScore: score });
 
     setHeadlines((prevHeadlines) => prevHeadlines.filter(h => h.headlineId !== headlineId));
     setLogicalConsistency((prevState) => {
@@ -99,17 +99,28 @@ const Umpire = ({ acceptedHeadlines }) => {
                 {logicalConsistency[headlineId] && (
                   <div>
                     <label>
-                      Score:
-                      <select
-                        value={selectedScores[headlineId] === undefined ? '' : selectedScores[headlineId]}
-                        onChange={(e) => handleScoreChange(headlineId, parseInt(e.target.value, 10))}
-                      >
-                        <option value="" disabled>Select score</option>
-                        <option value={0}>0</option>
-                        <option value={1}>1</option>
-                        <option value={2}>2</option>
-                        <option value={3}>3</option>
-                      </select>
+                      Grammatically Correct:
+                      <input
+                        type="checkbox"
+                        checked={selectedScores[headlineId]?.grammaticallyCorrect || false}
+                        onChange={(e) => handleCheckboxChange(headlineId, 'grammaticallyCorrect', e.target.checked)}
+                      />
+                    </label>
+                    <label>
+                      Planetary Alignment:
+                      <input
+                        type="checkbox"
+                        checked={selectedScores[headlineId]?.planetaryAlignment || false}
+                        onChange={(e) => handleCheckboxChange(headlineId, 'planetaryAlignment', e.target.checked)}
+                      />
+                    </label>
+                    <label>
+                      Narrative Building:
+                      <input
+                        type="checkbox"
+                        checked={selectedScores[headlineId]?.narrativeBuilding || false}
+                        onChange={(e) => handleCheckboxChange(headlineId, 'narrativeBuilding', e.target.checked)}
+                      />
                     </label>
                   </div>
                 )}
