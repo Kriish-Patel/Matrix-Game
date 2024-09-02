@@ -88,11 +88,11 @@ const Juror = ({ acceptedHeadlines, waitingMessage = "waiting for players to sub
     }
 
     const jurorScore = [grammaticallyCorrect, planetaryAlignment, narrativeBuilding].filter(Boolean).length;
-    console.log('juror score:', jurorScore);
-    // if (isConsistent && jurorScore === 0) {
-    //   alert('Please select at least one checkbox for logically consistent headlines.');
-    //   return;
-    // }
+    
+    if (isConsistent && jurorScore === 0) {
+      alert('You havent checked any of the 3 boxes!');
+      return;
+    }
 
     // Handle force accept logic
     if (forceAccept) {

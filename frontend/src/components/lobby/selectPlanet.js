@@ -34,13 +34,11 @@ const SelectPlanet = () => {
       .then(data => setPlanetBriefings(data))
       .catch(error => console.error('Error fetching the planet briefings:', error));
 
-
     // Listen for planet selection updates from the server
     socket.on('planetSelected', (planet) => {
       setPlanets((prevPlanets) => prevPlanets.filter((p) => p !== planet));
     });
 
-    
     // Clean up on component unmount  
     return () => {
       socket.off('planetSelected');

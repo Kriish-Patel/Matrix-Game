@@ -11,14 +11,14 @@ const {
 
 let Headline = require('../../models/headlines.model')
 let Player = require('../../models/player.model');
-const headlinesModel = require('../../models/headlines.model');
+
 
 let currentYear;
 let hostSocketId = null;
 let hostName = null;
 let players = {}  // {id: [name, role, hostStatus, planet]}
 let acceptedHeadlines = {}
-let diceRolls = {}; // {}
+
 
 let availablePlanets = [
   'Mercury',
