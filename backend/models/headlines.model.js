@@ -47,6 +47,10 @@ const headlineSchema = new Schema({
     type: Number,
     default: null
   },
+  forceAccept: {
+    type: Boolean,
+    default: false
+  }
 
 }, {
   timestamps: true

@@ -59,18 +59,23 @@ const saveHeadline = async (socketId, headlineText) => {
 
 const processDiceRoll = async (headlineId, socketId, diceRollNumber) => {
 
-  const headline = await Headline.findById(headlineId).populate('player');
   // Find the headline by the headlineID
-  
-  // Store the dice roll in the DB
+  const headline = await Headline.findById(headlineId).populate('player');
+    
   headline.diceRoll = diceRollNumber;
+  
   await headline.save();
   console.log(`3. Stored dice roll of ${diceRollNumber} for headline ID ${headlineId}`);
 
-  if (diceRollNumber < headline.plausibilityScore) {
+  if (diceRollNumber < headline.plausibilityScore || headline.forceAccept) {
     headline.accepted = true;
-    console.log(`Headline ID ${headlineId} accepted based on random number`);
-  }
+    if (headline.forceAccept) {
+        console.log(`Headline ID ${headlineId} accepted based on force accept`);
+    } else {
+        console.log(`Headline ID ${headlineId} accepted based on random number`);
+    }
+}
+  
   await headline.save();
   removeHeadlineFromJurorQueue(socketId, headlineId);
   return { headline: headline, accepted: headline.accepted };

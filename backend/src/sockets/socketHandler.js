@@ -239,7 +239,7 @@ const handleSocketConnection = (socket, io) => {
     currentYear = year;
   });
 
-  socket.on('submitJurorReview', async ({ headlineId, isConsistent, plausibilityScore, grammaticallyCorrect, narrativeBuilding, jurorScore }) => {
+  socket.on('submitJurorReview', async ({ headlineId, isConsistent, plausibilityScore, grammaticallyCorrect, narrativeBuilding, jurorScore, forceAccept }) => {
     try {
       const currHeadline = await Headline.findById(headlineId).populate('player');
       
@@ -253,6 +253,7 @@ const handleSocketConnection = (socket, io) => {
       currHeadline.grammaticallyCorrect = grammaticallyCorrect;
       currHeadline.narrativeBuilding = narrativeBuilding;
       currHeadline.jurorScore = jurorScore;
+      currHeadline.forceAccept = forceAccept;
       
       // Save the changes to the database
       await currHeadline.save();

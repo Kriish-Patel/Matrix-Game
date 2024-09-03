@@ -48,7 +48,6 @@ const PlayerTimeline = () => {
                     <tr>
                         <th>Headline</th>
                         <th>Plausibility</th>
-                        <th>Quality</th>
                         <th>Status</th>
                     </tr>
                 </thead>
@@ -57,7 +56,6 @@ const PlayerTimeline = () => {
                         <tr key={index}>
                             <td>{item.headline}</td>
                             <td>{item.plausibility}</td>
-                            <td>{item.quality}</td>
                             <td>{item.status}</td>
                         </tr>
                     ))}

@@ -8,7 +8,7 @@ const SelectPlanet = () => {
   const { lobbyId } = useParams();
   const location = useLocation();
   const navigate = useNavigate();
-  const { name, actualPlayersCount } = location.state;
+  const { name} = location.state;
   
   const [selectedPlanet, setSelectedPlanet] = useState(null);
   const [planetBriefings, setPlanetBriefings] = useState({});

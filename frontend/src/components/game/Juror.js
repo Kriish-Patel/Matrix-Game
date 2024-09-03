@@ -9,7 +9,7 @@ import '../../styles/Umpire.css';
 const Juror = ({ acceptedHeadlines, waitingMessage = "waiting for players to submit headlines..." }) => {
   const [headlineData, setHeadlineData] = useState({}); // Store all data in one dictionary
   const [isPaused, setIsPaused] = useState(false);
-  const [forceAccept, setForceAccept] = useState(false);
+  
 
   useEffect(() => {
     socket.emit('registerJuror');
@@ -24,7 +24,8 @@ const Juror = ({ acceptedHeadlines, waitingMessage = "waiting for players to sub
           isConsistent: false, 
           grammaticallyCorrect: false, 
           planetaryAlignment: false, 
-          narrativeBuilding: false 
+          narrativeBuilding: false,
+          forceAccept: false
         }
       }));
     });
@@ -50,7 +51,8 @@ const Juror = ({ acceptedHeadlines, waitingMessage = "waiting for players to sub
         ...(isConsistent ? {} : {
           grammaticallyCorrect: false,
           planetaryAlignment: false,
-          narrativeBuilding: false
+          narrativeBuilding: false,
+          
         })
       }
     }));
@@ -79,7 +81,7 @@ const Juror = ({ acceptedHeadlines, waitingMessage = "waiting for players to sub
   const handleSubmit = (headlineId) => {
     const headline = headlineData[headlineId];
     console.log('Current headlineData:', headline);
-    const { plausibilityScore, isConsistent, grammaticallyCorrect, planetaryAlignment, narrativeBuilding } = headline;
+    const { plausibilityScore, isConsistent, grammaticallyCorrect, planetaryAlignment, narrativeBuilding, forceAccept } = headline;
 
     // Validate plausibility score
     if (isNaN(plausibilityScore) || plausibilityScore < 0 || plausibilityScore > 100) {
@@ -94,12 +96,8 @@ const Juror = ({ acceptedHeadlines, waitingMessage = "waiting for players to sub
       return;
     }
 
-    // Handle force accept logic
-    if (forceAccept) {
-      alert('Headline force accepted!');
-    }
-
-    socket.emit('submitJurorReview', { headlineId, isConsistent, plausibilityScore, grammaticallyCorrect, narrativeBuilding, jurorScore });
+   
+    socket.emit('submitJurorReview', { headlineId, isConsistent, plausibilityScore, grammaticallyCorrect, narrativeBuilding, jurorScore, forceAccept });
 
     // Remove the headline data after submission
     setHeadlineData(prevData => {
@@ -108,9 +106,6 @@ const Juror = ({ acceptedHeadlines, waitingMessage = "waiting for players to sub
     });
   };
 
-  const handleForceAcceptChange = (e) => {
-    setForceAccept(e.target.checked);
-  };
 
   return (
     <div className="main-container">
@@ -181,8 +176,8 @@ const Juror = ({ acceptedHeadlines, waitingMessage = "waiting for players to sub
                   <label style={{ marginLeft: '10px', display: 'flex', alignItems: 'center' }}>
                     <input
                       type="checkbox"
-                      checked={forceAccept}
-                      onChange={handleForceAcceptChange}
+                      checked={data.forceAccept || false}
+                      onChange= {(e) => handleCheckboxChange(headlineId, 'forceAccept', e.target.checked)}
                       style={{ marginRight: '5px' }}
                     />
                     Force Accept
