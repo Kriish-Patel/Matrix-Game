@@ -34,7 +34,11 @@ const AverageScore = () => {
     }
   }, [scores]);
 
-  return averageScore.toFixed(2);
+  return (
+      <div className="average-score-display">
+        Average score: {averageScore.toFixed(2)}
+      </div>
+  );
 };
 
 export default AverageScore;

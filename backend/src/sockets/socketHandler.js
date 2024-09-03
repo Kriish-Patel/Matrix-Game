@@ -279,10 +279,8 @@ const handleSocketConnection = (socket, io) => {
 
           io.emit('acceptedHeadline', {headline: headline.headline, currentYear, plausibility: headline.plausibility})
         }
-
         if (!accepted) {
           io.to(headline.player.socketId.toString()).emit('updatePlayerStatus', { headline: headline.headline, status: 'failed' });
-
         }
       }
       else {

@@ -144,9 +144,6 @@ const processPlayerScores = async (io, socket, headlineId) => {
       // Calculate the combined score
       combinedScore = roundedPlausabilityScore + headline.jurorScore;
 
-      // Send score to frontend
-      socket.to(headline.player.socketId.toString()).emit('updatePlayerScore', { score: combinedScore });
-      
       // Update average score across all players
       io.emit('updateAverageScore', { score: combinedScore });
 
@@ -164,6 +161,8 @@ const processPlayerScores = async (io, socket, headlineId) => {
         }
         
         await player.save();
+        // Send score to frontend
+        io.to(headline.player.socketId.toString()).emit('updatePlayerScore', { score: player.Score });
         console.log(`Player score updated to: ${player.Score}`);
       } else {
         console.error(`Player not found for headline ID: ${headlineId}`);

@@ -9,7 +9,7 @@ import PlayerTimeline from '../PlayerTimeline';
 import PauseOverlay from '../PauseOverlay';
 import BriefingModal from './BriefingModal';
 import SubmitHeadlineForm from './SubmitHeadlineForm';
-import ScoreDisplay from './AverageScore';
+import AverageScoreDisplay from './AverageScore';
 import WorkingArea from './WorkingArea';
 
 const Player = ({ planet, acceptedHeadlines }) => {
@@ -50,7 +50,8 @@ const Player = ({ planet, acceptedHeadlines }) => {
     });
 
     socket.on('updatePlayerScore', ({ score }) => {
-      setPlayerScore((prevscore) => prevscore + score);
+      console.log(`new score: ${score}`);
+      setPlayerScore(score);
     });
 
     socket.on('gamePaused', ({ isPaused }) => {
@@ -78,7 +79,10 @@ const Player = ({ planet, acceptedHeadlines }) => {
         <PlayerTimeline />
       </div>
       <div className="player-container">
-        <ScoreDisplay playerScore={playerScore} />
+        <div className="player-score">
+          Your score: {playerScore}
+        </div>
+        <AverageScoreDisplay />
         <h2>Enter Headline</h2>
         <SubmitHeadlineForm
           headline={headline}

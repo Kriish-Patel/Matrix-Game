@@ -88,15 +88,12 @@ const Juror = ({ acceptedHeadlines, waitingMessage = "waiting for players to sub
       alert('Please enter a valid plausibility score between 0 and 100.');
       return;
     }
-
     const jurorScore = [grammaticallyCorrect, planetaryAlignment, narrativeBuilding].filter(Boolean).length;
     
     if (isConsistent && jurorScore === 0) {
       alert('You havent checked any of the 3 boxes!');
       return;
     }
-
-   
     socket.emit('submitJurorReview', { headlineId, isConsistent, plausibilityScore, grammaticallyCorrect, narrativeBuilding, jurorScore, forceAccept });
 
     // Remove the headline data after submission
