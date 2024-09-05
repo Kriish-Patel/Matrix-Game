@@ -117,35 +117,24 @@ app.get('/create-lobby', handleCreateLobby);
 // });
 
 io.on('connection', (socket) => {
-  socket.join('game-room');
   const sessionID = socket.handshake.auth.sessionID;
   console.log(`New connection with sessionID: ${sessionID}`);
 
   if (sessionID) {
-    sessionStore.findSession(sessionID)
-      .then((session) => {
-        if (session) {
-          console.log(`Reconnected with existing session: ${sessionID}`);
-          socket.sessionID = sessionID;
-          socket.userID = session.userID;
-        } else {
-          console.log(`No session found for sessionID: ${sessionID}, creating new session.`);
-          socket.sessionID = uuidv4();
-          socket.userID = uuidv4();
-        }
-      })
-      .catch((error) => {
-        console.error('Error finding session:', error);
-        socket.sessionID = uuidv4();
-        socket.userID = uuidv4();
-      })
-      .finally(() => {
-        // Emit sessionID to client for future use
-        socket.emit('session', { sessionID: socket.sessionID, userID: socket.userID });
-        
-        // Handle socket connection logic (this runs after emitting the session)
-        handleSocketConnection(socket, io);
-      });
+    const session = sessionStore.findSession(sessionID); // Assuming this is synchronous
+    if (session) {
+      console.log(`Reconnected with existing session: ${sessionID}`);
+      socket.sessionID = sessionID;
+      socket.userID = session.userID;
+    } else {
+      console.log(`No session found for sessionID: ${sessionID}, creating new session.`);
+      socket.sessionID = uuidv4();
+      socket.userID = uuidv4();
+    }
+
+    // Emit sessionID to client for future use
+    socket.emit('session', { sessionID: socket.sessionID, userID: socket.userID });
+    handleSocketConnection(socket, io);
   } else {
     // No sessionID provided, create a new one
     socket.sessionID = uuidv4();
@@ -153,11 +142,10 @@ io.on('connection', (socket) => {
     
     // Emit sessionID to client for future use
     socket.emit('session', { sessionID: socket.sessionID, userID: socket.userID });
-    
-    // Handle socket connection logic
     handleSocketConnection(socket, io);
   }
 });
+
 
 
 
