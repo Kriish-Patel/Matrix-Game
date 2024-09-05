@@ -118,6 +118,7 @@ app.get('/create-lobby', handleCreateLobby);
 
 io.on('connection', (socket) => {
   const sessionID = socket.handshake.auth.sessionID;
+  console.log(`sessionID is ${socket.handshake.auth.sessionID}. i try`)
   console.log(`New connection with sessionID: ${sessionID}`);
 
   if (sessionID) {
