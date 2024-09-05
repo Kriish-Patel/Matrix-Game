@@ -131,6 +131,9 @@ io.on('connection', (socket) => {
       console.log(`No session found for sessionID: ${sessionID}, creating new session.`);
       socket.sessionID = uuidv4();
       socket.userID = uuidv4();
+      sessionStore.saveSession(socket.sessionID, {
+        userID: socket.userID,
+      });
     }
 
     // Emit sessionID to client for future use
@@ -140,6 +143,9 @@ io.on('connection', (socket) => {
     // No sessionID provided, create a new one
     socket.sessionID = uuidv4();
     socket.userID = uuidv4();
+    sessionStore.saveSession(socket.sessionID, {
+      userID: socket.userID,
+    });
     
     // Emit sessionID to client for future use
     socket.emit('session', { sessionID: socket.sessionID, userID: socket.userID });
