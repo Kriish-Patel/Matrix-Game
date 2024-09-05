@@ -81,40 +81,84 @@ connection.once('open',() => {
 //   res.status(500).send('Something broke!');
 // });
 
-io.use((socket, next) => {
-  const sessionID = socket.handshake.auth.sessionID;
-  console.log(`sessionID in the auth thing: ${socket.handshake.auth.sessionID}`)
-  if (sessionID) {
-    // find existing session
-    const session = sessionStore.findSession(sessionID);
-    console.log(`tf is up with this session: ${session}`)
-    if (session) {
-      console.log('found a session')
-      socket.sessionID = sessionID;
-      socket.userID = session.userID;
-      return next();
-    }
-  }
-  // create new session
-  socket.sessionID = uuidv4();
-  socket.userID = uuidv4();
-  next();
-});
+// io.use((socket, next) => {
+//   const sessionID = socket.handshake.auth.sessionID;
+//   console.log(`sessionID in the auth thing: ${socket.handshake.auth.sessionID}`)
+//   if (sessionID) {
+//     // find existing session
+//     const session = sessionStore.findSession(sessionID);
+//     console.log(`tf is up with this session: ${session}`)
+//     if (session) {
+//       console.log('found a session')
+//       socket.sessionID = sessionID;
+//       socket.userID = session.userID;
+//       return next();
+//     }
+//   }
+//   // create new session
+//   socket.sessionID = uuidv4();
+//   socket.userID = uuidv4();
+//   next();
+// });
 
 
 // Route to create a new lobby
 app.get('/create-lobby', handleCreateLobby);
 
+// io.on('connection', (socket) => {
+//   console.log(`socket.handshake authorised: ${socket.handshake.auth}`);
+
+//   socket.join('game-room');
+
+//   console.log(`Client connected, id: ${socket.id}`);
+
+
+//   handleSocketConnection(socket, io);
+// });
+
 io.on('connection', (socket) => {
-  console.log(`socket.handshake authorised: ${socket.handshake.auth}`);
-
   socket.join('game-room');
+  const sessionID = socket.handshake.auth.sessionID;
+  console.log(`New connection with sessionID: ${sessionID}`);
 
-  console.log(`Client connected, id: ${socket.id}`);
-
-
-  handleSocketConnection(socket, io);
+  if (sessionID) {
+    sessionStore.findSession(sessionID)
+      .then((session) => {
+        if (session) {
+          console.log(`Reconnected with existing session: ${sessionID}`);
+          socket.sessionID = sessionID;
+          socket.userID = session.userID;
+        } else {
+          console.log(`No session found for sessionID: ${sessionID}, creating new session.`);
+          socket.sessionID = uuidv4();
+          socket.userID = uuidv4();
+        }
+      })
+      .catch((error) => {
+        console.error('Error finding session:', error);
+        socket.sessionID = uuidv4();
+        socket.userID = uuidv4();
+      })
+      .finally(() => {
+        // Emit sessionID to client for future use
+        socket.emit('session', { sessionID: socket.sessionID, userID: socket.userID });
+        
+        // Handle socket connection logic (this runs after emitting the session)
+        handleSocketConnection(socket, io);
+      });
+  } else {
+    // No sessionID provided, create a new one
+    socket.sessionID = uuidv4();
+    socket.userID = uuidv4();
+    
+    // Emit sessionID to client for future use
+    socket.emit('session', { sessionID: socket.sessionID, userID: socket.userID });
+    
+    // Handle socket connection logic
+    handleSocketConnection(socket, io);
+  }
 });
+
 
 
   

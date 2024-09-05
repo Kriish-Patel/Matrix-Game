@@ -21,12 +21,12 @@ function App() {
       console.log(`session socket received, sessionID: ${sessionID}`)
       // Attach the session ID to the next reconnection attempts
       socket.auth = { sessionID };
-      // Store it in the localStorage
-      localStorage.setItem('sessionID', sessionID);
+      // Store it in the sessionStorage
+      sessionStorage.setItem('sessionID', sessionID);
       // Save the ID of the user
       socket.sessionID = sessionID;
     });
-    const sessionID = localStorage.getItem('sessionID');
+    const sessionID = sessionStorage.getItem('sessionID');
     console.log(`sessionID before reconnection ${sessionID}`);
     if (sessionID) {
       socket.auth = { sessionID };
@@ -39,7 +39,7 @@ function App() {
 
     // Attach sessionID on every reconnect attempt
     // socket.io.on('reconnect_attempt', () => {
-    //   const sessionID = localStorage.getItem('sessionID');
+    //   const sessionID = sessionStorage.getItem('sessionID');
     //   if (sessionID) {
     //     socket.auth = { sessionID };
     //     console.log("SessionID attached on reconnect attempt: ", sessionID);

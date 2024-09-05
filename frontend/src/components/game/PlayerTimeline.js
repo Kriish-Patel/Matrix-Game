@@ -4,7 +4,7 @@ import '../../styles/GlobalTimeline.css';
 
 const PlayerTimeline = () => {
     const [playerHeadlines, setPlayerHeadlines] = useState(() => {
-        const savedHeadlines = localStorage.getItem('playerHeadlines');
+        const savedHeadlines = sessionStorage.getItem('playerHeadlines');
         return savedHeadlines ? JSON.parse(savedHeadlines) : [];
     });
 
@@ -22,7 +22,7 @@ const PlayerTimeline = () => {
                     // If the headline does not exist, add it to the array
                     updatedHeadlines = [{ headline, status }, ...prevHeadlines];
                 }
-                localStorage.setItem('playerHeadlines', JSON.stringify(updatedHeadlines));
+                sessionStorage.setItem('playerHeadlines', JSON.stringify(updatedHeadlines));
                 return updatedHeadlines;
             });
         });
@@ -34,7 +34,7 @@ const PlayerTimeline = () => {
                 if (headlineIndex !== -1) {
                     prevHeadlines[headlineIndex].plausibility = plausibility;
                     const updatedHeadlines = [...prevHeadlines];
-                    localStorage.setItem('playerHeadlines', JSON.stringify(updatedHeadlines));
+                    sessionStorage.setItem('playerHeadlines', JSON.stringify(updatedHeadlines));
                     return updatedHeadlines;
                 }
                 return prevHeadlines;

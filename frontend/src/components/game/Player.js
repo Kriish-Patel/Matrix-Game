@@ -11,39 +11,39 @@ import AverageScore from './AverageScore';
 
 const Player = ({ planet }) => {
   const [headline, setHeadline] = useState(() => {
-    const savedHeadline = localStorage.getItem('headline');
+    const savedHeadline = sessionStorage.getItem('headline');
     return savedHeadline ? savedHeadline : '';
   });
   const [briefing, setBriefing] = useState(() => {
-    const savedBriefing = localStorage.getItem('briefing');
+    const savedBriefing = sessionStorage.getItem('briefing');
     return savedBriefing ? JSON.parse(savedBriefing) : null;
   });
   const [isModalOpen, setIsModalOpen] = useState(() => {
-    const savedIsModalOpen = localStorage.getItem('isModalOpen');
+    const savedIsModalOpen = sessionStorage.getItem('isModalOpen');
     return savedIsModalOpen ? JSON.parse(savedIsModalOpen) : false;
   });
   const [hasPendingHeadline, setHasPendingHeadline] = useState(() => {
-    const savedHasPendingHeadline = localStorage.getItem('hasPendingHeadline');
+    const savedHasPendingHeadline = sessionStorage.getItem('hasPendingHeadline');
     return savedHasPendingHeadline ? JSON.parse(savedHasPendingHeadline) : false;
   });
   const [isPaused, setIsPaused] = useState(() => {
-    const savedIsPaused = localStorage.getItem('isPaused');
+    const savedIsPaused = sessionStorage.getItem('isPaused');
     return savedIsPaused ? JSON.parse(savedIsPaused) : false;
   });
   const [playerScore, setPlayerScore] = useState(() => {
-    const savedPlayerScore = localStorage.getItem('playerScore');
+    const savedPlayerScore = sessionStorage.getItem('playerScore');
     return savedPlayerScore ? parseInt(savedPlayerScore, 10) : 0;
   });
   const [mySessionId, setMySessionId] = useState(() => {
-    const savedSessionId = localStorage.getItem('sessionID');
+    const savedSessionId = sessionStorage.getItem('sessionID');
     return savedSessionId || undefined;
   });
 
   useEffect(() => {
     
-    const savedSessionId = localStorage.getItem('sessionID');
+    const savedSessionId = sessionStorage.getItem('sessionID');
     if (savedSessionId && !mySessionId) {
-      console.log("Updating mySessionId from localStorage:", savedSessionId);
+      console.log("Updating mySessionId from sessionStorage:", savedSessionId);
       setMySessionId(savedSessionId);
     }
     // Fetch the briefing information for the player's planet
@@ -52,7 +52,7 @@ const Player = ({ planet }) => {
       .then((data) => {
         if (data[planet]) {
           setBriefing(data[planet]);
-          localStorage.setItem('briefing', JSON.stringify(data[planet]));
+          sessionStorage.setItem('briefing', JSON.stringify(data[planet]));
         }
       })
       .catch((error) => console.error('Error fetching briefing data:', error));
@@ -61,21 +61,21 @@ const Player = ({ planet }) => {
       console.log(`Player ${socketId} changed status to ${status} for headline ${headlineId}, ${headline}`);
       if (status === 'success' || status === 'failed') {
         setHasPendingHeadline(false);
-        localStorage.setItem('hasPendingHeadline', JSON.stringify(false));
+        sessionStorage.setItem('hasPendingHeadline', JSON.stringify(false));
       }
     });
 
     socket.on('updatePlayerScore', ({ score }) => {
       setPlayerScore((prevScore) => {
         const newScore = prevScore + score;
-        localStorage.setItem('playerScore', newScore);
+        sessionStorage.setItem('playerScore', newScore);
         return newScore;
       });
     });
 
     socket.on('gamePaused', ({ isPaused }) => {
       setIsPaused(isPaused);
-      localStorage.setItem('isPaused', JSON.stringify(isPaused));
+      sessionStorage.setItem('isPaused', JSON.stringify(isPaused));
     });
 
     return () => {
@@ -88,20 +88,20 @@ const Player = ({ planet }) => {
     if (headline.trim() && !hasPendingHeadline) {
       socket.emit('submitHeadline', { socketId: mySessionId, headline });
       setHeadline('');
-      localStorage.setItem('headline', '');
+      sessionStorage.setItem('headline', '');
       setHasPendingHeadline(true);
-      localStorage.setItem('hasPendingHeadline', JSON.stringify(true));
+      sessionStorage.setItem('hasPendingHeadline', JSON.stringify(true));
     }
   };
 
   const openModal = () => {
     setIsModalOpen(true);
-    localStorage.setItem('isModalOpen', JSON.stringify(true));
+    sessionStorage.setItem('isModalOpen', JSON.stringify(true));
   };
 
   const closeModal = () => {
     setIsModalOpen(false);
-    localStorage.setItem('isModalOpen', JSON.stringify(false));
+    sessionStorage.setItem('isModalOpen', JSON.stringify(false));
   };
 
   return (
@@ -120,7 +120,7 @@ const Player = ({ planet }) => {
             value={headline}
             onChange={(e) => {
               setHeadline(e.target.value);
-              localStorage.setItem('headline', e.target.value);
+              sessionStorage.setItem('headline', e.target.value);
             }}
             placeholder="Enter your headline"
             className="headline-input"

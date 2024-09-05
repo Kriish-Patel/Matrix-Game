@@ -57,11 +57,11 @@ const handleSocketConnection = (socket, io) => {
     messageBuffers[socket.sessionID] = []; // Clear the buffer after sending
   }
 
-  socket.emit("session", {
-    sessionID: socket.sessionID,
-    userID: socket.userID,
+  // socket.emit("session", {
+  //   sessionID: socket.sessionID,
+  //   userID: socket.userID,
     
-  });
+  // });
 
 
 

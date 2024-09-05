@@ -9,34 +9,34 @@ const Lobby = () => {
   const navigate = useNavigate();
 
   const [players, setPlayers] = useState(() => {
-    const savedPlayers = localStorage.getItem('players');
+    const savedPlayers = sessionStorage.getItem('players');
     return savedPlayers ? JSON.parse(savedPlayers) : [];
   });
   const [playerCount, setPlayerCount] = useState(() =>{
-    const savedPlayerCount = localStorage.getItem('playerCount');
+    const savedPlayerCount = sessionStorage.getItem('playerCount');
     return savedPlayerCount ? savedPlayerCount : 0;
   });
   const [host, setHost] = useState(() =>{
-    const savedHost = localStorage.getItem('host');
+    const savedHost = sessionStorage.getItem('host');
     return savedHost ? savedHost : '';
   });
   const [hostSocketId, setHostSocketId] = useState(() =>{
-    const savedHostSocketId = localStorage.getItem('hostSocketId');
+    const savedHostSocketId = sessionStorage.getItem('hostSocketId');
     return savedHostSocketId ? savedHostSocketId : '';
   });
   const [mySessionId, setMySessionId] = useState(() => {
-    const savedSessionId = localStorage.getItem('sessionID');
-    console.log("Initial mySessionId from localStorage:", savedSessionId);
+    const savedSessionId = sessionStorage.getItem('sessionID');
+    console.log("Initial mySessionId from sessionStorage:", savedSessionId);
     return savedSessionId || undefined;
   });
   const [name, setName] = useState(location.state ? location.state.name : '');
   const [actualPlayersCount, setActualPlayersCount] = useState(0);
   const [hasJoined, setHasJoined] = useState(() => {
-    const savedHasJoined = localStorage.getItem('hasJoined');
+    const savedHasJoined = sessionStorage.getItem('hasJoined');
     return savedHasJoined ? savedHasJoined : false;
   })
   const [initialJoin, setInitialJoin] = useState(() => {
-    const savedHasInitialJoined = localStorage.getItem('hasJoined');
+    const savedHasInitialJoined = sessionStorage.getItem('hasJoined');
     return savedHasInitialJoined ? savedHasInitialJoined : false;
   })
   const [roles, setRoles] = useState({});
@@ -44,9 +44,9 @@ const Lobby = () => {
   useEffect(() => {
 
 
-    const savedSessionId = localStorage.getItem('sessionID');
+    const savedSessionId = sessionStorage.getItem('sessionID');
     if (savedSessionId && !mySessionId) {
-      console.log("Updating mySessionId from localStorage:", savedSessionId);
+      console.log("Updating mySessionId from sessionStorage:", savedSessionId);
       setMySessionId(savedSessionId);
     }
     console.log("mySessionId after initial render:", mySessionId);
@@ -63,7 +63,7 @@ const Lobby = () => {
     const joinLobby = (userName) => {
       if (userName && !hasJoined) {
         setHasJoined(true);
-        localStorage.setItem('hasJoined', true)
+        sessionStorage.setItem('hasJoined', true)
         socket.emit('join-lobby', { name: userName });
       }
     };
@@ -71,27 +71,27 @@ const Lobby = () => {
     if (!initialJoin && location.state.name) {
       joinLobby(location.state.name);
       setInitialJoin(true);
-      localStorage.setItem('hasInitialJoined', true)
+      sessionStorage.setItem('hasInitialJoined', true)
     } else if (!initialJoin && !location.state) {
       joinLobby(name);
       setInitialJoin(true);
-      localStorage.setItem('hasInitialJoined', true)
+      sessionStorage.setItem('hasInitialJoined', true)
     }
     
 
     socket.on('host-info', ({ hostName, hostSocketId }) => {
       setHost(hostName);
       setHostSocketId(hostSocketId);
-      localStorage.setItem('host', hostName);
-      localStorage.setItem('hostSocketId', hostSocketId);
+      sessionStorage.setItem('host', hostName);
+      sessionStorage.setItem('hostSocketId', hostSocketId);
 
     });
 
     socket.on('updatePlayerList', ({ players }) => {
       setPlayers(players);
       setPlayerCount(players.length);
-      localStorage.setItem('players', JSON.stringify(players));
-      localStorage.setItem('playerCount', players.length);
+      sessionStorage.setItem('players', JSON.stringify(players));
+      sessionStorage.setItem('playerCount', players.length);
       const currentPlayer = players.find(player => player.id === mySessionId);
       console.log(`lets see if sessionID shows on front end: ${mySessionId}`)
       if (currentPlayer && currentPlayer.role === 'host') {
