@@ -6,9 +6,9 @@ const socket = io('https://headlines-game.onrender.com', {
   autoConnect: false, // Do not connect automatically
   withCredentials:true,
   // reconnection: true,   
-  // auth: {
-  //   sessionID: sessionStorage.getItem('sessionID') || undefined, // Retrieve sessionID from sessionStorage if it exists
-  // },          // Enable reconnection
+  auth: {
+    sessionID: sessionStorage.getItem('sessionID') || undefined, // Retrieve sessionID from sessionStorage if it exists
+  },          // Enable reconnection
   // reconnectionAttempts: Infinity, // Number of attempts before giving up
   // reconnectionDelay: 1000,        // Initial delay before the first attempt
   // reconnectionDelayMax: 5000,     // Maximum delay between reconnections
