@@ -37,14 +37,14 @@ function App() {
       socket.connect()
     }
 
-    // Attach sessionID on every reconnect attempt
-    // socket.io.on('reconnect_attempt', () => {
-    //   const sessionID = sessionStorage.getItem('sessionID');
-    //   if (sessionID) {
-    //     socket.auth = { sessionID };
-    //     console.log("SessionID attached on reconnect attempt: ", sessionID);
-    //   }
-    // });
+    //Attach sessionID on every reconnect attempt
+    socket.io.on('reconnect_attempt', () => {
+      const sessionID = sessionStorage.getItem('sessionID');
+      if (sessionID) {
+        socket.auth = { sessionID };
+        console.log("SessionID attached on reconnect attempt: ", sessionID);
+      }
+    });
   }, []); // Empty dependency array ensures this runs only once when the app starts
 
 
