@@ -16,8 +16,6 @@ const Home = () => {
       
 
       // socket.connect(); // Connect the socket when creating a lobby
-  
-      socket.emit('create-lobby', {name}); // Emit create-lobby event to the server
 
           // Retrieve the session ID from sessionStorage and connect
 
@@ -31,6 +29,7 @@ const Home = () => {
     } catch (error) {
       console.error('Error creating lobby:', error);
     }
+    socket.emit('create-lobby', {name}); // Emit create-lobby event to the server
   };
 
  

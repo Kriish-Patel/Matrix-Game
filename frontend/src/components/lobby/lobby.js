@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import useLobby from '../../hooks/useLobby.js'; // Adjust the import path as necessary
 import '../../styles/Lobby.css';
 import socket from '../../socket';
@@ -8,20 +8,80 @@ const Lobby = () => {
   console.log(`Component rendered from id: ${socket.id}`);
 
   const location = useLocation();
-  const [name, setName] = useState(location.state ? location.state.name : '');
- 
+  
+  // Retrieve name from sessionStorage if available, otherwise use location state
+  const [name, setName] = useState(() => sessionStorage.getItem('name') || (location.state ? location.state.name : ''));
+
+  // Save name to sessionStorage whenever it changes
+  useEffect(() => {
+    if (name) {
+      sessionStorage.setItem('name', name);
+    }
+  }, [name]);
+
   const {
     players,
     playerCount,
     host,
     hostSocketId,
     lobbyId,
-    mySessionId
+    mySessionId,
+    setHost,
+    setPlayers,
+    setPlayerCount,
+    setHostSocketId,
+    setLobbyId,
+    setMySessionId
   } = useLobby(name);
 
+  // Store host, players, playerCount, hostSocketId, and lobbyId in sessionStorage for persistence
+  useEffect(() => {
+    if (host) sessionStorage.setItem('host', host);
+    if (players.length > 0) sessionStorage.setItem('players', JSON.stringify(players));
+    if (playerCount) sessionStorage.setItem('playerCount', playerCount);
+    if (hostSocketId) sessionStorage.setItem('hostSocketId', hostSocketId);
+    if (lobbyId) sessionStorage.setItem('lobbyId', lobbyId);
+    if (mySessionId) sessionStorage.setItem('sessionID',mySessionId)
+  }, [host, players, playerCount, hostSocketId, lobbyId,mySessionId]);
+
+  // Retrieve data from sessionStorage in case of reload
+  useEffect(() => {
+    const savedHost = sessionStorage.getItem('host');
+    const savedPlayers = JSON.parse(sessionStorage.getItem('players')) || [];
+    const savedPlayerCount = sessionStorage.getItem('playerCount');
+    const savedHostSocketId = sessionStorage.getItem('hostSocketId');
+    const savedLobbyId = sessionStorage.getItem('lobbyId');
+    const savedMySessionId = sessionStorage.getItem('sessionID')
+    
+    if (savedMySessionId){
+      setMySessionId(savedMySessionId)
+    }
+
+    if (savedHost) {
+      setHost(savedHost);
+    }
+
+    if (savedPlayers.length > 0) {
+      setPlayers(savedPlayers);
+    }
+
+    if (savedPlayerCount) {
+      setPlayerCount(Number(savedPlayerCount));
+    }
+
+    if (savedHostSocketId) {
+      setHostSocketId(savedHostSocketId);
+    }
+
+    if (savedLobbyId) {
+      setLobbyId(savedLobbyId);
+    }
+  }, [mySessionId]);
+
   const handleAssignRole = (playerId, role) => {
-    if (socket.id === hostSocketId && playerId !== hostSocketId) {
-      socket.emit('assignRole', { playerId, role });
+    if (mySessionId=== hostSocketId && playerId !== hostSocketId) {
+      console.log(`player ID is: ${playerId}`)
+      socket.emit('assignRole', { playerId: playerId , role:role });
     } else if (playerId === hostSocketId) {
       alert('As the host, you cannot assign a role to yourself.');
     }
@@ -67,3 +127,4 @@ const Lobby = () => {
 };
 
 export default Lobby;
+

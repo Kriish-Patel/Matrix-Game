@@ -5,6 +5,11 @@ const HeadlineForm = ({ headline, setHeadline, hasPendingHeadline, setHasPending
   
   // Initialize state from sessionStorage or default values
   const [storedHeadline, setStoredHeadline] = useState(() => sessionStorage.getItem('headline') || headline);
+  const [mySessionId, setMySessionId] = useState(() => {
+    const savedSessionId = sessionStorage.getItem('sessionID');
+    console.log("Initial mySessionId from sessionStorage:", savedSessionId);
+    return savedSessionId || undefined;
+  });
   
   useEffect(() => {
     // Sync headline with sessionStorage whenever it changes
@@ -26,7 +31,7 @@ const HeadlineForm = ({ headline, setHeadline, hasPendingHeadline, setHasPending
 
   const submitHeadline = () => {
     if (storedHeadline.trim() && !JSON.parse(sessionStorage.getItem('hasPendingHeadline'))) {
-      socket.emit('submitHeadline', { socketId: socket.id, headline: storedHeadline });
+      socket.emit('submitHeadline', { socketId: mySessionId, headline: storedHeadline });
       setHasPendingHeadline(true);
       sessionStorage.setItem('hasPendingHeadline', true); // Update sessionStorage
     }
@@ -34,7 +39,7 @@ const HeadlineForm = ({ headline, setHeadline, hasPendingHeadline, setHasPending
 
   const rollDice = () => {
     const randomNumber = Math.floor(Math.random() * 100) + 1;
-    socket.emit('RollDice', { socketId: socket.id, diceRollNumber: randomNumber, headlineID });
+    socket.emit('RollDice', { socketId: mySessionId, diceRollNumber: randomNumber, headlineID });
     alert(`You rolled a ${randomNumber}`);
     setCanRollDice(false);
     setHasPendingHeadline(false);

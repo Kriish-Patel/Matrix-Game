@@ -3,16 +3,25 @@ import { useNavigate, useParams } from 'react-router-dom';
 import socket from '../socket';
 
 const useLobby = (name) => {
-  const { lobbyId } = useParams();
+  const { lobbyId: routeLobbyId } = useParams();
   const navigate = useNavigate();
-  const [players, setPlayers] = useState([]);
-  const [playerCount, setPlayerCount] = useState(0);
-  const [host, setHost] = useState('');
-  const [hostSocketId, setHostSocketId] = useState('');
-  const [actualPlayersCount, setActualPlayersCount] = useState(0);
-  const [roles, setRoles] = useState({});
+
+  // Initialize states from sessionStorage or default values
+  const [lobbyId, setLobbyId] = useState(() => sessionStorage.getItem('lobbyId') || routeLobbyId);
+  const [players, setPlayers] = useState(() => JSON.parse(sessionStorage.getItem('players')) || []);
+  const [playerCount, setPlayerCount] = useState(() => Number(sessionStorage.getItem('playerCount')) || 0);
+  const [host, setHost] = useState(() => sessionStorage.getItem('host') || '');
+  const [hostSocketId, setHostSocketId] = useState(() => sessionStorage.getItem('hostSocketId') || '');
+  const [actualPlayersCount, setActualPlayersCount] = useState(() => Number(sessionStorage.getItem('actualPlayersCount')) || 0);
+  const [roles, setRoles] = useState(() => JSON.parse(sessionStorage.getItem('roles')) || {});
+  const [mySessionId, setMySessionId] = useState(() => {
+    const savedSessionId = sessionStorage.getItem('sessionID');
+    console.log("Initial mySessionId from sessionStorage:", savedSessionId);
+    return savedSessionId || undefined;
+  });
 
   useEffect(() => {
+    console.log(`this is the useLobby socket ID${socket.id}`)
     if (!name) {
       navigate(`/join-lobby/${lobbyId}`);
       return;
@@ -21,23 +30,32 @@ const useLobby = (name) => {
     socket.on('host-info', ({ hostName, hostSocketId }) => {
       setHost(hostName);
       setHostSocketId(hostSocketId);
-      console.log('why no work')
+      sessionStorage.setItem('host', hostName);
+      sessionStorage.setItem('hostSocketId', hostSocketId);
+      console.log('host-info is being called')
     });
 
     socket.on('updatePlayerList', ({ players }) => {
-      console.log("idk men")
       setPlayers(players);
       setPlayerCount(players.length);
-      const currentPlayer = players.find(player => player.id === socket.id);
+      sessionStorage.setItem('players', JSON.stringify(players));
+      sessionStorage.setItem('playerCount', players.length);
+
+      const currentPlayer = players.find(player => player.id === mySessionId);
       if (currentPlayer && currentPlayer.role === 'host') {
-        setHostSocketId(socket.id);
+        setHostSocketId(mySessionId);
+        sessionStorage.setItem('hostSocketId', mySessionId);
       }
     });
 
     socket.on('roundStarted', () => {
       const finalActualPlayerCount = players.filter(player => player.role === 'player').length;
       setActualPlayersCount(finalActualPlayerCount);
-      navigate(`/game/${lobbyId}`, { state: { role: roles[socket.id], actualPlayersCount: finalActualPlayerCount } });
+      sessionStorage.setItem('actualPlayersCount', finalActualPlayerCount);
+      
+      navigate(`/game/${lobbyId}`, {
+        state: { role: roles[mySessionId], actualPlayersCount: finalActualPlayerCount },
+      });
       socket.emit('to-game-manager');
     });
 
@@ -53,6 +71,12 @@ const useLobby = (name) => {
     };
   }, [name, lobbyId, navigate, players, roles]);
 
+  // Update roles state and save it in sessionStorage
+  useEffect(() => {
+    sessionStorage.setItem('roles', JSON.stringify(roles));
+    if (lobbyId) sessionStorage.setItem('lobbyId', lobbyId);
+  }, [roles]);
+
   return {
     players,
     playerCount,
@@ -60,8 +84,14 @@ const useLobby = (name) => {
     hostSocketId,
     actualPlayersCount,
     roles,
-    lobbyId
-    
+    lobbyId,
+    mySessionId,
+    setHost,
+    setPlayers,
+    setPlayerCount,
+    setHostSocketId,
+    setLobbyId,
+    setMySessionId
   };
 };
 
