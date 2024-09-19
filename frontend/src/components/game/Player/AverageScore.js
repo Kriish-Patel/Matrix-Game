@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import socket from '../../socket';
+import socket from '../../../socket';
 
 const AverageScore = () => {
   const [scores, setScores] = useState(() => {
@@ -49,7 +49,11 @@ const AverageScore = () => {
     }
   }, [scores, playerCount]);
 
-  return averageScore.toFixed(2);
+  return (
+      <div className="average-score-display">
+        Average score: {averageScore.toFixed(2)}
+      </div>
+  );
 };
 
 export default AverageScore;

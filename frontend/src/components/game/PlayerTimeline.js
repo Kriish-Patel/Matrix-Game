@@ -27,25 +27,31 @@ const PlayerTimeline = () => {
             });
         });
         
-        socket.on('sendHeadlineScore', ({ headline, plausibility }) => {
+        socket.on('sendHeadlinePlausibilityScore', ({ headline, plausibility }) => {
             setPlayerHeadlines(prevHeadlines => {
-                const headlineIndex = prevHeadlines.findIndex(h => h.headline === headline);
-                
-                if (headlineIndex !== -1) {
-                    prevHeadlines[headlineIndex].plausibility = plausibility;
-                    const updatedHeadlines = [...prevHeadlines];
-                    sessionStorage.setItem('playerHeadlines', JSON.stringify(updatedHeadlines));
-                    return updatedHeadlines;
-                }
-                return prevHeadlines;
+              const headlineIndex = prevHeadlines.findIndex(h => h.headline === headline);
+          
+              if (headlineIndex !== -1) {
+                // Update the plausibility of the matching headline
+                const updatedHeadlines = [...prevHeadlines];
+                updatedHeadlines[headlineIndex].plausibility = plausibility;
+          
+                // Persist updated headlines into sessionStorage
+                sessionStorage.setItem('playerHeadlines', JSON.stringify(updatedHeadlines));
+          
+                return updatedHeadlines;
+              }
+          
+              return prevHeadlines; // No changes if headline not found
             });
-        });
+          });
+          
 
         return () => {
             socket.off('updatePlayerStatus');
             socket.off('sendHeadlineScore');
         };
-    }, []); 
+    }, []);
 
     return (
         <div>

@@ -1,7 +1,7 @@
 import { io } from 'socket.io-client';
 import React, { useEffect } from 'react';
-
-const socket = io('https://headlines-game.onrender.com', {
+//https://headlines-game.onrender.com
+const socket = io('http://localhost:5001', {
   transports: ['websocket', 'polling'],
   autoConnect: false, // Do not connect automatically
   withCredentials:true,

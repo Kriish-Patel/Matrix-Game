@@ -21,7 +21,7 @@ const Home = () => {
 
           // Retrieve the session ID from sessionStorage and connect
 
-      const response = await axios.get('https://headlines-game.onrender.com/create-lobby'); // Backend URL
+      const response = await axios.get('http://localhost:5001/create-lobby'); // Backend URL
      
       const { lobbyId } = response.data;
      

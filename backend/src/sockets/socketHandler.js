@@ -1,17 +1,15 @@
 const {
   
   saveHeadline,
-  submitJurorScore,
-  updateHeadlineAcceptance,
   assignHeadlineToJuror,
   processUmpireReview,
   registerJuror,
   deregisterJuror,
-  
+  processPlayerScores,
+  processDiceRoll,
   assignRole,
 } = require('../utils/gameUtils');
 
-// const {bufferOrEmitMessage} = require('../utils/sharedUtil.js')
 let Headline = require('../../models/headlines.model')
 let Player = require('../../models/player.model');
 const headlinesModel = require('../../models/headlines.model');
@@ -26,6 +24,7 @@ let hostSocketId = null;
 let hostName = null;
 // let players = {}  // {id: [name, role, hostStatus, planet]}
 let acceptedHeadlines = {}
+
 
 let availablePlanets = [
   'Mercury',
@@ -118,15 +117,15 @@ const handleSocketConnection = (socket, io) => {
     //   // players: players.getPlayersArray()
     // });
 
-    bufferOrEmitToAll('host-info', { hostName: name, hostSocketId: hostSocketId });
-    bufferOrEmitToAll('updatePlayerList', {
-        players: players.getPlayersArray().map(player => ({
-            id: player.socketId,
-            name: player.playerName,
-            role: player.role,
-            isHost: player.isHost,
-            planet: player.Planet
-        }))
+    io.to('game-room').emit('host-info', { hostName: name, hostSocketId: hostSocketId });
+    io.to('game-room').emit('updatePlayerList', {
+      players: Object.keys(players).map(id => ({
+        id,
+        name: players[id][0],
+        role: players[id][1],
+        isHost: players[id][2],
+        planet: players[id][3]
+      }))
     });
   });
 
@@ -344,98 +343,150 @@ const handleSocketConnection = (socket, io) => {
   
   socket.on('submitHeadline', async ({ socketId, headline }) => {
     try {
-      const savedHeadline = await saveHeadline(socket.sessionID, headline);
-      console.log(`Headline submitted: ${headline} from socket ID: ${socket.sessionID}`);
-
-      // Assign the headline to a juror
-      assignHeadlineToJuror(savedHeadline._id, savedHeadline.headline, io, bufferOrEmitMessage);
-      // socket.emit('updatePlayerStatus', { socketId: socket.sessionID, headlineId: savedHeadline._id, headline: savedHeadline.headline, status: 'with Juror, pending' })
-      bufferOrEmitMessage(socket.sessionID, 'updatePlayerStatus', { 
-        socketId: socket.sessionID, 
-        headlineId: savedHeadline._id, 
-        headline: savedHeadline.headline, 
-        status: 'with Juror, pending' 
-      });
+      const newHeadline = await saveHeadline(socketId, headline);
+      console.log(`1. Headline received: ${headline}, socket ID: ${socketId}, headline id: ${newHeadline._id}`);
+  
+      // Buffer or emit the 'getHeadlineID' message
+      bufferOrEmitMessage(socketId, 'getHeadlineID', { headlineID: newHeadline._id });
+      console.log(`2. Headline ID sent to front`);
+  
+      // Buffer or emit the 'updatePlayerStatus' message
+      bufferOrEmitMessage(socketId, 'updatePlayerStatus', { headline: newHeadline.headline, status: 'with Juror, pending' });
+  
+      // Assign the headline to the least-loaded juror
+      assignHeadlineToJuror(newHeadline._id, newHeadline.headline, io);
+  
     } catch (error) {
       console.error('Error submitting headline:', error);
-      socket.emit('error', { message: 'Failed to submit headline' });
+  
+      // Buffer or emit the 'error' message
+      bufferOrEmitMessage(socketId, 'error', { message: 'Failed to submit headline' });
     }
   });
+  
 
-  socket.on('submitScore', async ({ headlineId, score }) => {
-    try {
-      const { headline, accepted } = await submitJurorScore(headlineId, socket.id, score);
-      console.log(`Score submitted: ${score} for headline ID: ${headlineId} from Juror: ${socket.id}`);
 
-      if (headline) {
-        const playerSocketID = headline.player.socketId.toString();
 
-        if (accepted) {
-          console.log(`user planet: ${headline.player.Planet}`);
-          // io.to('game-room').emit('umpireReview', { headlineId: headline._id, headline: headline.headline, planet: headline.player.Planet });
-          bufferOrEmitToAll('umpireReview', { 
-            headlineId: headline._id, 
-            headline: headline.headline, 
-            planet: headline.player.Planet 
-          });
+  socket.on('registerJuror', () => {
+    registerJuror(socket.sessionID);
+    console.log(`Juror registered: ${socket.sessionID}`);
+  });
 
-          bufferOrEmitMessage(playerSocketID, 'updatePlayerStatus', { socketId: headline.player.socketId, headlineId: headline._id, headline: headline.headline, status: 'with Umpire, pending' });
-          bufferOrEmitMessage(playerSocketID, 'sendHeadlineScore', { plausibility: score, headline: headline.headline });
-        } else {
-          console.log(`Emitting changeStatus with status: 'failed'`);
-          bufferOrEmitMessage(playerSocketID, 'updatePlayerStatus', { socketId: headline.player.socketId, headlineId: headline._id, headline: headline.headline, status: 'failed' });
-          bufferOrEmitMessage(playerSocketID, 'sendHeadlineScore', { plausibility: score, headline: headline.headline });
-        }
-      }
-    } catch (error) {
-      console.error('Error submitting score:', error);
-      socket.emit('error', { message: 'Failed to submit score' });
-    }
+  socket.on('deregisterJuror', () => {
+    deregisterJuror(socket.sessionID);
+    console.log(`Juror deregistered: ${socket.sessionID}`);
   });
 
   socket.on('updateCurrentYear', ({ currentYear: year }) => {
     currentYear = year;
-    
   });
 
- 
-  socket.on('submitUmpireReview', async ({ headlineId, isConsistent, umpireScore }) => {
-    console.log("hi")
-    const result = await processUmpireReview(headlineId, isConsistent, umpireScore);
-
-    if (result.success) {
-      console.log(`is it consistent?: ${isConsistent}`)
-      const playerSocketID = result.playerId.toString();
-      // Emit an event to notify the player of the updated score if the headline is consistent
-      if (isConsistent) {
-        
-        acceptedHeadlines[result.headline] = currentYear;
-       
-        bufferOrEmitMessage(playerSocketID, 'updatePlayerScore', { score: result.combinedScore });
-        // socket.to(userSessions[result.playerId.toString()]).emit('updatePlayerScore', { score: result.combinedScore});
-        bufferOrEmitToAll('updateAverageScore', {score: result.combinedScore});
-        bufferOrEmitToAll('sendPlayerCount', { playerCount: players.getPlayersArray()
-            .filter(player => player.role === 'player')
-            .length
-        });
-        bufferOrEmitToAll('acceptedHeadline', {headline: result.headline, currentYear, plausibility: result.plausibility});
-        
-        bufferOrEmitMessage(playerSocketID, 'updatePlayerStatus', { socketId: result.playerId, headlineId, headline: result.headline, status: 'success' });
-        // socket.to(userSessions[result.playerId.toString()]).emit('updatePlayerStatus', { socketId: result.playerId, headlineId, headline: result.headline, status: 'success' });
-        
+  socket.on('submitJurorReview', async ({ headlineId, isConsistent, plausibilityScore, grammaticallyCorrect, narrativeBuilding, jurorScore, forceAccept }) => {
+    try {
+      const currHeadline = await Headline.findById(headlineId).populate('player');
+      
+      if (!currHeadline) {
+        console.error(`Headline not found for ID: ${headlineId}`);
+        return;
       }
-      else {
-
-        bufferOrEmitMessage(playerSocketID, 'updatePlayerStatus', { socketId: result.playerId, headlineId, headline: result.headline, status: 'failed' });
-        // socket.to(userSessions[result.playerId.toString()]).emit('updatePlayerStatus', { socketId: result.playerId, headlineId, headline: result.headline, status: 'failed' });
+  
+      // Store the juror scores in the database
+      currHeadline.isConsistent = isConsistent;
+      currHeadline.plausibilityScore = plausibilityScore;
+      currHeadline.grammaticallyCorrect = grammaticallyCorrect;
+      currHeadline.narrativeBuilding = narrativeBuilding;
+      currHeadline.jurorScore = jurorScore;
+      currHeadline.forceAccept = forceAccept;
+      
+      // Save the changes to the database
+      await currHeadline.save();
+  
+      // Find the sessionID associated with the player's socketId from the userSessions dictionary
+      const playerSessionID = Object.keys(userSessions).find(key => userSessions[key] === currHeadline.player.socketId.toString());
+  
+      if (!playerSessionID) {
+        console.error(`Player session not found for socket ID: ${currHeadline.player.socketId}`);
+        return;
       }
-      console.log('Umpire review submitted and player score updated');
-    } else {
-      console.error('Error processing umpire review:', result.error);
+  
+      // Buffer or emit the 'sendHeadlinePlausibilityScore' message
+      bufferOrEmitMessage(playerSessionID, 'sendHeadlinePlausibilityScore', { 
+        plausibility: plausibilityScore, 
+        headline: currHeadline.headline 
+      });
+  
+      // Notify the player to roll the dice
+      bufferOrEmitMessage(playerSessionID, 'updatePlayerStatus', { 
+        headline: currHeadline.headline, 
+        status: 'Roll the dice!' 
+      });
+  
+    } catch (error) {
+      console.error(`Error saving juror review for headline ID "${headlineId}":`, error);
     }
   });
-
-
+  
+  
+  socket.on('RollDice', async ({ diceRollNumber, headlineID }) => {
+    try {
+      const { headline, accepted } = await processDiceRoll(headlineID, socket.sessionID, diceRollNumber);// issue with session ID because it looks for jurorbut acc gets player
+      
+      if (!headline) {
+        console.error(`Headline not found for ID: ${headlineID}`);
+        return;
+      }
+  
+      // Find the sessionID associated with the player's socketId from the userSessions dictionary
+      const playerSessionID = userSessions[headline.player.socketId.toString()];
+  
+      if (!playerSessionID) {
+        console.error(`Player session not found for socket ID: ${headline.player.socketId}`);
+        return;
+      }
+  
+      // Check if the headline is consistent
+      if (headline.isConsistent) {
+        if (accepted) {
+          acceptedHeadlines[headline.headline] = currentYear;
+          
+          // Buffer or emit the 'updatePlayerStatus' message with success status
+          bufferOrEmitMessage(playerSessionID, 'updatePlayerStatus', {
+            headline: headline.headline,
+            status: 'success'
+          });
+  
+          // Emit accepted headline to all players
+          bufferOrEmitToAll('acceptedHeadline', {
+            headline: headline.headline,
+            currentYear,
+            plausibility: headline.plausibility
+          });
+        } else {
+          // Buffer or emit the 'updatePlayerStatus' message with failed status
+          bufferOrEmitMessage(playerSessionID, 'updatePlayerStatus', {
+            headline: headline.headline,
+            status: 'failed'
+          });
+        }
+      } else {
+        // If the headline is not consistent, notify the player of failure
+        bufferOrEmitMessage(playerSessionID, 'updatePlayerStatus', {
+          socketId: playerSessionID,
+          headlineId: headlineID,
+          headline: headline.headline,
+          status: 'failed'
+        });
+      }
+  
+      // Process player scores
+      processPlayerScores(io, socket, headlineID, bufferOrEmitToAll);
+  
+    } catch (error) {
+      console.error(`Error processing dice roll for headline ID "${headlineID}":`, error);
+    }
+  });
+  
+      
   socket.on('endGame', ()=>{
 
     const playersArray = players.getPlayersArray();
@@ -477,6 +528,8 @@ const handleSocketConnection = (socket, io) => {
     // Helper function to buffer or emit a message
   function bufferOrEmitMessage(sessionID, event, data) {
     if (userSessions[sessionID] && io.sockets.sockets.get(userSessions[sessionID])) {
+
+      console.log(`this message is being sent to ${userSessions[sessionID]} with this message ${JSON.stringify(event)}||||| ${JSON.stringify(data)}`)
       io.to(userSessions[sessionID]).emit(event, data);
     } else {
       messageBuffers[sessionID] = messageBuffers[sessionID] || [];

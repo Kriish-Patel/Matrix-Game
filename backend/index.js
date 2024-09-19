@@ -19,7 +19,7 @@ const sessionStore = require('./sessionStore.js')
 //   credentials: true
 // };
 const corsOptions = {
-  origin: "https://headlines-game-frontend.onrender.com", // Allow only your frontend's origin
+  origin: "http://localhost:3000",//"https://headlines-game-frontend.onrender.com", // Allow only your frontend's origin
   methods: ['GET', 'POST'],
   credentials: true, // Allow credentials to be sent
 };
